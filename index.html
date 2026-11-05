@@ -809,8 +809,8 @@ document.getElementById('ub-close').addEventListener('click',()=>{
 
 <script>
 /* =========================================================
-   ZYNNOS — 3D ROTATING TORUS — Pure WebGL (no CDN)
-   Dark metallic ring + specular light beam (Phong model)
+   ZYNNOS — ICOSAEDRO 3D GIRANDO — Pure WebGL (no CDN)
+   Material metálico oscuro + haz de luz especular (Phong)
    ========================================================= */
 (function(){
   var cv = document.getElementById('silk-canvas');
@@ -819,7 +819,6 @@ document.getElementById('ub-close').addEventListener('click',()=>{
   var gl = cv.getContext('webgl', {alpha:true, antialias:true, premultipliedAlpha:false, depth:true});
   if (!gl) { cv.style.display='none'; return; }
 
-  /* ---- compile helper ---- */
   function sh(type, src) {
     var s = gl.createShader(type);
     gl.shaderSource(s, src); gl.compileShader(s);
@@ -827,7 +826,6 @@ document.getElementById('ub-close').addEventListener('click',()=>{
     return s;
   }
 
-  /* ---- vertex shader ---- */
   var VS = `
     attribute vec3 aPos;
     attribute vec3 aNor;
@@ -844,14 +842,12 @@ document.getElementById('ub-close').addEventListener('click',()=>{
     }
   `;
 
-  /* ---- fragment shader — dark metallic Phong + rim ---- */
   var FS = `
     precision highp float;
     varying vec3 vPos;
     varying vec3 vNor;
-    uniform vec3  uLight;    /* world-space light pos  */
-    uniform vec3  uCam;      /* camera pos             */
-    uniform float uTime;
+    uniform vec3 uLight;
+    uniform vec3 uCam;
 
     void main(){
       vec3 N = normalize(vNor);
@@ -859,40 +855,30 @@ document.getElementById('ub-close').addEventListener('click',()=>{
       vec3 V = normalize(uCam   - vPos);
       vec3 H = normalize(L + V);
 
-      /* base: near-black dark steel */
-      vec3 baseCol = vec3(0.04, 0.05, 0.04);
+      /* base negra metálica */
+      vec3 base = vec3(0.03, 0.05, 0.03);
+      vec3 amb  = base * 0.20;
 
-      /* ambient */
-      vec3 amb = baseCol * 0.18;
-
-      /* diffuse — very subtle so ring stays dark */
       float diff = max(dot(N,L), 0.0);
-      vec3  dif  = baseCol * diff * 0.25;
+      vec3  dif  = base * diff * 0.18;
 
-      /* ### CAMBIO AQUÍ ### specular más intenso — haz de luz prominente */
-      float spec  = pow(max(dot(N,H), 0.0), 220.0);
-      vec3  sCol  = mix(vec3(0.5,1.0,0.7), vec3(1.0,1.0,1.0), spec);
-      vec3  spc   = sCol * spec * 5.0;
+      /* haz especular intenso teal-blanco */
+      float spec = pow(max(dot(N,H), 0.0), 200.0);
+      vec3  spc  = mix(vec3(0.4,1.0,0.65), vec3(1.0,1.0,1.0), spec) * spec * 6.0;
 
-      /* wide soft glow — aureola alrededor del haz */
-      float glow  = pow(max(dot(N,H), 0.0), 14.0);
-      vec3  glowC = vec3(0.10, 0.65, 0.42) * glow * 0.70;
+      /* aureola suave alrededor del haz */
+      float glow = pow(max(dot(N,H), 0.0), 12.0);
+      vec3  glw  = vec3(0.08, 0.60, 0.38) * glow * 0.80;
 
-      /* rim light — borde verde lima del anillo */
-      float rim   = 1.0 - max(dot(N,V), 0.0);
-      rim = pow(clamp(rim, 0.0, 1.0), 3.0);
-      vec3  rimC  = vec3(0.42, 0.85, 0.12) * rim * 0.45;
+      /* rim verde lima en los bordes */
+      float rim  = pow(1.0 - max(dot(N,V), 0.0), 3.0);
+      vec3  rimC = vec3(0.45, 0.88, 0.10) * rim * 0.50;
 
-      vec3 col = amb + dif + spc + glowC + rimC;
+      vec3 col = amb + dif + spc + glw + rimC;
+      col = col / (col + 0.55);
+      col = pow(col, vec3(0.88));
 
-      /* tone-map — keep it dark but let specular bloom */
-      col = col / (col + 0.6);
-      col = pow(col, vec3(0.9));
-
-      /* alpha: opaque on ring surface, dissolve toward edges */
-      float alpha = 0.92 + spec * 0.08;
-
-      gl_FragColor = vec4(col, alpha);
+      gl_FragColor = vec4(col, 0.94 + spec * 0.06);
     }
   `;
 
@@ -900,96 +886,109 @@ document.getElementById('ub-close').addEventListener('click',()=>{
   gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
   gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
   gl.linkProgram(prog);
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-    console.warn('torus link:', gl.getProgramInfoLog(prog)); return;
-  }
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { console.warn('icosa link:', gl.getProgramInfoLog(prog)); return; }
   gl.useProgram(prog);
 
-  /* ---- torus geometry ---- */
-  /* R = major radius (ring), r = tube radius */
-  var R=1.0, r=0.40, segU=128, segV=72; /* ### CAMBIO AQUÍ ### tubo más grueso */
-  var verts=[], norms=[], idxs=[];
+  /* ---- Icosaedro — 12 vértices, 20 caras ---- */
+  var t = (1 + Math.sqrt(5)) / 2; /* razón áurea */
+  var rawV = [
+    [-1, t,0],[1,t,0],[-1,-t,0],[1,-t,0],
+    [0,-1,t],[0,1,t],[0,-1,-t],[0,1,-t],
+    [t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]
+  ];
+  /* normalizar a esfera unitaria */
+  var len = Math.sqrt(1 + t*t);
+  rawV = rawV.map(function(v){ return [v[0]/len,v[1]/len,v[2]/len]; });
 
-  for (var j=0; j<=segV; j++) {
-    var v = (j/segV)*Math.PI*2;
-    var cv2=Math.cos(v), sv2=Math.sin(v);
-    for (var i=0; i<=segU; i++) {
-      var u = (i/segU)*Math.PI*2;
-      var cu=Math.cos(u), su=Math.sin(u);
-      /* position */
-      var x=(R+r*cv2)*cu, y=r*sv2, z=(R+r*cv2)*su;
-      verts.push(x,y,z);
-      /* normal */
-      var nx=cv2*cu, ny=sv2, nz=cv2*su;
-      norms.push(nx,ny,nz);
-    }
+  /* 20 caras triangulares */
+  var faces = [
+    [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
+    [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
+    [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
+    [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
+  ];
+
+  /* subdivisión 1× para suavizar el specular */
+  function midpoint(a,b,cache,vArr){
+    var key = Math.min(a,b)+','+Math.max(a,b);
+    if(cache[key]!==undefined) return cache[key];
+    var v = [(vArr[a][0]+vArr[b][0])/2,(vArr[a][1]+vArr[b][1])/2,(vArr[a][2]+vArr[b][2])/2];
+    var l = Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
+    v=[v[0]/l,v[1]/l,v[2]/l];
+    cache[key]=vArr.length;
+    vArr.push(v);
+    return cache[key];
   }
-  for (var j=0; j<segV; j++) {
-    for (var i=0; i<segU; i++) {
-      var a=j*(segU+1)+i, b=a+segU+1;
-      idxs.push(a,b,a+1, b,b+1,a+1);
-    }
-  }
+  var vArr = rawV.slice(), cache={};
+  var newFaces=[];
+  faces.forEach(function(f){
+    var a=midpoint(f[0],f[1],cache,vArr);
+    var b=midpoint(f[1],f[2],cache,vArr);
+    var c=midpoint(f[2],f[0],cache,vArr);
+    newFaces.push([f[0],a,c],[f[1],b,a],[f[2],c,b],[a,b,c]);
+  });
+  faces = newFaces;
+  /* subdivisión 2× */
+  cache={}; newFaces=[];
+  faces.forEach(function(f){
+    var a=midpoint(f[0],f[1],cache,vArr);
+    var b=midpoint(f[1],f[2],cache,vArr);
+    var c=midpoint(f[2],f[0],cache,vArr);
+    newFaces.push([f[0],a,c],[f[1],b,a],[f[2],c,b],[a,b,c]);
+  });
+  faces = newFaces;
+
+  /* generar verts/normals/indices — normal por vértice = posición (esfera) */
+  var verts=[], norms=[], idxs=[];
+  faces.forEach(function(f){
+    f.forEach(function(i){
+      var v=vArr[i];
+      verts.push(v[0],v[1],v[2]);
+      norms.push(v[0],v[1],v[2]); /* normal = pos normalizada */
+    });
+  });
+  for(var i=0;i<faces.length*3;i++) idxs.push(i);
 
   var vBuf=gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, vBuf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
-
+  gl.bindBuffer(gl.ARRAY_BUFFER,vBuf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(verts),gl.STATIC_DRAW);
   var nBuf=gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, nBuf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(norms), gl.STATIC_DRAW);
-
+  gl.bindBuffer(gl.ARRAY_BUFFER,nBuf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(norms),gl.STATIC_DRAW);
   var iBuf=gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuf);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idxs), gl.STATIC_DRAW);
-  var indexCount = idxs.length;
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,iBuf);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(idxs),gl.STATIC_DRAW);
 
-  var aPos = gl.getAttribLocation(prog,'aPos');
-  var aNor = gl.getAttribLocation(prog,'aNor');
-  var uMVP = gl.getUniformLocation(prog,'uMVP');
-  var uM_  = gl.getUniformLocation(prog,'uM');
-  var uNM  = gl.getUniformLocation(prog,'uNM');
+  var aPos=gl.getAttribLocation(prog,'aPos');
+  var aNor=gl.getAttribLocation(prog,'aNor');
+  var uMVP=gl.getUniformLocation(prog,'uMVP');
+  var uM_ =gl.getUniformLocation(prog,'uM');
+  var uNM =gl.getUniformLocation(prog,'uNM');
   var uLight=gl.getUniformLocation(prog,'uLight');
   var uCam  =gl.getUniformLocation(prog,'uCam');
-  var uTime =gl.getUniformLocation(prog,'uTime');
 
-  /* ---- matrix math (column-major, WebGL style) ---- */
+  /* matrices */
   function mat4(){return new Float32Array(16);}
   function ident(m){m[0]=m[5]=m[10]=m[15]=1;m[1]=m[2]=m[3]=m[4]=m[6]=m[7]=m[8]=m[9]=m[11]=m[12]=m[13]=m[14]=0;return m;}
-  function mul(out,a,b){
-    for(var i=0;i<4;i++)for(var j=0;j<4;j++){var s=0;for(var k=0;k<4;k++)s+=a[i+k*4]*b[k+j*4];out[i+j*4]=s;}
-    return out;
-  }
-  function rotY(m,ang){var c=Math.cos(ang),s=Math.sin(ang);ident(m);m[0]=c;m[8]=s;m[2]=-s;m[10]=c;return m;}
-  function rotX(m,ang){var c=Math.cos(ang),s=Math.sin(ang);ident(m);m[5]=c;m[9]=-s;m[6]=s;m[10]=c;return m;}  /* ### CAMBIO AQUÍ ### tilt para ver anillo en perspectiva */
-  function persp(m,fov,asp,near,far){
-    var f=1/Math.tan(fov/2);
-    ident(m);
-    m[0]=f/asp; m[5]=f;
-    m[10]=(far+near)/(near-far);
-    m[11]=-1; m[14]=(2*far*near)/(near-far); m[15]=0;
-    return m;
-  }
+  function mul(out,a,b){for(var i=0;i<4;i++)for(var j=0;j<4;j++){var s=0;for(var k=0;k<4;k++)s+=a[i+k*4]*b[k+j*4];out[i+j*4]=s;}return out;}
+  function rotY(m,a){var c=Math.cos(a),s=Math.sin(a);ident(m);m[0]=c;m[8]=s;m[2]=-s;m[10]=c;return m;}
+  function rotX(m,a){var c=Math.cos(a),s=Math.sin(a);ident(m);m[5]=c;m[9]=-s;m[6]=s;m[10]=c;return m;}
+  function persp(m,fov,asp,near,far){var f=1/Math.tan(fov/2);ident(m);m[0]=f/asp;m[5]=f;m[10]=(far+near)/(near-far);m[11]=-1;m[14]=(2*far*near)/(near-far);m[15]=0;return m;}
   function lookAt(m,eye,center,up){
     var fx=center[0]-eye[0],fy=center[1]-eye[1],fz=center[2]-eye[2];
     var fl=Math.sqrt(fx*fx+fy*fy+fz*fz);fx/=fl;fy/=fl;fz/=fl;
     var rx=fy*up[2]-fz*up[1],ry=fz*up[0]-fx*up[2],rz=fx*up[1]-fy*up[0];
     var rl=Math.sqrt(rx*rx+ry*ry+rz*rz);rx/=rl;ry/=rl;rz/=rl;
     var ux=ry*fz-rz*fy,uy=rz*fx-rx*fz,uz=rx*fy-ry*fx;
-    m[0]=rx;m[1]=ux;m[2]=-fx;m[3]=0;
-    m[4]=ry;m[5]=uy;m[6]=-fy;m[7]=0;
+    m[0]=rx;m[1]=ux;m[2]=-fx;m[3]=0;m[4]=ry;m[5]=uy;m[6]=-fy;m[7]=0;
     m[8]=rz;m[9]=uz;m[10]=-fz;m[11]=0;
     m[12]=-(rx*eye[0]+ry*eye[1]+rz*eye[2]);
     m[13]=-(ux*eye[0]+uy*eye[1]+uz*eye[2]);
     m[14]= (fx*eye[0]+fy*eye[1]+fz*eye[2]);
-    m[15]=1;
-    return m;
+    m[15]=1;return m;
   }
-  function mat3from4(m4){
-    return new Float32Array([m4[0],m4[1],m4[2], m4[4],m4[5],m4[6], m4[8],m4[9],m4[10]]);
-  }
+  function mat3from4(m){return new Float32Array([m[0],m[1],m[2],m[4],m[5],m[6],m[8],m[9],m[10]]);}
 
-  /* ---- resize ---- */
   var W,H;
   function resize(){
     W=shell.offsetWidth||window.innerWidth;
@@ -1001,32 +1000,22 @@ document.getElementById('ub-close').addEventListener('click',()=>{
   resize();
   window.addEventListener('resize',resize,{passive:true});
 
-  /* ---- GL state ---- */
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-  gl.enable(gl.CULL_FACE);
-  gl.cullFace(gl.BACK);
 
-  /* ---- pre-alloc matrices ---- */
-  var mRY=mat4(), mRX=mat4(), mModel=mat4(), mTmp=mat4();
-  var mView=mat4(), mProj=mat4(), mVP=mat4(), mMVP=mat4();
+  var mRY=mat4(),mRX=mat4(),mRZ=mat4(),mModel=mat4(),mTmp=mat4();
+  var mView=mat4(),mProj=mat4(),mVP=mat4(),mMVP=mat4();
 
-  /* ### CAMBIO AQUÍ ### tilt ~25°, cámara más cerca para que llene el hero */
-  var tiltX = -0.44;
+  /* ### CAMBIO AQUÍ ### icosaedro — rotación lenta en Y, leve tilt */
+  var eye=[-0.9,0.2,3.5];
+  var lightPos=[4.0,3.5,3.0];
 
-  /* camera — desplazada a la derecha para que el anillo aparezca a la derecha del hero */
-  var eye=[-0.8,0.3,3.6];
-
-  /* light position — lateral arriba para haz dramático */
-  var lightPos=[4.0, 3.5, 3.0];
-
-  /* ocultar el isotipo estático — el torus lo reemplaza */
+  /* ocultar isotipo PNG estático */
   var isoEl=document.querySelector('.hero-iso');
   if(isoEl) isoEl.style.display='none';
 
   var t0=performance.now();
-
   function frame(){
     requestAnimationFrame(frame);
     var t=(performance.now()-t0)*0.001;
@@ -1034,38 +1023,33 @@ document.getElementById('ub-close').addEventListener('click',()=>{
     gl.clearColor(0,0,0,0);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 
-    /* model: spin Y slowly + fixed X tilt */
-    rotY(mRY, t * 0.55);            /* ### CAMBIO AQUÍ ### velocidad de rotación */
-    rotX(mRX, tiltX);
+    /* rotación suave multi-eje como en el video */
+    rotY(mRY, t * 0.45);
+    rotX(mRX, 0.30 + Math.sin(t*0.18)*0.12);
     mul(mModel, mRX, mRY);
 
-    /* view + projection */
     lookAt(mView, eye, [0,0,0], [0,1,0]);
-    persp(mProj, 0.72, W/H, 0.1, 50.0);
+    persp(mProj, 0.78, W/H, 0.1, 50.0);
     mul(mVP, mProj, mView);
     mul(mMVP, mVP, mModel);
 
-    /* bind positions */
-    gl.bindBuffer(gl.ARRAY_BUFFER, vBuf);
+    gl.bindBuffer(gl.ARRAY_BUFFER,vBuf);
     gl.enableVertexAttribArray(aPos);
     gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0);
 
-    /* bind normals */
-    gl.bindBuffer(gl.ARRAY_BUFFER, nBuf);
+    gl.bindBuffer(gl.ARRAY_BUFFER,nBuf);
     gl.enableVertexAttribArray(aNor);
     gl.vertexAttribPointer(aNor,3,gl.FLOAT,false,0,0);
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuf);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,iBuf);
 
-    /* uniforms */
     gl.uniformMatrix4fv(uMVP,false,mMVP);
     gl.uniformMatrix4fv(uM_,false,mModel);
     gl.uniformMatrix3fv(uNM,false,mat3from4(mModel));
     gl.uniform3fv(uLight,lightPos);
     gl.uniform3fv(uCam,eye);
-    gl.uniform1f(uTime,t);
 
-    gl.drawElements(gl.TRIANGLES,indexCount,gl.UNSIGNED_SHORT,0);
+    gl.drawElements(gl.TRIANGLES,idxs.length,gl.UNSIGNED_SHORT,0);
   }
   frame();
 })();
