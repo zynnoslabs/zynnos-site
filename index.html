@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -350,6 +349,30 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
 
 /* REVEAL */
 .r,.rl,.rs{opacity:1;transform:none}
+
+/* ── CALCULADORA INTELIGENTE ── */
+.calc-step{padding:0}
+.calc-progress{width:100%;height:3px;background:var(--border);border-radius:100px;margin-bottom:1rem;overflow:hidden}
+.calc-prog-fill{display:block;height:100%;background:var(--lime);border-radius:100px;transition:width .4s ease}
+.calc-step-label{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--fg3);margin-bottom:.6rem}
+.calc-options{display:flex;flex-direction:column;gap:.45rem;margin:.6rem 0 1rem}
+.calc-opt{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:.75rem 1rem;color:var(--fg2);font-family:var(--ff-b);font-size:.88rem;text-align:left;cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.calc-opt:hover{border-color:var(--fg2);color:var(--fg)}
+.calc-opt.selected{border-color:var(--teal);color:var(--fg);background:rgba(52,201,148,.07)}
+.calc-next{width:100%;padding:.72rem;border-radius:var(--r);background:var(--surface);border:1px solid var(--border2);color:var(--fg2);font-family:var(--ff-d);font-weight:700;font-size:.88rem;cursor:not-allowed;transition:all .2s;margin-top:.25rem}
+.calc-next:not(:disabled){background:var(--lime);color:#0a1409;border-color:var(--lime);cursor:pointer}
+.calc-next:not(:disabled):hover{background:var(--lime-d)}
+/* Loading */
+.calc-loading-wrap{text-align:center;padding:2.5rem 0}
+.calc-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--lime);border-radius:50%;animation:spin .9s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.calc-loading-txt{font-size:.88rem;color:var(--fg2)}
+.calc-dots::after{content:'';animation:dots 1.4s steps(4,end) infinite}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%,100%{content:'...'}}
+/* Resultado */
+.calc-result-icon{font-size:2rem;text-align:center;margin-bottom:.75rem}
+.calc-result-title{font-family:var(--ff-d);font-weight:700;font-size:1.1rem;text-align:center;margin-bottom:.75rem}
+.calc-result-body{font-size:.83rem;color:var(--fg2);line-height:1.7;margin-bottom:1.25rem;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:.9rem 1rem}
 </style>
 </head>
 <body>
@@ -453,53 +476,123 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
   <div class="stat r" role="listitem"><div class="stat-n">24<sup>h</sup></div><div class="stat-l">Soporte de respuesta</div></div>
 </div>
 
-<!-- AUDITORÍA GRATUITA — RECIPROCIDAD -->
+<!-- CALCULADORA INTELIGENTE -->
 <div class="sec-shell audit-shell" id="auditoria">
 <div class="sec audit">
   <div class="audit-left">
-    <div class="audit-badge r"><span class="audit-badge-dot"></span>100% gratuito · sin compromiso</div>
-    <h2 class="audit-h r">Te decimos <em>exactamente</em><br>qué podés automatizar</h2>
-    <p class="audit-sub r">Analizamos tu negocio en 48 horas y te entregamos un informe concreto: qué tareas pueden funcionar solas, cuánto tiempo te ahorra, y cómo lo haríamos.</p>
+    <div class="audit-badge r"><span class="audit-badge-dot"></span>Diagnóstico inteligente · sin compromiso</div>
+    <h2 class="audit-h r">Descubrí cuánto te cuesta<br><em>no automatizar</em> hoy</h2>
+    <p class="audit-sub r">Respondé 4 preguntas sobre tu negocio. Nuestra IA analiza tu situación y te dice exactamente qué podemos hacer por vos — y cuánto estás perdiendo sin hacerlo.</p>
     <div class="audit-items r">
-      <div class="audit-item"><div class="audit-check">✓</div><span>Diagnóstico de procesos repetitivos en tu operación</span></div>
-      <div class="audit-item"><div class="audit-check">✓</div><span>Mapa de qué se puede automatizar con IA hoy mismo</span></div>
-      <div class="audit-item"><div class="audit-check">✓</div><span>Estimación de tiempo y costo de implementación</span></div>
+      <div class="audit-item"><div class="audit-check">✓</div><span>Diagnóstico personalizado basado en tu realidad</span></div>
+      <div class="audit-item"><div class="audit-check">✓</div><span>Solución concreta de Zynnos para tu problema</span></div>
+      <div class="audit-item"><div class="audit-check">✓</div><span>WhatsApp pre-cargado con tu diagnóstico completo</span></div>
       <div class="audit-item"><div class="audit-check">✓</div><span>Sin venta agresiva — si no te conviene, te lo decimos</span></div>
     </div>
   </div>
   <div class="audit-form r" id="audit-form-wrap">
-    <div id="audit-fields">
-      <p class="audit-form-title">Quiero mi auditoría gratuita</p>
-      <p class="audit-form-sub">Respondemos en menos de <b>2 horas hábiles</b></p>
-      <div class="af-group">
-        <label for="af-nombre">Tu nombre</label>
-        <input type="text" id="af-nombre" placeholder="Pedro García" autocomplete="name">
+
+    <!-- PASO 1 de 4 -->
+    <div class="calc-step" id="calc-step-1">
+      <div class="calc-progress"><span class="calc-prog-fill" style="width:25%"></span></div>
+      <p class="calc-step-label">Paso 1 de 4</p>
+      <p class="audit-form-title">¿En qué rubro está tu negocio?</p>
+      <div class="calc-options" id="calc-rubro">
+        <button class="calc-opt" data-val="Comercio / Retail">🛍 Comercio / Retail</button>
+        <button class="calc-opt" data-val="Gastronomía / Delivery">🍕 Gastronomía / Delivery</button>
+        <button class="calc-opt" data-val="Servicios profesionales">💼 Servicios profesionales</button>
+        <button class="calc-opt" data-val="Salud / Estética / Bienestar">💆 Salud / Estética / Bienestar</button>
+        <button class="calc-opt" data-val="Educación / Consultoría">📚 Educación / Consultoría</button>
+        <button class="calc-opt" data-val="Inmobiliaria / Construcción">🏠 Inmobiliaria / Construcción</button>
+        <button class="calc-opt" data-val="Otro">✏️ Otro (lo describo abajo)</button>
       </div>
-      <div class="af-group">
-        <label for="af-rubro">Rubro de tu negocio</label>
-        <select id="af-rubro">
-          <option value="" disabled selected>Seleccioná tu rubro</option>
-          <option>Comercio / Retail</option>
-          <option>Gastronomía / Delivery</option>
-          <option>Servicios profesionales</option>
-          <option>Salud / Estética / Bienestar</option>
-          <option>Educación / Consultoría</option>
-          <option>Inmobiliaria / Construcción</option>
-          <option>Otro</option>
-        </select>
+      <div class="af-group" id="otro-rubro-group" style="display:none;margin-top:.75rem">
+        <label for="otro-rubro-txt">Contanos tu rubro</label>
+        <input type="text" id="otro-rubro-txt" placeholder="ej: taller mecánico, librería...">
       </div>
-      <div class="af-group">
-        <label for="af-wp">WhatsApp</label>
-        <input type="tel" id="af-wp" placeholder="+54 9 11 1234-5678" autocomplete="tel">
-      </div>
-      <a class="af-submit" id="af-submit" href="#" onclick="return submitAudit(event)">Quiero mi auditoría gratuita →</a>
-      <p class="af-disclaimer">Tus datos no se comparten con terceros. Solo te contactamos para la auditoría.</p>
+      <button class="calc-next" id="next-1" onclick="calcNext(1)" disabled>Siguiente →</button>
     </div>
-    <div class="audit-sent" id="audit-sent">
-      <div class="audit-sent-icon">🎯</div>
-      <h3>¡Recibimos tu solicitud!</h3>
-      <p>Te contactamos por WhatsApp en las próximas <strong style="color:var(--teal)">2 horas hábiles</strong> con tu diagnóstico personalizado.</p>
+
+    <!-- PASO 2 de 4 -->
+    <div class="calc-step" id="calc-step-2" hidden>
+      <div class="calc-progress"><span class="calc-prog-fill" style="width:50%"></span></div>
+      <p class="calc-step-label">Paso 2 de 4</p>
+      <p class="audit-form-title">¿Cuántas consultas o pedidos recibís por día?</p>
+      <div class="calc-options" id="calc-consultas">
+        <button class="calc-opt" data-val="Menos de 5">Menos de 5</button>
+        <button class="calc-opt" data-val="5 a 20">5 a 20</button>
+        <button class="calc-opt" data-val="20 a 50">20 a 50</button>
+        <button class="calc-opt" data-val="Más de 50">Más de 50</button>
+      </div>
+      <button class="calc-next" id="next-2" onclick="calcNext(2)" disabled>Siguiente →</button>
     </div>
+
+    <!-- PASO 3 de 4 -->
+    <div class="calc-step" id="calc-step-3" hidden>
+      <div class="calc-progress"><span class="calc-prog-fill" style="width:75%"></span></div>
+      <p class="calc-step-label">Paso 3 de 4</p>
+      <p class="audit-form-title">¿Cuál es tu mayor dolor de cabeza operativo?</p>
+      <div class="calc-options" id="calc-problema">
+        <button class="calc-opt" data-val="Responder consultas a tiempo">⏱ Responder consultas a tiempo</button>
+        <button class="calc-opt" data-val="Seguimiento de clientes y ventas">🔁 Seguimiento de clientes y ventas</button>
+        <button class="calc-opt" data-val="Tareas manuales y repetitivas">🔧 Tareas manuales y repetitivas</button>
+        <button class="calc-opt" data-val="Gestión de turnos o reservas">📅 Gestión de turnos o reservas</button>
+        <button class="calc-opt" data-val="Reportes y control de negocio">📊 Reportes y control de negocio</button>
+        <button class="calc-opt" data-val="Otro problema">✏️ Otro (lo cuento abajo)</button>
+      </div>
+      <div class="af-group" id="otro-prob-group" style="display:none;margin-top:.75rem">
+        <label for="otro-prob-txt">Contanos tu problema</label>
+        <input type="text" id="otro-prob-txt" placeholder="ej: pierdo pedidos por WhatsApp...">
+      </div>
+      <button class="calc-next" id="next-3" onclick="calcNext(3)" disabled>Siguiente →</button>
+    </div>
+
+    <!-- PASO 4 de 4 -->
+    <div class="calc-step" id="calc-step-4" hidden>
+      <div class="calc-progress"><span class="calc-prog-fill" style="width:100%"></span></div>
+      <p class="calc-step-label">Paso 4 de 4</p>
+      <p class="audit-form-title">¿A quién le mandamos el diagnóstico?</p>
+      <div class="af-group">
+        <label for="calc-nombre">Tu nombre</label>
+        <input type="text" id="calc-nombre" placeholder="Pedro García" autocomplete="name">
+      </div>
+      <div class="af-group">
+        <label for="calc-email">Email</label>
+        <input type="email" id="calc-email" placeholder="pedro@tunegocio.com" autocomplete="email">
+      </div>
+      <div class="af-group">
+        <label for="calc-tel">WhatsApp (opcional)</label>
+        <input type="tel" id="calc-tel" placeholder="+54 9 11 1234-5678" autocomplete="tel">
+      </div>
+      <button class="af-submit" id="calc-enviar" onclick="calcEnviar(event)">Analizar mi negocio →</button>
+      <p class="af-disclaimer">Tus datos no se comparten con terceros.</p>
+    </div>
+
+    <!-- CARGANDO -->
+    <div class="calc-step" id="calc-loading" hidden>
+      <div class="calc-loading-wrap">
+        <div class="calc-spinner"></div>
+        <p class="calc-loading-txt">Analizando tu negocio<span class="calc-dots"></span></p>
+      </div>
+    </div>
+
+    <!-- RESULTADO -->
+    <div class="calc-step" id="calc-result" hidden>
+      <div class="calc-result-icon">🎯</div>
+      <h3 class="calc-result-title" id="calc-result-title">Tu diagnóstico</h3>
+      <div class="calc-result-body" id="calc-result-body"></div>
+      <a class="af-submit" id="calc-wa-btn" href="#" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;text-decoration:none">Hablar con Zynnos por WhatsApp →</a>
+      <p class="af-disclaimer" style="margin-top:.5rem">Te atendemos en menos de 2 horas hábiles</p>
+    </div>
+
+    <!-- ERROR -->
+    <div class="calc-step" id="calc-error" hidden>
+      <div class="audit-sent-icon">⚠️</div>
+      <h3>Algo salió mal</h3>
+      <p style="font-size:.82rem;color:var(--fg2);margin:.5rem 0 1rem">No pudimos analizar tu consulta. Podés escribirnos directamente.</p>
+      <a class="af-submit" id="calc-wa-fallback" href="https://wa.me/5491100000000" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;text-decoration:none">Escribir a Zynnos →</a>
+    </div>
+
   </div>
 </div>
 </div>
@@ -762,43 +855,125 @@ if(matchMedia('(prefers-reduced-motion:reduce)').matches){
   document.querySelectorAll('.r,.rl,.rs').forEach(el=>{el.style.opacity=1;el.style.transform='none';});
 }
 
-// Auditoría form
-function submitAudit(e){
-  e.preventDefault();
-  const nEl = document.getElementById('af-nombre');
-  const rEl = document.getElementById('af-rubro');
-  const wEl = document.getElementById('af-wp');
-  const nombre = nEl.value.trim();
-  const rubro  = rEl.value;
-  const wp     = wEl.value.trim();
+// ── CALCULADORA INTELIGENTE ──────────────────────────────────────────────────
+const calcData = { rubro:'', consultas:'', problema:'', nombre:'', email:'', tel:'' };
 
-  // Limpiar errores previos
-  [nEl,rEl,wEl].forEach(el=>el.classList.remove('error'));
+// Inicializar opciones de cada paso
+(function initCalc(){
+  // Para cada grupo de opciones, al hacer click selecciona y habilita "Siguiente"
+  ['calc-rubro','calc-consultas','calc-problema'].forEach((groupId, stepIdx)=>{
+    const group = document.getElementById(groupId);
+    if(!group) return;
+    group.querySelectorAll('.calc-opt').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        group.querySelectorAll('.calc-opt').forEach(b=>b.classList.remove('selected'));
+        btn.classList.add('selected');
+        const nextBtn = document.getElementById('next-'+(stepIdx+1));
+        if(nextBtn) nextBtn.disabled = false;
 
-  let hasError = false;
-  if(!nombre){ nEl.classList.add('error'); nEl.focus(); hasError=true; }
-  if(!rubro) { rEl.classList.add('error'); if(!hasError){rEl.focus();} hasError=true; }
-  // Validar que wp tenga al menos 8 dígitos
-  if(!wp || wp.replace(/\D/g,'').length < 8){
-    wEl.classList.add('error');
-    if(!hasError){wEl.focus();}
-    hasError=true;
+        // Mostrar/ocultar campo "Otro"
+        if(stepIdx===0){
+          const isOtro = btn.dataset.val==='Otro';
+          document.getElementById('otro-rubro-group').style.display = isOtro?'block':'none';
+        }
+        if(stepIdx===2){
+          const isOtro = btn.dataset.val==='Otro problema';
+          document.getElementById('otro-prob-group').style.display = isOtro?'block':'none';
+        }
+      });
+    });
+  });
+})();
+
+function calcShow(id){
+  ['calc-step-1','calc-step-2','calc-step-3','calc-step-4','calc-loading','calc-result','calc-error']
+    .forEach(s=>{ const el=document.getElementById(s); if(el) el.hidden=true; });
+  const target = document.getElementById(id);
+  if(target) target.hidden = false;
+}
+
+function calcNext(step){
+  if(step===1){
+    const sel = document.querySelector('#calc-rubro .calc-opt.selected');
+    if(!sel) return;
+    let val = sel.dataset.val;
+    if(val==='Otro'){
+      const txt = document.getElementById('otro-rubro-txt').value.trim();
+      val = txt || 'Otro';
+    }
+    calcData.rubro = val;
+    calcShow('calc-step-2');
+  } else if(step===2){
+    const sel = document.querySelector('#calc-consultas .calc-opt.selected');
+    if(!sel) return;
+    calcData.consultas = sel.dataset.val;
+    calcShow('calc-step-3');
+  } else if(step===3){
+    const sel = document.querySelector('#calc-problema .calc-opt.selected');
+    if(!sel) return;
+    let val = sel.dataset.val;
+    if(val==='Otro problema'){
+      const txt = document.getElementById('otro-prob-txt').value.trim();
+      val = txt || 'Otro problema';
+    }
+    calcData.problema = val;
+    calcShow('calc-step-4');
   }
-  if(hasError) return false;
+}
 
-  // Construir link WhatsApp — el usuario hace click directo (evita bloqueo popup)
-  const msg = encodeURIComponent(`Hola Zynnos! Me interesa la auditoría gratuita.\nNombre: ${nombre}\nRubro: ${rubro}\nWhatsApp: ${wp}`);
-  const btn = document.getElementById('af-submit');
-  btn.href = `https://wa.me/5491100000000?text=${msg}`;
-  btn.target = '_blank';
-  btn.rel = 'noopener';
+async function calcEnviar(e){
+  e.preventDefault();
+  const nombre = document.getElementById('calc-nombre').value.trim();
+  const email  = document.getElementById('calc-email').value.trim();
+  const tel    = document.getElementById('calc-tel').value.trim();
 
-  // Mostrar confirmación tras breve delay
-  setTimeout(()=>{
-    document.getElementById('audit-fields').style.display='none';
-    document.getElementById('audit-sent').style.display='block';
-  }, 300);
-  return true;
+  if(!nombre){ document.getElementById('calc-nombre').focus(); return; }
+  if(!email || !email.includes('@')){ document.getElementById('calc-email').focus(); return; }
+
+  calcData.nombre = nombre;
+  calcData.email  = email;
+  calcData.tel    = tel;
+
+  calcShow('calc-loading');
+
+  try {
+    const res = await fetch('/api/diagnostico', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(calcData)
+    });
+
+    if(!res.ok) throw new Error('API error '+res.status);
+    const data = await res.json();
+
+    // Mostrar resultado
+    document.getElementById('calc-result-body').innerHTML =
+      (data.diagnostico||'').replace(/\n/g,'<br>');
+
+    // Armar link WhatsApp pre-cargado
+    const waTxt = encodeURIComponent(
+      `Hola Zynnos! Hice el diagnóstico en su web.\n`+
+      `*Nombre:* ${nombre}\n`+
+      `*Rubro:* ${calcData.rubro}\n`+
+      `*Consultas/día:* ${calcData.consultas}\n`+
+      `*Problema:* ${calcData.problema}\n\n`+
+      `*Solución sugerida:* ${data.solucion||''}\n\n`+
+      `Quiero saber más.`
+    );
+    document.getElementById('calc-wa-btn').href =
+      `https://wa.me/5491100000000?text=${waTxt}`;
+
+    calcShow('calc-result');
+  } catch(err){
+    // Fallback: mandamos directo a WhatsApp con los datos básicos
+    const waTxt = encodeURIComponent(
+      `Hola Zynnos! Completé el diagnóstico en su web.\n`+
+      `Nombre: ${nombre} | Rubro: ${calcData.rubro} | Problema: ${calcData.problema}`
+    );
+    document.getElementById('calc-wa-fallback').href =
+      `https://wa.me/5491100000000?text=${waTxt}`;
+    calcShow('calc-error');
+  }
 }
 
 // Urgency bar: ocultar al cerrar y reajustar hero padding
@@ -823,4 +998,3 @@ document.getElementById('ub-close').addEventListener('click',()=>{
 </script>
 </body>
 </html>
-</body></html>
