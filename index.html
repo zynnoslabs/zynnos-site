@@ -908,46 +908,23 @@ document.getElementById('ub-close').addEventListener('click',()=>{
     [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
   ];
 
-  /* subdivisión 1× para suavizar el specular */
-  function midpoint(a,b,cache,vArr){
-    var key = Math.min(a,b)+','+Math.max(a,b);
-    if(cache[key]!==undefined) return cache[key];
-    var v = [(vArr[a][0]+vArr[b][0])/2,(vArr[a][1]+vArr[b][1])/2,(vArr[a][2]+vArr[b][2])/2];
-    var l = Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
-    v=[v[0]/l,v[1]/l,v[2]/l];
-    cache[key]=vArr.length;
-    vArr.push(v);
-    return cache[key];
-  }
-  var vArr = rawV.slice(), cache={};
-  var newFaces=[];
-  faces.forEach(function(f){
-    var a=midpoint(f[0],f[1],cache,vArr);
-    var b=midpoint(f[1],f[2],cache,vArr);
-    var c=midpoint(f[2],f[0],cache,vArr);
-    newFaces.push([f[0],a,c],[f[1],b,a],[f[2],c,b],[a,b,c]);
-  });
-  faces = newFaces;
-  /* subdivisión 2× */
-  cache={}; newFaces=[];
-  faces.forEach(function(f){
-    var a=midpoint(f[0],f[1],cache,vArr);
-    var b=midpoint(f[1],f[2],cache,vArr);
-    var c=midpoint(f[2],f[0],cache,vArr);
-    newFaces.push([f[0],a,c],[f[1],b,a],[f[2],c,b],[a,b,c]);
-  });
-  faces = newFaces;
-
-  /* generar verts/normals/indices — normal por vértice = posición (esfera) */
+  /* ### CAMBIO AQUÍ ### sin subdivisión — normales FLAT por cara para ver las 20 caras angulares */
   var verts=[], norms=[], idxs=[];
-  faces.forEach(function(f){
-    f.forEach(function(i){
-      var v=vArr[i];
+  faces.forEach(function(f,fi){
+    var v0=rawV[f[0]], v1=rawV[f[1]], v2=rawV[f[2]];
+    /* normal de la cara = cross product */
+    var ax=v1[0]-v0[0], ay=v1[1]-v0[1], az=v1[2]-v0[2];
+    var bx=v2[0]-v0[0], by=v2[1]-v0[1], bz=v2[2]-v0[2];
+    var nx=ay*bz-az*by, ny=az*bx-ax*bz, nz=ax*by-ay*bx;
+    var nl=Math.sqrt(nx*nx+ny*ny+nz*nz);
+    nx/=nl; ny/=nl; nz/=nl;
+    /* los 3 vértices de la cara comparten la misma normal (flat) */
+    [v0,v1,v2].forEach(function(v){
       verts.push(v[0],v[1],v[2]);
-      norms.push(v[0],v[1],v[2]); /* normal = pos normalizada */
+      norms.push(nx,ny,nz);
     });
+    idxs.push(fi*3, fi*3+1, fi*3+2);
   });
-  for(var i=0;i<faces.length*3;i++) idxs.push(i);
 
   var vBuf=gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER,vBuf);
