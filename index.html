@@ -94,7 +94,7 @@ nav.on{background:rgba(14,26,19,.95);backdrop-filter:blur(20px);border-color:var
 
 #hero{position:relative;z-index:2;max-width:var(--max);width:100%;margin:0 auto;
   padding:calc(72px + clamp(2.5rem,6vw,5rem)) var(--gap) clamp(3rem,6vw,5rem);
-  display:grid;grid-template-columns:1fr 340px;gap:0 3.5rem;align-items:center}
+  display:grid;grid-template-columns:1fr;max-width:720px}
 
 .hero-eyebrow{grid-column:1;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:1.4rem;display:flex;align-items:center;gap:.7rem}
 .hero-eyebrow::before{content:'';display:inline-block;width:22px;height:1px;background:var(--teal)}
@@ -419,23 +419,7 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
         <p class="hsp-text"><b>+12 negocios</b> ya automatizados en CABA</p>
       </div>
     </div>
-    <div class="hero-right" aria-hidden="true">
-      <div class="hero-card">
-        <div class="hero-card-label">Lo que construimos</div>
-        <div class="hero-card-row"><div class="hcr-left"><span class="hcr-n">01</span><span class="hcr-title">Plataformas con IA</span></div><div class="hcr-dot"></div></div>
-        <div class="hero-card-row"><div class="hcr-left"><span class="hcr-n">02</span><span class="hcr-title">Agentes autónomos</span></div><div class="hcr-dot"></div></div>
-        <div class="hero-card-row"><div class="hcr-left"><span class="hcr-n">03</span><span class="hcr-title">Automatización</span></div><div class="hcr-dot"></div></div>
-        <div class="hero-card-row"><div class="hcr-left"><span class="hcr-n">04</span><span class="hcr-title">Sitios de presencia</span></div><div class="hcr-dot"></div></div>
-      </div>
-      <!-- LIVE INDICATOR: sensación de actividad real -->
-      <div class="hero-live">
-        <span class="hero-live-dot"></span>
-        <div class="hero-live-text">
-          <strong>3 negocios revisando esto ahora</strong><br>
-          <span>Último proyecto iniciado hace 2 días</span>
-        </div>
-      </div>
-    </div>
+    
   </section>
 </div>
 
