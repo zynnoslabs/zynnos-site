@@ -808,135 +808,260 @@ document.getElementById('ub-close').addEventListener('click',()=>{
 </script>
 
 <script>
+/* =========================================================
+   ZYNNOS — 3D ROTATING TORUS — Pure WebGL (no CDN)
+   Dark metallic ring + specular light beam (Phong model)
+   ========================================================= */
 (function(){
-  var cv=document.getElementById('silk-canvas');
-  if(!cv)return;
-  var shell=cv.parentElement;
-  var gl=cv.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:false});
-  if(!gl){cv.style.display='none';return;}
+  var cv = document.getElementById('silk-canvas');
+  if (!cv) return;
+  var shell = cv.parentElement;
+  var gl = cv.getContext('webgl', {alpha:true, antialias:true, premultipliedAlpha:false, depth:true});
+  if (!gl) { cv.style.display='none'; return; }
 
-  function sh(type,src){
-    var s=gl.createShader(type);
-    gl.shaderSource(s,src);gl.compileShader(s);
-    if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){console.warn(gl.getShaderInfoLog(s));}
+  /* ---- compile helper ---- */
+  function sh(type, src) {
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(s));
     return s;
   }
 
-  var vert=`
-    attribute vec2 a;
-    varying vec2 vU;
-    void main(){vU=a*.5+.5;gl_Position=vec4(a,0,1);}
+  /* ---- vertex shader ---- */
+  var VS = `
+    attribute vec3 aPos;
+    attribute vec3 aNor;
+    uniform mat4 uMVP;
+    uniform mat4 uM;
+    uniform mat3 uNM;
+    varying vec3 vPos;
+    varying vec3 vNor;
+    void main(){
+      vec4 wp = uM * vec4(aPos,1.0);
+      vPos = wp.xyz;
+      vNor = normalize(uNM * aNor);
+      gl_Position = uMVP * vec4(aPos,1.0);
+    }
   `;
 
-  /* Noise simplex 2D + distorsión ondulante — paleta Zynnos */
-  var frag=`
-    precision mediump float;
-    uniform float uT;
-    uniform vec2  uR;
-    uniform vec2  uM;
-    varying vec2  vU;
-
-    vec3 permute(vec3 x){return mod(((x*34.)+1.)*x,289.);}
-    float snoise(vec2 v){
-      const vec4 C=vec4(.211324865405187,.366025403784439,-.577350269189626,.024390243902439);
-      vec2 i=floor(v+dot(v,C.yy));
-      vec2 x0=v-i+dot(i,C.xx);
-      vec2 i1=(x0.x>x0.y)?vec2(1,0):vec2(0,1);
-      vec4 x12=x0.xyxy+C.xxzz;
-      x12.xy-=i1;
-      i=mod(i,289.);
-      vec3 p=permute(permute(i.y+vec3(0,i1.y,1))+i.x+vec3(0,i1.x,1));
-      vec3 m=max(.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.);
-      m=m*m;m=m*m;
-      vec3 x2=2.*fract(p*.024390243902439)-1.;
-      vec3 h=abs(x2)-.5;
-      vec3 ox=floor(x2+.5);
-      vec3 a0=x2-ox;
-      m*=1.79284291400159-.85373472095314*(a0*a0+h*h);
-      vec3 g;
-      g.x=a0.x*x0.x+h.x*x0.y;
-      g.yz=a0.yz*x12.xz+h.yz*x12.yw;
-      return 130.*dot(m,g);
-    }
+  /* ---- fragment shader — dark metallic Phong + rim ---- */
+  var FS = `
+    precision highp float;
+    varying vec3 vPos;
+    varying vec3 vNor;
+    uniform vec3  uLight;    /* world-space light pos  */
+    uniform vec3  uCam;      /* camera pos             */
+    uniform float uTime;
 
     void main(){
-      vec2 uv=vU;
-      /* aspect ratio correcto */
-      vec2 asp=vec2(uR.x/uR.y,1.);
+      vec3 N = normalize(vNor);
+      vec3 L = normalize(uLight - vPos);
+      vec3 V = normalize(uCam   - vPos);
+      vec3 H = normalize(L + V);
 
-      /* influencia del mouse — suave */
-      vec2 mc=(uM/uR)-.5;
-      float md=length((uv-.5-mc*.3)*asp);
-      float mw=smoothstep(.8,0.,md)*.12;
+      /* base: near-black dark steel */
+      vec3 baseCol = vec3(0.04, 0.05, 0.04);
 
-      float t=uT*.07;
-      float n1=snoise((uv*asp)*1.8+vec2(t*.9, t*.5));
-      float n2=snoise((uv*asp)*3.2+vec2(-t*.6,t*.8)+1.4);
-      float n3=snoise((uv*asp)*.9 +vec2(t*.4,-t*.3)+3.1);
-      float n=(n1*.5+n2*.3+n3*.2)+mw;
+      /* ambient */
+      vec3 amb = baseCol * 0.18;
 
-      /* bandas de color que se mueven */
-      float wave=uv.y+n*.38+t*.15;
+      /* diffuse — very subtle so ring stays dark */
+      float diff = max(dot(N,L), 0.0);
+      vec3  dif  = baseCol * diff * 0.25;
 
-      vec3 dark =vec3(.055,.102,.063);  /* #0e1a10 */
-      vec3 deep =vec3(.07, .165,.09);   /* superficie */
-      vec3 teal =vec3(.15, .62, .45);   /* teal suave */
-      vec3 lime =vec3(.55, .82, .10);   /* lima suave */
+      /* specular — high shininess, teal-white beam */
+      float spec  = pow(max(dot(N,H), 0.0), 180.0);
+      vec3  sCol  = mix(vec3(0.6,1.0,0.75), vec3(1.0,1.0,0.95), spec);
+      vec3  spc   = sCol * spec * 2.8;
 
-      vec3 col=dark;
-      col=mix(col,deep, smoothstep(.0, .55,wave));
-      col=mix(col,teal*.45, smoothstep(.3,.75,wave)*.7);
-      col=mix(col,lime*.15, smoothstep(.6,1.0,wave)*.5);
+      /* wide soft glow at specular zone */
+      float glow  = pow(max(dot(N,H), 0.0), 18.0);
+      vec3  glowC = vec3(0.15, 0.55, 0.38) * glow * 0.45;
 
-      /* brillos en las crestas */
-      float crest=smoothstep(.12,.30,n);
-      col+=teal*crest*.22;
-      col+=lime*crest*.08;
+      /* rim light — thin green-lime outline */
+      float rim   = 1.0 - max(dot(N,V), 0.0);
+      rim = pow(clamp(rim, 0.0, 1.0), 3.5);
+      vec3  rimC  = vec3(0.35, 0.72, 0.15) * rim * 0.30;
 
-      gl_FragColor=vec4(col,.82);
+      vec3 col = amb + dif + spc + glowC + rimC;
+
+      /* tone-map — keep it dark but let specular bloom */
+      col = col / (col + 0.6);
+      col = pow(col, vec3(0.9));
+
+      /* alpha: opaque on ring surface, dissolve toward edges */
+      float alpha = 0.92 + spec * 0.08;
+
+      gl_FragColor = vec4(col, alpha);
     }
   `;
 
-  var prog=gl.createProgram();
-  gl.attachShader(prog,sh(gl.VERTEX_SHADER,vert));
-  gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,frag));
-  gl.linkProgram(prog);gl.useProgram(prog);
+  var prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    console.warn('torus link:', gl.getProgramInfoLog(prog)); return;
+  }
+  gl.useProgram(prog);
 
-  /* Quad fullscreen */
-  var buf=gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER,buf);
-  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
-  var loc=gl.getAttribLocation(prog,'a');
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  /* ---- torus geometry ---- */
+  /* R = major radius (ring), r = tube radius */
+  var R=1.0, r=0.38, segU=120, segV=64;
+  var verts=[], norms=[], idxs=[];
 
-  var uT=gl.getUniformLocation(prog,'uT');
-  var uR=gl.getUniformLocation(prog,'uR');
-  var uM=gl.getUniformLocation(prog,'uM');
+  for (var j=0; j<=segV; j++) {
+    var v = (j/segV)*Math.PI*2;
+    var cv2=Math.cos(v), sv2=Math.sin(v);
+    for (var i=0; i<=segU; i++) {
+      var u = (i/segU)*Math.PI*2;
+      var cu=Math.cos(u), su=Math.sin(u);
+      /* position */
+      var x=(R+r*cv2)*cu, y=r*sv2, z=(R+r*cv2)*su;
+      verts.push(x,y,z);
+      /* normal */
+      var nx=cv2*cu, ny=sv2, nz=cv2*su;
+      norms.push(nx,ny,nz);
+    }
+  }
+  for (var j=0; j<segV; j++) {
+    for (var i=0; i<segU; i++) {
+      var a=j*(segU+1)+i, b=a+segU+1;
+      idxs.push(a,b,a+1, b,b+1,a+1);
+    }
+  }
 
-  var W,H,mx=0,my=0;
+  var vBuf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
+
+  var nBuf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, nBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(norms), gl.STATIC_DRAW);
+
+  var iBuf=gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuf);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idxs), gl.STATIC_DRAW);
+  var indexCount = idxs.length;
+
+  var aPos = gl.getAttribLocation(prog,'aPos');
+  var aNor = gl.getAttribLocation(prog,'aNor');
+  var uMVP = gl.getUniformLocation(prog,'uMVP');
+  var uM_  = gl.getUniformLocation(prog,'uM');
+  var uNM  = gl.getUniformLocation(prog,'uNM');
+  var uLight=gl.getUniformLocation(prog,'uLight');
+  var uCam  =gl.getUniformLocation(prog,'uCam');
+  var uTime =gl.getUniformLocation(prog,'uTime');
+
+  /* ---- matrix math (column-major, WebGL style) ---- */
+  function mat4(){return new Float32Array(16);}
+  function ident(m){m[0]=m[5]=m[10]=m[15]=1;m[1]=m[2]=m[3]=m[4]=m[6]=m[7]=m[8]=m[9]=m[11]=m[12]=m[13]=m[14]=0;return m;}
+  function mul(out,a,b){
+    for(var i=0;i<4;i++)for(var j=0;j<4;j++){var s=0;for(var k=0;k<4;k++)s+=a[i+k*4]*b[k+j*4];out[i+j*4]=s;}
+    return out;
+  }
+  function rotY(m,ang){var c=Math.cos(ang),s=Math.sin(ang);ident(m);m[0]=c;m[8]=s;m[2]=-s;m[10]=c;return m;}
+  function rotX(m,ang){var c=Math.cos(ang),s=Math.sin(ang);ident(m);m[5]=c;m[9]=-s;m[6]=s;m[10]=c;return m;}  /* ### CAMBIO AQUÍ ### tilt para ver anillo en perspectiva */
+  function persp(m,fov,asp,near,far){
+    var f=1/Math.tan(fov/2);
+    ident(m);
+    m[0]=f/asp; m[5]=f;
+    m[10]=(far+near)/(near-far);
+    m[11]=-1; m[14]=(2*far*near)/(near-far); m[15]=0;
+    return m;
+  }
+  function lookAt(m,eye,center,up){
+    var fx=center[0]-eye[0],fy=center[1]-eye[1],fz=center[2]-eye[2];
+    var fl=Math.sqrt(fx*fx+fy*fy+fz*fz);fx/=fl;fy/=fl;fz/=fl;
+    var rx=fy*up[2]-fz*up[1],ry=fz*up[0]-fx*up[2],rz=fx*up[1]-fy*up[0];
+    var rl=Math.sqrt(rx*rx+ry*ry+rz*rz);rx/=rl;ry/=rl;rz/=rl;
+    var ux=ry*fz-rz*fy,uy=rz*fx-rx*fz,uz=rx*fy-ry*fx;
+    m[0]=rx;m[1]=ux;m[2]=-fx;m[3]=0;
+    m[4]=ry;m[5]=uy;m[6]=-fy;m[7]=0;
+    m[8]=rz;m[9]=uz;m[10]=-fz;m[11]=0;
+    m[12]=-(rx*eye[0]+ry*eye[1]+rz*eye[2]);
+    m[13]=-(ux*eye[0]+uy*eye[1]+uz*eye[2]);
+    m[14]= (fx*eye[0]+fy*eye[1]+fz*eye[2]);
+    m[15]=1;
+    return m;
+  }
+  function mat3from4(m4){
+    return new Float32Array([m4[0],m4[1],m4[2], m4[4],m4[5],m4[6], m4[8],m4[9],m4[10]]);
+  }
+
+  /* ---- resize ---- */
+  var W,H;
   function resize(){
     W=shell.offsetWidth||window.innerWidth;
     H=shell.offsetHeight||window.innerHeight;
     if(H<300)H=window.innerHeight;
-    cv.width=W;cv.height=H;
-    gl.viewport(0,0,W,H);
+    cv.width=Math.round(W); cv.height=Math.round(H);
+    gl.viewport(0,0,cv.width,cv.height);
   }
   resize();
   window.addEventListener('resize',resize,{passive:true});
-  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;},{passive:true});
 
+  /* ---- GL state ---- */
+  gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+  gl.enable(gl.CULL_FACE);
+  gl.cullFace(gl.BACK);
+
+  /* ---- pre-alloc matrices ---- */
+  var mRY=mat4(), mRX=mat4(), mModel=mat4(), mTmp=mat4();
+  var mView=mat4(), mProj=mat4(), mVP=mat4(), mMVP=mat4();
+
+  /* tilt angle — ring seen at ~20° angle like the reference */
+  var tiltX = -0.38;
+
+  /* camera */
+  var eye=[0,2.2,5.5];
+
+  /* light position — bright single source, offset like a spotlight */
+  var lightPos=[3.5, 3.0, 4.0];
 
   var t0=performance.now();
+
   function frame(){
     requestAnimationFrame(frame);
-    var t=(performance.now()-t0)*.001;
-    gl.uniform1f(uT,t);
-    gl.uniform2f(uR,W,H);
-    gl.uniform2f(uM,mx,my);
-    gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+    var t=(performance.now()-t0)*0.001;
+
+    gl.clearColor(0,0,0,0);
+    gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+
+    /* model: spin Y slowly + fixed X tilt */
+    rotY(mRY, t * 0.55);            /* ### CAMBIO AQUÍ ### velocidad de rotación */
+    rotX(mRX, tiltX);
+    mul(mModel, mRX, mRY);
+
+    /* view + projection */
+    lookAt(mView, eye, [0,0,0], [0,1,0]);
+    persp(mProj, 0.72, W/H, 0.1, 50.0);
+    mul(mVP, mProj, mView);
+    mul(mMVP, mVP, mModel);
+
+    /* bind positions */
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuf);
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0);
+
+    /* bind normals */
+    gl.bindBuffer(gl.ARRAY_BUFFER, nBuf);
+    gl.enableVertexAttribArray(aNor);
+    gl.vertexAttribPointer(aNor,3,gl.FLOAT,false,0,0);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuf);
+
+    /* uniforms */
+    gl.uniformMatrix4fv(uMVP,false,mMVP);
+    gl.uniformMatrix4fv(uM_,false,mModel);
+    gl.uniformMatrix3fv(uNM,false,mat3from4(mModel));
+    gl.uniform3fv(uLight,lightPos);
+    gl.uniform3fv(uCam,eye);
+    gl.uniform1f(uTime,t);
+
+    gl.drawElements(gl.TRIANGLES,indexCount,gl.UNSIGNED_SHORT,0);
   }
   frame();
 })();
