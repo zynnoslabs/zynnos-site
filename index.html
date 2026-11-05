@@ -1001,9 +1001,12 @@ document.getElementById('ub-close').addEventListener('click',()=>{
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 
     /* rotación suave multi-eje como en el video */
-    rotY(mRY, t * 0.45);
-    rotX(mRX, 0.30 + Math.sin(t*0.18)*0.12);
-    mul(mModel, mRX, mRY);
+    /* ### CAMBIO AQUÍ ### gira sobre el eje vértice-vértice del icosaedro
+       El vértice superior está a ~26.57° del polo Y → inclinamos ese ángulo en X fijo,
+       luego rotamos en Y puro para que gire sobre ese eje diagonal */
+    rotX(mRX, -0.4636);          /* atan(0.5) ≈ 26.57° — alinea vértice al eje de rot */
+    rotY(mRY, t * 0.50);         /* rotación continua sobre ese eje */
+    mul(mModel, mRY, mRX);       /* primero tilt fijo, después spin */
 
     lookAt(mView, eye, [0,0,0], [0,1,0]);
     persp(mProj, 0.78, W/H, 0.1, 50.0);
