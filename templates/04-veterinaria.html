@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.anthropic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.anthropic.com; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
+<title id="page-title">Veterinaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700&family=Nunito+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fondo: #DCE8DC; /* ### CAMBIO AQUÍ ### Fix 1 — fondo principal más oscuro/cálido */
+  --fondo2: #CDD9CD; /* ### CAMBIO AQUÍ ### Fix 1 — fondo secundario más profundo */
+  --fondo3: #E8F0E8; /* ### CAMBIO AQUÍ ### Fix 1 — reemplaza blanco puro por sage claro */
+  --tinta: #1a2b1a;
+  --tinta2: #6a7a6a;
+  --acento: #2d7a52;
+  --acento2: #1f5a3c;
+  --acento-light: rgba(45,122,82,.08);
+  --urgencia: #c0392b;
+  --naranja: #e67e22;
+  --linea: rgba(26,43,26,.1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--fondo);color:var(--tinta);font-family:'Nunito Sans',sans-serif;font-weight:300;line-height:1.65;overflow-x:hidden}
+img{max-width:100%;display:block;user-select:none;-webkit-user-drag:none}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ===== ANIMACIONES PATITA (temática veterinaria) ===== */
+@keyframes patitaEntra {
+  0%   { opacity:0; transform:translateY(22px) scale(.98) }
+  60%  { transform:translateY(-4px) scale(1.005) }
+  100% { opacity:1; transform:translateY(0) scale(1) }
+}
+@keyframes patitaSale {
+  from { opacity:1; transform:translateY(0) }
+  to   { opacity:0; transform:translateY(-14px) }
+}
+.panel-patita-entra { animation:patitaEntra .5s cubic-bezier(.22,1,.36,1) both }
+.panel-patita-sale  { animation:patitaSale .3s ease-out both }
+
+/* Urgente pulse */
+@keyframes urgente-pulse {
+  0%,100% { border-left-color: var(--urgencia); }
+  50%      { border-left-color: rgba(192,57,43,.3); }
+}
+
+/* Pop turno nuevo */
+@keyframes pop-in {
+  0%   { transform:scale(0); opacity:0 }
+  60%  { transform:scale(1.04); opacity:1 }
+  100% { transform:scale(1) }
+}
+.turno-pop { animation:pop-in .38s cubic-bezier(.34,1.56,.64,1) both }
+
+.srv-icono { transition:transform .25s ease }
+.srv-item:hover .srv-icono { transform:rotate(5deg) }
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;background:rgba(220,232,220,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--linea)} /* ### CAMBIO AQUÍ ### Fix 1 — nav bg coincide con --fondo nuevo */
+.nav-logo{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;letter-spacing:.02em;color:var(--tinta)}
+.nav-logo em{color:var(--acento);font-style:normal}
+.nav-links{display:flex;gap:2.25rem}
+.nav-links a{font-size:.75rem;letter-spacing:.06em;color:var(--tinta2);transition:color .2s;cursor:pointer}
+.nav-links a:hover{color:var(--tinta)}
+.nav-right{display:flex;gap:1rem;align-items:center}
+.btn-urgencia-nav{font-size:.68rem;letter-spacing:.06em;background:var(--urgencia);color:#fff;padding:.45rem 1rem;transition:opacity .2s}
+.btn-urgencia-nav:hover{opacity:.85}
+.btn-turno-nav{font-size:.68rem;letter-spacing:.06em;background:var(--acento);color:#fff;padding:.45rem 1.1rem;transition:background .2s}
+.btn-turno-nav:hover{background:var(--acento2)}
+.btn-staff-nav{font-size:.65rem;color:var(--tinta2);letter-spacing:.04em;transition:color .2s}
+.btn-staff-nav:hover{color:var(--tinta)}
+.hamburger{display:none;flex-direction:column;gap:5px;padding:.4rem}
+.hamburger span{width:22px;height:1px;background:var(--tinta);display:block}
+@media(max-width:768px){.nav-links{display:none;position:fixed;top:55px;left:0;right:0;flex-direction:column;background:var(--fondo3);padding:2rem;gap:1.5rem;border-bottom:1px solid var(--linea);z-index:890}.nav-links.open{display:flex}.hamburger{display:flex}.btn-urgencia-nav,.btn-turno-nav,.btn-staff-nav{display:none}}
+
+/* SECCION WRAPPER (single-page panels) */
+.seccion-panel{display:none}
+.seccion-panel.activo{display:block}
+
+/* HERO */
+.hero{min-height:100svh;display:grid;grid-template-columns:1fr 1fr;padding-top:55px}
+.hero-foto{position:relative;overflow:hidden;background:var(--fondo2)}
+.hero-foto img{width:100%;height:100%;object-fit:cover}
+.hero-foto::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(244,247,244,.6) 0%,transparent 100%)}
+.hero-contenido{padding:5rem 3rem;display:flex;flex-direction:column;justify-content:center;background:var(--fondo)}
+.hero-titulo{font-family:'Syne',sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);font-weight:700;line-height:1.05;color:var(--tinta);margin-bottom:1.5rem;max-width:14ch}
+.hero-titulo em{color:var(--acento);font-style:normal}
+.hero-desc{font-size:.95rem;color:var(--tinta2);max-width:38ch;line-height:1.85;margin-bottom:2.5rem}
+.hero-ctas{display:flex;gap:1rem;flex-wrap:wrap}
+.btn-turno-hero{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.04em;background:var(--acento);color:#fff;padding:.9rem 2rem;transition:background .2s}
+.btn-turno-hero:hover{background:var(--acento2)}
+.btn-urgencia-hero{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.04em;background:transparent;border:1px solid var(--urgencia);color:var(--urgencia);padding:.9rem 2rem;transition:all .2s}
+.btn-urgencia-hero:hover{background:var(--urgencia);color:#fff}
+.hero-datos{display:flex;gap:2.5rem;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--linea)}
+.hero-dato{display:flex;flex-direction:column;gap:.2rem}
+.hero-dato small{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta2)}
+.hero-dato span{font-size:.82rem;color:var(--tinta)}
+@media(max-width:900px){.hero{grid-template-columns:1fr;min-height:auto}.hero-foto{height:55vw}.hero-foto::after{display:none}.hero-contenido{padding:3rem 1.5rem}.hero-datos{flex-wrap:wrap;gap:1.5rem}}
+
+/* SERVICIOS */
+.servicios{padding:5rem 3rem;border-top:1px solid var(--linea)}
+.sec-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3rem}
+.sec-titulo{font-family:'Syne',sans-serif;font-size:clamp(2rem,3.5vw,3rem);font-weight:700;color:var(--tinta)}
+.sec-sub{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta2)}
+.servicios-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--linea)}
+.srv-item{background:var(--fondo);padding:2rem 1.75rem;display:flex;flex-direction:column;border-left:3px solid transparent;transition:border-color .2s,background .2s}
+.srv-item:hover{border-left-color:var(--acento);background:var(--fondo3)}
+.srv-item.urgente{border-left-color:var(--urgencia);animation:urgente-pulse 2s ease-in-out infinite}
+.srv-icono{width:36px;height:36px;margin-bottom:1.25rem;color:var(--acento)}
+.srv-item.urgente .srv-icono{color:var(--urgencia)}
+.srv-nombre{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.5rem;color:var(--tinta)}
+.srv-desc{font-size:.82rem;color:var(--tinta2);line-height:1.75;flex:1}
+.srv-precio{margin-top:1.25rem;font-family:'Syne',sans-serif;font-size:1rem;font-weight:500;color:var(--acento)}
+.srv-item.urgente .srv-precio{color:var(--urgencia)}
+@media(max-width:768px){.servicios{padding:4rem 1.5rem}.sec-header{flex-direction:column;gap:.75rem}}
+
+/* EQUIPO */
+.equipo{border-top:1px solid var(--linea);padding:5rem 3rem;background:var(--fondo3)}
+.equipo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:2rem;margin-top:3rem}
+.vet-card{display:flex;flex-direction:column}
+.vet-foto{aspect-ratio:1/1;overflow:hidden;background:var(--fondo2);margin-bottom:1.25rem}
+.vet-foto img{width:100%;height:100%;object-fit:cover;filter:saturate(.8);transition:filter .4s,transform .5s}
+.vet-card:hover .vet-foto img{filter:saturate(1.1);transform:scale(1.04)}
+.vet-nombre{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.25rem}
+.vet-esp{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--acento)}
+.vet-info{font-size:.8rem;color:var(--tinta2);margin-top:.5rem;line-height:1.65}
+@media(max-width:768px){.equipo{padding:4rem 1.5rem}}
+
+/* IA CONSEJERO */
+.ia-section{border-top:1px solid var(--linea);display:grid;grid-template-columns:1fr 1fr}
+.ia-info{background:var(--acento);color:#fff;padding:5rem 3rem}
+.ia-info h2{font-family:'Syne',sans-serif;font-size:clamp(2rem,3.5vw,3rem);font-weight:700;margin-bottom:1.25rem;line-height:1.05}
+.ia-info p{font-size:.88rem;line-height:1.9;opacity:.9;max-width:36ch}
+.ia-aviso{margin-top:1.5rem;font-size:.75rem;opacity:.7;border-top:1px solid rgba(255,255,255,.2);padding-top:1rem;font-style:italic}
+.ia-chat-wrap{padding:3rem;background:var(--fondo)}
+.chat-box{min-height:280px;max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:1rem;padding:1.5rem;background:var(--fondo3);margin-bottom:1.25rem;scrollbar-width:thin;scrollbar-color:var(--linea) transparent}
+.msg{max-width:85%;font-size:.84rem;line-height:1.65}
+.msg.bot{color:var(--tinta2);padding-left:1rem;border-left:2px solid var(--acento)}
+.msg.user{align-self:flex-end;color:var(--tinta)}
+.msg.user::before{content:'';display:block;width:100%;height:1px;background:var(--linea);margin-bottom:.5rem}
+.chat-input-row{display:flex;gap:0}
+.chat-input{flex:1;background:var(--fondo3);border:1px solid var(--linea);border-right:none;color:var(--tinta);padding:.75rem 1rem;font-family:'Nunito Sans',sans-serif;font-size:.84rem;outline:none;transition:border-color .2s}
+.chat-input:focus{border-color:var(--acento)}
+.chat-send{background:var(--acento);color:#fff;padding:.75rem 1.25rem;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.04em;transition:background .2s}
+.chat-send:hover{background:var(--acento2)}
+@media(max-width:900px){.ia-section{grid-template-columns:1fr}.ia-info{padding:4rem 1.5rem}.ia-chat-wrap{padding:2rem 1.5rem}}
+
+/* TURNOS */
+.turnos{border-top:1px solid var(--linea);padding:5rem 3rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem;background:var(--fondo3)}
+.turnos-info h2{font-family:'Syne',sans-serif;font-size:clamp(2rem,3.5vw,3rem);font-weight:700;margin-bottom:1.25rem}
+.turnos-info p{font-size:.88rem;color:var(--tinta2);line-height:1.85;max-width:36ch}
+.urgencia-aviso{margin-top:2rem;padding:1.25rem 1.5rem;border-left:3px solid var(--urgencia);background:rgba(192,57,43,.06)}
+.urgencia-aviso p{font-size:.82rem;color:var(--urgencia);line-height:1.65}
+.urgencia-aviso strong{font-weight:600}
+.form-campo{display:flex;flex-direction:column;background:var(--fondo);border:1px solid var(--linea);padding:1rem 1.25rem;margin-bottom:.5rem;transition:border-color .2s}
+.form-campo:focus-within{border-color:var(--acento)}
+.form-campo label{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta2);margin-bottom:.4rem}
+.form-campo input,.form-campo select,.form-campo textarea{background:transparent;border:none;color:var(--tinta);font-family:'Nunito Sans',sans-serif;font-size:.88rem;font-weight:300;outline:none;width:100%}
+.form-campo select option{background:var(--fondo3)}
+.form-campo textarea{resize:vertical;min-height:80px}
+.precio-wrap{display:flex;align-items:center;gap:.4rem}
+.precio-prefix{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:500;color:var(--tinta);flex-shrink:0;user-select:none}
+.precio-wrap input{flex:1}
+.hp-field{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+.btn-turno-form{width:100%;background:var(--acento);color:#fff;padding:1rem;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.04em;margin-top:.5rem;transition:background .2s}
+.btn-turno-form:hover{background:var(--acento2)}
+@media(max-width:900px){.turnos{grid-template-columns:1fr;gap:3rem;padding:4rem 1.5rem}}
+
+/* BTN IMPRIMIR — solo admin */
+
+/* FOOTER */
+footer{border-top:1px solid var(--linea);padding:3rem;display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;align-items:center;background:var(--fondo)}
+.footer-logo{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--tinta)}
+.footer-logo em{color:var(--acento);font-style:normal}
+.footer-mid{text-align:center;font-size:.72rem;letter-spacing:.06em;color:var(--tinta2)}
+.footer-mid p+p{margin-top:.35rem}
+.footer-zynnos{text-align:right;font-size:.65rem;color:var(--tinta2);opacity:.4;letter-spacing:.06em}
+@media(max-width:768px){footer{grid-template-columns:1fr;text-align:center;padding:2rem 1.5rem}.footer-zynnos{text-align:center}}
+
+/* FABs */
+.fab-group{position:fixed;bottom:2rem;right:2rem;z-index:800;display:flex;flex-direction:column;gap:.75rem}
+.fab{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.fab:hover{transform:scale(1.08)}
+.fab-wa{background:#25D366}
+.fab-urg{background:var(--urgencia)}
+.fab svg{width:22px;height:22px;fill:white}
+.fab-urg svg{stroke:white;fill:none}
+
+/* ===== LOGIN ADMIN ===== */
+.admin-login-overlay{display:none;position:fixed;inset:0;z-index:1100;background:rgba(220,232,220,.98);align-items:center;justify-content:center} /* ### CAMBIO AQUÍ ### Fix 1 — login overlay bg más oscuro */
+.admin-login-overlay.open{display:flex}
+.login-box{background:var(--fondo3);border:1px solid var(--linea);padding:3rem;width:340px;max-width:90vw;box-shadow:0 8px 40px rgba(45,122,82,.08)}
+.login-box-logo{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.login-box-logo svg{width:32px;height:32px;color:var(--acento);flex-shrink:0}
+.login-box h3{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;color:var(--tinta)}
+.login-box p{font-size:.8rem;color:var(--tinta2);margin-bottom:2rem;margin-top:.35rem}
+.login-campo{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+.login-campo label{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta2)}
+.login-campo input{background:var(--fondo);border:1px solid var(--linea);color:var(--tinta);font-family:'Nunito Sans',sans-serif;font-size:.9rem;padding:.75rem 1rem;outline:none;width:100%;transition:border-color .2s}
+.login-campo input:focus{border-color:var(--acento)}
+.login-error{font-size:.78rem;color:var(--urgencia);margin-bottom:.75rem;min-height:1.2rem}
+.btn-login{width:100%;background:var(--acento);color:#fff;padding:.85rem;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.04em;transition:background .2s;margin-top:.25rem}
+.btn-login:hover{background:var(--acento2)}
+.btn-login-cancel{width:100%;text-align:center;font-size:.72rem;color:var(--tinta2);margin-top:1rem;letter-spacing:.04em;transition:color .2s}
+.btn-login-cancel:hover{color:var(--tinta)}
+
+/* ===== ADMIN PANTALLA COMPLETA ===== */
+.admin-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(220,232,220,.97);flex-direction:column;overflow:hidden} /* ### CAMBIO AQUÍ ### Fix 1 — admin overlay bg más oscuro */
+.admin-overlay.open{display:flex}
+body.admin-open{overflow:hidden}
+.admin-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--linea);padding:1.25rem 2rem;flex-shrink:0;background:var(--fondo3)}
+.admin-header h2{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:var(--tinta)}
+.admin-header-right{display:flex;gap:.75rem;align-items:center}
+.admin-close{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta2);border:1px solid var(--linea);padding:.5rem 1rem;transition:all .2s}
+.admin-close:hover{color:var(--tinta);border-color:var(--tinta)}
+.admin-body{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.admin-tabs{display:flex;border-bottom:1px solid var(--linea);flex-shrink:0;background:var(--fondo);position:relative;padding:0 2rem}
+.admin-tab{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:.85rem 1.25rem;color:var(--tinta2);border-bottom:2px solid transparent;transition:color .25s;margin-bottom:-1px;position:relative}
+.admin-tab.active{color:var(--acento)}
+.admin-tab-indicator{position:absolute;bottom:-1px;height:2px;background:var(--acento);transition:left .3s cubic-bezier(.4,0,.2,1),width .3s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.admin-tab-content{display:none;padding:2rem;flex:1}
+.admin-tab-content.active{display:block}
+
+/* Filtro turnos */
+.turnos-filtro{display:flex;gap:.5rem;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap}
+.filtro-label{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta2)}
+.filtro-btn{font-size:.65rem;letter-spacing:.08em;padding:.35rem .85rem;border:1px solid var(--linea);color:var(--tinta2);transition:all .2s}
+.filtro-btn:hover{border-color:var(--acento);color:var(--acento)}
+.filtro-btn.activo{background:var(--acento);color:#fff;border-color:var(--acento)}
+
+/* Turnos tabla */
+.turnos-table{width:100%;border-collapse:collapse}
+.turnos-table th{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta2);text-align:left;padding:.75rem .5rem;border-bottom:1px solid var(--linea)}
+.turnos-table td{font-size:.82rem;padding:.9rem .5rem .9rem .5rem;border-bottom:1px solid var(--linea);color:var(--tinta);vertical-align:top}
+.estado-badge{display:inline-block;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.25rem .7rem;border:1px solid currentColor}
+.estado-badge.pendiente{color:#d4a843}
+.estado-badge.confirmado{color:#2d7a52}
+.estado-badge.atendido{color:#5a8a7a}
+.estado-badge.cancelado{color:#c05050}
+.badge-urgente{display:inline-block;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;background:var(--urgencia);color:#fff;padding:.15rem .55rem;margin-left:.4rem}
+.accion-btn{font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .75rem;border:1px solid var(--linea);color:var(--tinta2);transition:all .2s;margin-right:.35rem;margin-bottom:.25rem}
+.accion-btn:hover{border-color:var(--tinta);color:var(--tinta)}
+.accion-btn.primary{border-color:var(--acento);color:var(--acento)}
+.accion-btn.primary:hover{background:var(--acento);color:#fff}
+.accion-btn.danger{border-color:var(--urgencia);color:var(--urgencia)}
+.accion-btn.danger:hover{background:var(--urgencia);color:#fff}
+.accion-btn.warning{border-color:var(--naranja);color:var(--naranja)}
+
+/* Checkboxes turno */
+.turno-checks{display:flex;flex-direction:column;gap:.4rem;min-width:140px}
+.check-row{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--tinta2);cursor:pointer}
+.check-row input[type="checkbox"]{accent-color:var(--acento);width:13px;height:13px;cursor:pointer;flex-shrink:0}
+.check-urgente input[type="checkbox"]{accent-color:var(--urgencia)}
+
+/* Botón imprimir admin */
+.btn-imprimir{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:.5rem 1.25rem;border:1px solid var(--acento);color:var(--acento);transition:all .2s;display:inline-flex;align-items:center;gap:.5rem}
+.btn-imprimir:hover{background:var(--acento);color:#fff}
+.btn-imprimir svg{width:14px;height:14px;stroke:currentColor;fill:none;flex-shrink:0}
+.admin-bar{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap}
+
+/* Admin campos */
+.admin-campo{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+.admin-campo label{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta2)}
+.admin-campo input,.admin-campo textarea{background:var(--fondo3);border:1px solid var(--linea);color:var(--tinta);font-family:'Nunito Sans',sans-serif;font-size:.85rem;padding:.75rem 1rem;outline:none;width:100%;transition:border-color .2s}
+.admin-campo input:focus,.admin-campo textarea:focus{border-color:var(--acento)}
+.admin-campo textarea{resize:vertical;min-height:80px}
+.btn-guardar-admin{background:var(--acento);color:#fff;padding:.75rem 2rem;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.04em;margin-top:1rem;transition:background .2s}
+.btn-guardar-admin:hover{background:var(--acento2)}
+.admin-section-titulo{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--tinta);margin-bottom:.75rem;margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--linea)}
+.admin-section-titulo:first-of-type{border-top:none;margin-top:0;padding-top:0}
+
+/* Admin servicios */
+.admin-servicios-list{display:grid;gap:1px;background:var(--linea);margin-bottom:1.25rem}
+.admin-srv-row{background:var(--fondo3);padding:1.25rem 1.5rem;display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start}
+.admin-srv-nombre{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.3rem}
+.admin-srv-desc{font-size:.8rem;color:var(--tinta2);margin-bottom:.5rem}
+.admin-srv-fields{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-top:.35rem}
+.admin-srv-precio-wrap{display:flex;align-items:center;gap:.35rem;background:var(--fondo);border:1px solid var(--linea);padding:.35rem .75rem}
+.admin-srv-precio-prefix{font-size:.82rem;color:var(--tinta);font-family:'Syne',sans-serif;font-weight:500;user-select:none;flex-shrink:0}
+.admin-srv-precio-input{background:transparent;border:none;color:var(--tinta);font-family:'Nunito Sans',sans-serif;font-size:.82rem;width:90px;outline:none}
+.admin-srv-controls{display:flex;flex-direction:column;gap:.6rem;align-items:flex-end;flex-shrink:0}
+.toggle-row{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:var(--tinta2);cursor:pointer}
+.toggle-check{accent-color:var(--acento);width:14px;height:14px;cursor:pointer;flex-shrink:0}
+.reposicion-row{margin-top:.5rem;display:none}
+.reposicion-row.visible{display:flex;flex-direction:column;gap:.3rem}
+.reposicion-nota{background:var(--fondo);border:1px solid var(--linea);color:var(--tinta);font-family:'Nunito Sans',sans-serif;font-size:.78rem;padding:.4rem .7rem;width:100%;outline:none;transition:border-color .2s}
+.reposicion-nota:focus{border-color:var(--naranja)}
+.reposicion-label{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--naranja)}
+
+/* Tab Insumos */
+.insumos-list{display:grid;gap:1px;background:var(--linea)}
+.insumo-row{background:var(--fondo3);padding:1.25rem 1.5rem;display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start}
+.insumo-nombre{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--tinta);margin-bottom:.3rem}
+.insumo-nota{font-size:.82rem;color:var(--tinta2);margin-bottom:.4rem;font-style:italic}
+.insumo-fecha{font-size:.65rem;letter-spacing:.08em;color:var(--tinta2)}
+.insumos-empty{font-size:.85rem;color:var(--tinta2);padding:2rem 0}
+</style>
+</head>
+<body>
+
+<!-- LOGIN ADMIN -->
+<div class="admin-login-overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-label="Login staff">
+  <div class="login-box">
+    <div class="login-box-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+      <h3>Acceso Staff</h3>
+    </div>
+    <p>Ingresá la contraseña de administración para continuar.</p>
+    <div class="login-campo">
+      <label for="login-pwd">Contraseña</label>
+      <input type="password" id="login-pwd" autocomplete="current-password" maxlength="60">
+    </div>
+    <div class="login-error" id="login-error"></div>
+    <button class="btn-login" onclick="intentarLogin()">Ingresar</button>
+    <button class="btn-login-cancel" onclick="cerrarLogin()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ADMIN PANTALLA COMPLETA -->
+<div class="admin-overlay" id="adminOverlay" role="dialog" aria-modal="true">
+  <div class="admin-header">
+    <h2 id="admin-titulo">Veterinaria — Administración</h2>
+    <div class="admin-header-right">
+      <button class="admin-close" onclick="cerrarAdmin()">Cerrar</button>
+    </div>
+  </div>
+  <div class="admin-body">
+    <div class="admin-tabs" id="admin-tabs">
+      <button class="admin-tab active" data-tab="turnos"   onclick="showAdminTab('turnos',this)">Turnos</button>
+      <button class="admin-tab"        data-tab="servicios" onclick="showAdminTab('servicios',this)">Servicios</button>
+      <button class="admin-tab"        data-tab="insumos"  onclick="showAdminTab('insumos',this)">Insumos</button>
+      <button class="admin-tab"        data-tab="stats"    onclick="showAdminTab('stats',this)">Estadísticas</button><!-- ### CAMBIO AQUÍ ### -->
+      <button class="admin-tab"        data-tab="config"   onclick="showAdminTab('config',this)">Configuración</button>
+      <button class="admin-tab"        data-tab="editor"   onclick="showAdminTab('editor',this)">Editor de Página</button><!-- ### CAMBIO AQUÍ ### Task 5 -->
+      <div class="admin-tab-indicator" id="tab-indicator"></div>
+    </div>
+
+    <!-- TAB TURNOS -->
+    <div class="admin-tab-content active" id="tab-turnos">
+      <div class="admin-bar">
+        <button class="btn-imprimir" onclick="imprimirTurnosDia()">
+          <svg viewBox="0 0 24 24" stroke-width="1.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Imprimir turnos del día
+        </button>
+        <span class="filtro-label">Filtrar:</span>
+        <button class="filtro-btn activo" onclick="setFiltroTurnos('todos',this)">Todos</button>
+        <button class="filtro-btn" onclick="setFiltroTurnos('pendiente',this)">Pendientes</button>
+        <button class="filtro-btn" onclick="setFiltroTurnos('confirmado',this)">Confirmados</button>
+        <button class="filtro-btn" onclick="setFiltroTurnos('atendido',this)">Atendidos</button>
+        <button class="filtro-btn" onclick="setFiltroTurnos('cancelado',this)">Cancelados</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="turnos-table">
+          <thead>
+            <tr>
+              <th>Tutor</th>
+              <th>Mascota</th>
+              <th>Servicio</th>
+              <th>Fecha / Hora</th>
+              <th>Estado</th>
+              <th>Urgente</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="turnos-tbody">
+            <tr><td colspan="7" style="color:var(--tinta2);padding:2rem 0;font-size:.82rem">No hay turnos.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB SERVICIOS -->
+    <div class="admin-tab-content" id="tab-servicios">
+      <div class="admin-servicios-list" id="admin-servicios-list"></div>
+      <button class="btn-guardar-admin" onclick="guardarServicios()">Guardar cambios</button>
+    </div>
+
+    <!-- TAB INSUMOS -->
+    <div class="admin-tab-content" id="tab-insumos">
+      <p style="font-size:.82rem;color:var(--tinta2);margin-bottom:1.5rem">Servicios marcados como "Necesita insumos". Marcalos como abastecidos una vez repuestos.</p>
+      <div class="insumos-list" id="insumos-list">
+        <p class="insumos-empty">No hay insumos pendientes.</p>
+      </div>
+    </div>
+
+    <!-- TAB STATS --> <!-- ### CAMBIO AQUÍ ### -->
+    <div class="admin-tab-content" id="tab-stats">
+      <div id="vet-stats-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-bottom:2rem"></div>
+      <div id="vet-stats-extra"></div>
+    </div>
+
+    <!-- TAB CONFIG -->
+    <div class="admin-tab-content" id="tab-config">
+      <p class="admin-section-titulo">Identidad</p>
+      <div class="admin-campo"><label>Nombre de la veterinaria</label><input id="cfg-nombre" type="text"></div>
+      <div class="admin-campo"><label>Slogan</label><input id="cfg-slogan" type="text"></div>
+      <p class="admin-section-titulo">Contacto</p>
+      <div class="admin-campo"><label>WhatsApp urgencias (solo números)</label><input id="cfg-whatsapp-urg" type="text"></div>
+      <div class="admin-campo"><label>WhatsApp turnos (solo números)</label><input id="cfg-whatsapp" type="text"></div>
+      <div class="admin-campo"><label>Teléfono</label><input id="cfg-telefono" type="text"></div>
+      <div class="admin-campo"><label>Dirección</label><input id="cfg-direccion" type="text"></div>
+      <div class="admin-campo"><label>Horario de atención</label><input id="cfg-horario" type="text"></div>
+      <div class="admin-campo"><label>Urgencias (horario)</label><input id="cfg-horario-urg" type="text"></div>
+      <div class="admin-campo"><label>Instagram</label><input id="cfg-instagram" type="text"></div>
+      <p class="admin-section-titulo">Seguridad</p>
+      <div class="admin-campo"><label>Contraseña de administración</label><input id="cfg-admin-pass" type="password" autocomplete="new-password" placeholder="Nueva contraseña"></div>
+      <div class="admin-campo"><label>Confirmar contraseña</label><input id="cfg-admin-pass2" type="password" autocomplete="new-password" placeholder="Repetir contraseña"></div>
+      <p class="admin-section-titulo">IA Consejero</p>
+      <div class="admin-campo"><label>Prompt IA (consejero veterinario)</label><textarea id="cfg-prompt-ia" rows="5"></textarea></div>
+      <button class="btn-guardar-admin" onclick="guardarConfig()">Guardar configuración</button>
+    </div><!-- ### CAMBIO AQUÍ ### Fix 2 — cierre correcto de tab-config (faltaba este </div>, causaba que el editor quedara DENTRO del tab-config y no se mostrara) -->
+
+    <!-- TAB EDITOR DE PÁGINA -->
+    <div class="admin-tab-content" id="tab-editor">
+      <p class="admin-section-titulo">Hero</p>
+      <div class="admin-campo"><label>Título principal</label><input id="pe-hero-titulo" type="text" placeholder="Cuidado integral para tu mascota"><button class="btn-guardar-admin" style="margin-top:.5rem;padding:.5rem 1.25rem;font-size:.75rem" onclick="guardarEditorCampo('heroTitulo','pe-hero-titulo')">Guardar</button></div>
+      <div class="admin-campo"><label>Subtítulo / slogan</label><input id="pe-hero-subtitulo" type="text"><button class="btn-guardar-admin" style="margin-top:.5rem;padding:.5rem 1.25rem;font-size:.75rem" onclick="guardarEditorCampo('heroSubtitulo','pe-hero-subtitulo')">Guardar</button></div>
+      <div class="admin-campo"><label>Descripción hero</label><textarea id="pe-hero-desc" rows="3"></textarea><button class="btn-guardar-admin" style="margin-top:.5rem;padding:.5rem 1.25rem;font-size:.75rem" onclick="guardarEditorCampo('heroDesc','pe-hero-desc')">Guardar</button></div>
+      <div class="admin-campo">
+        <label>URL imagen hero</label>
+        <input id="pe-hero-img" type="url" placeholder="https://...">
+        <button class="btn-guardar-admin" style="margin-top:.5rem;padding:.5rem 1.25rem;font-size:.75rem" onclick="guardarEditorCampo('heroImg','pe-hero-img')">Guardar</button>
+        <img id="pe-hero-img-preview" src="" alt="Preview" style="display:none;width:60px;height:60px;object-fit:cover;margin-top:.5rem;border:1px solid var(--linea)">
+      </div>
+      <p class="admin-section-titulo">Servicios</p>
+      <div class="admin-campo"><label>Título de sección Servicios</label><input id="pe-srv-titulo" type="text" placeholder="Servicios"><button class="btn-guardar-admin" style="margin-top:.5rem;padding:.5rem 1.25rem;font-size:.75rem" onclick="guardarEditorCampo('srvTitulo','pe-srv-titulo')">Guardar</button></div>
+      <div class="admin-campo"><label>Subtexto sección Servicios</label><input id="pe-srv-sub" type="text" placeholder="Clinica completa"><button class="btn-guardar-admin" style="margin-top:.5rem;padding:.5rem 1.25rem;font-size:.75rem" onclick="guardarEditorCampo('srvSub','pe-srv-sub')">Guardar</button></div>
+      <p class="admin-section-titulo">Equipo / Nosotros</p>
+      <div class="admin-campo"><label>Título sección Equipo</label><input id="pe-equipo-titulo" type="text" placeholder="Nuestro equipo"><button class="btn-guardar-admin" style="margin-top:.5rem;padding:.5rem 1.25rem;font-size:.75rem" onclick="guardarEditorCampo('equipoTitulo','pe-equipo-titulo')">Guardar</button></div>
+      <div class="admin-campo"><label>Subtexto sección Equipo</label><input id="pe-equipo-sub" type="text" placeholder="Veterinarios especializados"><button class="btn-guardar-admin" style="margin-top:.5rem;padding:.5rem 1.25rem;font-size:.75rem" onclick="guardarEditorCampo('equipoSub','pe-equipo-sub')">Guardar</button></div>
+      <p class="admin-section-titulo">Contacto / Footer</p>
+      <div class="admin-campo"><label>Texto pie de página (línea extra)</label><input id="pe-footer-extra" type="text" placeholder="Texto adicional en footer"><button class="btn-guardar-admin" style="margin-top:.5rem;padding:.5rem 1.25rem;font-size:.75rem" onclick="guardarEditorCampo('footerExtra','pe-footer-extra')">Guardar</button></div>
+      <div style="margin-top:1.5rem;padding:.85rem 1rem;background:var(--fondo);border-left:3px solid var(--acento);font-size:.78rem;color:var(--tinta2)">Los cambios se aplican inmediatamente al sitio y se guardan en este dispositivo.</div>
+    </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo" id="nav-logo">Veterinaria <em>Buenos Aires</em></span>
+  <div class="nav-links" id="nav-links">
+    <a onclick="navegarA('servicios')">Servicios</a>
+    <a onclick="navegarA('equipo')">Equipo</a>
+    <a onclick="navegarA('ia')">Consejos</a>
+    <a onclick="navegarA('turnos')">Turno</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-urgencia-nav" id="btn-urg-nav" onclick="llamarUrgencias()">Urgencias</button>
+    <button class="btn-turno-nav" onclick="navegarA('turnos')">Reservar turno</button>
+    <button class="btn-staff-nav" onclick="abrirLogin()">Staff</button>
+    <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- SITIO PUBLICO (panels animados) -->
+<div id="site-public">
+
+  <!-- HERO (siempre visible como base) -->
+  <div id="panel-hero" class="seccion-panel activo panel-patita-entra">
+    <section class="hero" style="position:relative">
+      <canvas id="hero-canvas-VET" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:1"></canvas>
+      <div class="hero-foto" style="position:relative;z-index:1">
+        <img id="hero-img" src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=900&q=80" alt="Veterinaria">
+      </div>
+      <div class="hero-contenido" style="position:relative;z-index:1">
+        <h1 class="hero-titulo" id="hero-titulo">Cuidado <em>integral</em> para tu mascota</h1>
+        <p class="hero-desc" id="hero-desc">Atención veterinaria con experiencia, tecnología y mucho amor por los animales.</p>
+        <div class="hero-ctas">
+          <button class="btn-turno-hero" onclick="navegarA('turnos')">Reservar turno</button>
+          <button class="btn-urgencia-hero" id="btn-urg-hero" onclick="llamarUrgencias()">Urgencias</button>
+        </div>
+        <div class="hero-datos">
+          <div class="hero-dato"><small>Dirección</small><span id="hero-dir">Thames 2034, Palermo</span></div>
+          <div class="hero-dato"><small>Horario</small><span id="hero-hora">Lun-Sab 8:00-20:00</span></div>
+          <div class="hero-dato"><small>Urgencias</small><span id="hero-urg">24 horas</span></div>
+        </div>
+      </div>
+    </section>
+    <footer>
+      <div><div class="footer-logo" id="footer-logo">Veterinaria <em>BA</em></div></div>
+      <div class="footer-mid">
+        <p id="footer-dir">Thames 2034, Palermo</p>
+        <p id="footer-hora">Lun-Sab 8:00-20:00</p>
+        <p id="footer-ig">@veterinaria.palermo</p>
+      </div>
+      <div class="footer-zynnos">Powered by Zynnos</div>
+    </footer>
+  </div>
+
+  <!-- SERVICIOS -->
+  <div id="panel-servicios" class="seccion-panel">
+    <section class="servicios" style="min-height:90vh;padding-top:5rem;margin-top:55px">
+      <div class="sec-header">
+        <h2 class="sec-titulo">Servicios</h2>
+        <span class="sec-sub">Clinica completa</span>
+      </div>
+      <div class="servicios-grid" id="servicios-grid"></div>
+    </section>
+  </div>
+
+  <!-- EQUIPO -->
+  <div id="panel-equipo" class="seccion-panel">
+    <section class="equipo" style="min-height:90vh;margin-top:55px">
+      <div class="sec-header">
+        <h2 class="sec-titulo">Nuestro equipo</h2>
+        <span class="sec-sub">Veterinarios especializados</span>
+      </div>
+      <div class="equipo-grid" id="equipo-grid"></div>
+    </section>
+  </div>
+
+  <!-- IA CONSEJOS -->
+  <div id="panel-ia" class="seccion-panel">
+    <section class="ia-section" style="min-height:90vh;margin-top:55px">
+      <div class="ia-info">
+        <h2>Consejero veterinario</h2>
+        <p>Ante cualquier sintoma o duda sobre la salud de tu mascota, podemos orientarte. Si los sintomas son graves, te indicamos si debe ser atendida de inmediato.</p>
+        <p class="ia-aviso">Esta herramienta no reemplaza la consulta presencial con un veterinario.</p>
+      </div>
+      <div class="ia-chat-wrap">
+        <div class="chat-box" id="chat-box" role="log" aria-live="polite">
+          <div class="msg bot">Hola. Contame que sintomas tiene tu mascota y te ayudo a evaluar la situacion.</div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" type="text" placeholder="Ej: mi perro vomito y no quiere comer..." maxlength="400" aria-label="Mensaje">
+          <button class="chat-send" onclick="enviarMensaje()">Enviar</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- TURNOS -->
+  <div id="panel-turnos" class="seccion-panel">
+    <section class="turnos" style="min-height:90vh;margin-top:55px">
+      <div class="turnos-info">
+        <h2>Reserva un turno</h2>
+        <p>Confirmamos tu turno por WhatsApp. Los turnos de urgencia tienen prioridad en la agenda.</p>
+        <div class="urgencia-aviso">
+          <p><strong>Si tu mascota tiene una emergencia,</strong> no esperes: llamanos directamente o veni sin turno. Atendemos urgencias fuera del horario habitual.</p>
+        </div>
+      </div>
+      <div>
+        <input type="text" id="zynnos-hp" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <!-- ### CAMBIO AQUÍ ### Fix 3 — todos los campos obligatorios llevan required -->
+        <div class="form-campo"><label>Tu nombre <span style="color:var(--urgencia)">*</span></label><input type="text" id="f-nombre" maxlength="80" autocomplete="name" required></div>
+        <div class="form-campo"><label>Telefono / WhatsApp <span style="color:var(--urgencia)">*</span></label><input type="tel" id="f-tel" maxlength="20" autocomplete="tel" required></div>
+        <div class="form-campo"><label>Nombre de la mascota <span style="color:var(--urgencia)">*</span></label><input type="text" id="f-mascota" maxlength="60" required></div>
+        <div class="form-campo"><label>Especie <span style="color:var(--urgencia)">*</span></label>
+          <select id="f-especie" required>
+            <option value="">— Selecciona la especie —</option><!-- ### CAMBIO AQUÍ ### Fix 3 — opción vacía para forzar selección -->
+            <option value="Perro">Perro</option>
+            <option value="Gato">Gato</option>
+            <option value="Ave">Ave</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div class="form-campo"><label>Servicio <span style="color:var(--urgencia)">*</span></label>
+          <select id="f-servicio" required>
+            <option value="">Selecciona el servicio</option>
+          </select>
+        </div>
+        <div class="form-campo"><label>Fecha preferida <span style="color:var(--urgencia)">*</span></label><input type="date" id="f-fecha" required></div>
+        <div class="form-campo"><label>Hora preferida <span style="color:var(--urgencia)">*</span></label>
+          <select id="f-hora" required>
+            <option value="">— Selecciona el horario —</option><!-- ### CAMBIO AQUÍ ### Fix 3 — opción vacía para forzar selección -->
+            <option value="8:00">8:00</option><option value="9:00">9:00</option>
+            <option value="10:00">10:00</option><option value="11:00">11:00</option>
+            <option value="12:00">12:00</option><option value="14:00">14:00</option>
+            <option value="15:00">15:00</option><option value="16:00">16:00</option>
+            <option value="17:00">17:00</option><option value="18:00">18:00</option>
+          </select>
+        </div>
+        <div class="form-campo" style="flex-direction:row;align-items:center;gap:.75rem">
+          <label style="margin:0;flex-shrink:0">Urgente</label>
+          <input type="checkbox" id="f-urgente" style="accent-color:var(--urgencia);width:15px;height:15px;flex-shrink:0">
+        </div>
+        <div class="form-campo"><label>Observaciones <span style="color:var(--urgencia)">*</span></label><textarea id="f-notas" maxlength="300" placeholder="Sintomas actuales, medicamentos, etc." rows="3" required></textarea></div><!-- ### CAMBIO AQUÍ ### Fix 3 — observaciones también requerida -->
+        <button class="btn-turno-form" onclick="enviarTurno()">Confirmar turno</button>
+        <div id="vet-confirmacion" style="display:none;margin-top:1.5rem;border:1px solid var(--linea);padding:1.5rem;background:var(--fondo3);border-radius:4px">
+          <p style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--acento);margin-bottom:1rem">Turno registrado</p>
+          <!-- ### CAMBIO AQUÍ ### Task 1 — resumen del turno con botones WhatsApp/Calendario -->
+          <div id="vet-detalle" style="font-size:.82rem;color:var(--tinta2);line-height:2.2;margin-bottom:1.25rem"></div>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+            <button onclick="vetTurnoWhatsApp()" style="background:#25D366;color:#fff;padding:.6rem 1.4rem;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;gap:.5rem">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Agregar a WhatsApp
+            </button>
+            <button onclick="vetTurnoCalendario()" style="background:transparent;border:1px solid var(--acento);padding:.6rem 1.1rem;font-size:.78rem;cursor:pointer;color:var(--acento);display:flex;align-items:center;gap:.5rem">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Agregar al Calendario
+            </button>
+            <button onclick="document.getElementById('vet-confirmacion').style.display='none'" style="background:transparent;border:1px solid var(--linea);padding:.6rem 1.1rem;font-size:.78rem;cursor:pointer;color:var(--tinta2)">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- BANNER RECORDATORIO VET -->
+  <div id="vet-recordatorio-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:var(--acento);color:#fff;padding:1rem 2rem;align-items:center;gap:1rem;flex-wrap:wrap">
+    <div style="flex:1;font-size:.88rem" id="vet-recordatorio-texto"></div>
+    <div style="display:flex;gap:.75rem">
+      <button onclick="confirmarVetRecordatorio()" style="background:#fff;color:var(--acento);border:none;padding:.45rem 1.1rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer">Confirmar por WhatsApp</button>
+      <button onclick="document.getElementById('vet-recordatorio-banner').style.display='none'" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);padding:.45rem .9rem;font-size:.7rem;cursor:pointer">Cerrar</button>
+    </div>
+  </div>
+
+</div><!-- /site-public -->
+
+<!-- ### CAMBIO AQUÍ ### Task 2 — Modal urgencias (reemplaza window.location.href que causaba pantalla blanca) -->
+<div id="modal-urgencias" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.45);align-items:flex-end;justify-content:center" onclick="if(event.target===this)cerrarUrgencias()">
+  <div style="background:var(--fondo3);width:100%;max-width:480px;padding:2rem 2rem 2.5rem;border-radius:12px 12px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.18);animation:patitaEntra .35s cubic-bezier(.22,1,.36,1) both">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <span style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--urgencia)">🚨 Urgencias</span>
+      <button onclick="cerrarUrgencias()" style="font-size:.72rem;letter-spacing:.08em;color:var(--tinta2);border:1px solid var(--linea);padding:.3rem .75rem;background:none;cursor:pointer">Cerrar</button>
+    </div>
+    <p style="font-size:.88rem;color:var(--tinta2);margin-bottom:1.5rem;line-height:1.75">Si tu mascota tiene una emergencia, contactanos de inmediato. Atendemos urgencias <strong style="color:var(--tinta)" id="urg-horario-modal">24 horas</strong>.</p>
+    <div style="display:flex;flex-direction:column;gap:.75rem">
+      <a id="urg-tel-link" href="#" style="display:flex;align-items:center;gap:.85rem;padding:1rem 1.25rem;background:var(--urgencia);color:#fff;text-decoration:none;border-radius:4px">
+        <svg width="20" height="20" viewBox="0 0 24 24" stroke="white" stroke-width="2" fill="none"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+        <span style="font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700">Llamar ahora — <span id="urg-tel-txt">+54 9 11 3456-7890</span></span>
+      </a>
+      <a id="urg-wa-link" href="#" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:.85rem;padding:1rem 1.25rem;background:#25D366;color:#fff;text-decoration:none;border-radius:4px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        <span style="font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700">Urgencias por WhatsApp</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FABs -->
+<div class="fab-group">
+  <a class="fab fab-wa" id="fab-wa" href="#" target="_blank" rel="noopener" aria-label="WhatsApp">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+  <a class="fab fab-urg" id="fab-urg" href="#" aria-label="Urgencias">
+    <svg viewBox="0 0 24 24" stroke-width="2" fill="none"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+  </a>
+</div>
+
+<script>
+/* ===== SECURITY ===== */
+const ZynnosSecurity={rateLimits:{},checkRateLimit(action,max=5){const now=Date.now();if(!this.rateLimits[action])this.rateLimits[action]=[];this.rateLimits[action]=this.rateLimits[action].filter(t=>now-t<60000);if(this.rateLimits[action].length>=max)return false;this.rateLimits[action].push(now);return true;},sanitize(s){if(typeof s!=='string')return'';return s.replace(/[<>]/g,'').replace(/javascript:/gi,'').replace(/on\w+=/gi,'').trim().slice(0,500);},validators:{nombre:v=>/^[\w\sáéíóúÁÉÍÓÚñÑüÜ\-'.]{2,80}$/.test(v),telefono:v=>/^[\d\s\-\+\(\)]{6,20}$/.test(v)},checkHoneypot(){const hp=document.getElementById('zynnos-hp');return!hp||hp.value==='';},protectImages(){document.addEventListener('contextmenu',e=>{if(e.target.tagName==='IMG')e.preventDefault();});document.addEventListener('dragstart',e=>{if(e.target.tagName==='IMG')e.preventDefault();});},init(){this.protectImages();}};
+document.addEventListener('DOMContentLoaded',()=>ZynnosSecurity.init());
+
+/* ===== CONFIG ===== */
+const CONFIG = {
+  nombre: "Veterinaria Palermo",
+  slogan: "Cuidado integral para tu mascota",
+  whatsapp: "5491134567890",
+  whatsapp_urg: "5491134567890",
+  telefono: "+54 9 11 3456-7890",
+  direccion: "Thames 2034, Palermo, Buenos Aires",
+  horario: "Lun-Sab 8:00-20:00",
+  horario_urg: "24 horas",
+  instagram: "@veterinaria.palermo",
+  admin_pass: "zynnos2025",
+  prompt_ia: "Sos un consejero veterinario de una clinica en Palermo, Buenos Aires. Ayudas a los tutores de mascotas a evaluar sintomas y decidir si necesitan atencion urgente o pueden esperar un turno regular. Respondas con empatia en espanol rioplatense. Si los sintomas son graves (dificultad para respirar, convulsiones, sangrado, perdida de conciencia, intoxicacion), indicas claramente que deben ir de urgencia. Maximo 3 oraciones por respuesta.",
+  equipo: [
+    { nombre: "Dra. Carolina Vera", esp: "Medicina interna", info: "Especialista en felinos y caninos adultos. 12 anos de experiencia.", foto: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=75" },
+    { nombre: "Dr. Martin Acosta", esp: "Cirugia y emergencias", info: "Cirugia ortopedica y tejidos blandos. Atencion de urgencias 24h.", foto: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=75" },
+    { nombre: "Dra. Sofia Beltran", esp: "Nutricion y dermatologia", info: "Planes nutricionales y tratamientos dermatologicos.", foto: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&q=75" }
+  ],
+  servicios: [
+    { id:1, nombre:'Consulta general', desc:'Revisacion clinica completa', precio:'4500', activo:true, insumos:false, notaInsumos:'', icono:'stethoscope', urgente:false },
+    { id:2, nombre:'Vacunacion', desc:'Vacunas antirrabica, multiple', precio:'3800', activo:true, insumos:false, notaInsumos:'', icono:'syringe', urgente:false },
+    { id:3, nombre:'Peluqueria canina', desc:'Bano, corte y secado', precio:'5500', activo:true, insumos:false, notaInsumos:'', icono:'scissors', urgente:false },
+    { id:4, nombre:'Cirugia', desc:'Internacion + procedimiento', precio:'25000', activo:true, insumos:false, notaInsumos:'', icono:'alert', urgente:true },
+    { id:5, nombre:'Ecografia', desc:'Diagnostico por imagenes', precio:'8500', activo:true, insumos:false, notaInsumos:'', icono:'scan', urgente:false },
+    { id:6, nombre:'Castracion', desc:'Machos y hembras', precio:'18000', activo:true, insumos:false, notaInsumos:'', icono:'scissors', urgente:false }
+  ]
+};
+
+/* ===== STATE ===== */
+let cfgDynamic={};
+try{cfgDynamic=JSON.parse(localStorage.getItem('vet_config')||'{}');}catch(e){}
+const c=()=>({...CONFIG,...cfgDynamic});
+
+let turnos=[];
+try{turnos=JSON.parse(localStorage.getItem('vet_turnos')||'[]');}catch(e){}
+
+let filtroTurnos='todos';
+let panelActivo='hero';
+
+/* ===== HELPERS ===== */
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function iconoServicio(tipo){
+  const icons={
+    stethoscope:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.8 2.3A.3.3 0 105 2H4a2 2 0 00-2 2v5a6 6 0 006 6v0a6 6 0 006-6V4a2 2 0 00-2-2h-1a.2.2 0 10.3.3"/><path d="M8 15v1a6 6 0 006 6v0a6 6 0 006-6v-4"/><circle cx="20" cy="10" r="2"/></svg>`,
+    syringe:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg>`,
+    scissors:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>`,
+    alert:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    scan:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 7 23 1 17 1"/><line x1="16" y1="8" x2="23" y2="1"/><polyline points="1 17 1 23 7 23"/><line x1="8" y1="16" x2="1" y2="23"/><line x1="21" y1="12" x2="3" y2="12"/></svg>`
+  };
+  return icons[tipo]||icons.stethoscope;
+}
+
+function formatPrecio(precio){
+  if(!precio||String(precio).trim()==='')return'Consultar';
+  const n=parseFloat(String(precio).replace(/[^0-9.]/g,''));
+  if(isNaN(n))return precio;
+  return'Desde $'+n.toLocaleString('es-AR');
+}
+
+/* ===== NAVEGACION CON ANIMACION PATITA ===== */
+function navegarA(id){
+  if(panelActivo===id)return;
+  const panelSaliente=document.getElementById('panel-'+panelActivo);
+  const panelEntrante=document.getElementById('panel-'+id);
+  if(!panelEntrante)return;
+
+  if(panelSaliente){
+    panelSaliente.classList.remove('panel-patita-entra');
+    panelSaliente.classList.add('panel-patita-sale');
+    const dur=300;
+    setTimeout(()=>{
+      panelSaliente.classList.remove('activo','panel-patita-sale');
+    },dur);
+  }
+
+  setTimeout(()=>{
+    panelEntrante.classList.add('activo');
+    panelEntrante.classList.remove('panel-patita-entra');
+    void panelEntrante.offsetWidth;
+    panelEntrante.classList.add('panel-patita-entra');
+    window.scrollTo({top:0,behavior:'smooth'});
+  },panelSaliente?280:0);
+
+  panelActivo=id;
+  document.getElementById('nav-links').classList.remove('open');
+}
+
+/* ===== RENDER PAGINA ===== */
+function renderPagina(){
+  const cfg=c();
+  document.getElementById('page-title').textContent=cfg.nombre;
+  const parts=cfg.nombre.split(' ');
+  document.getElementById('nav-logo').innerHTML=`${esc(parts[0])} <em>${esc(parts.slice(1).join(' '))}</em>`;
+  document.getElementById('hero-titulo').innerHTML=`Cuidado <em>integral</em><br>para tu mascota`;
+  document.getElementById('hero-desc').textContent=cfg.slogan;
+  document.getElementById('hero-dir').textContent=cfg.direccion.split(',')[0];
+  document.getElementById('hero-hora').textContent=cfg.horario;
+  document.getElementById('hero-urg').textContent=cfg.horario_urg;
+  document.getElementById('footer-logo').innerHTML=`${esc(parts[0])} <em>${esc(parts.slice(1).join(' '))}</em>`;
+  document.getElementById('footer-dir').textContent=cfg.direccion.split(',')[0];
+  document.getElementById('footer-hora').textContent=cfg.horario;
+  document.getElementById('footer-ig').textContent=cfg.instagram;
+  document.getElementById('admin-titulo').textContent=cfg.nombre+' — Administracion';
+  document.getElementById('fab-wa').href=`https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent('Hola, quiero consultar en '+cfg.nombre)}`;
+  document.getElementById('fab-urg').href=`tel:${cfg.telefono}`;
+  renderServicios();
+  renderEquipo();
+  renderServicioSelect();
+}
+
+function renderServicios(){
+  const lista=(cfgDynamic.servicios||CONFIG.servicios);
+  const activos=lista.filter(s=>s.activo!==false);
+  document.getElementById('servicios-grid').innerHTML=activos.map(s=>`
+    <div class="srv-item${s.urgente?' urgente':''}">
+      <div class="srv-icono">${iconoServicio(s.icono)}</div>
+      <div class="srv-nombre">${esc(s.nombre)}</div>
+      <div class="srv-desc">${esc(s.desc)}</div>
+      <div class="srv-precio">${esc(formatPrecio(s.precio))}</div>
+    </div>`).join('');
+}
+
+function renderServicioSelect(){
+  const lista=(cfgDynamic.servicios||CONFIG.servicios).filter(s=>s.activo!==false);
+  const sel=document.getElementById('f-servicio');
+  sel.innerHTML='<option value="">Selecciona el servicio</option>'+
+    lista.map(s=>`<option value="${esc(s.nombre)}">${esc(s.nombre)}</option>`).join('');
+}
+
+function renderEquipo(){
+  const equipo=c().equipo||CONFIG.equipo;
+  document.getElementById('equipo-grid').innerHTML=equipo.map(v=>`
+    <div class="vet-card">
+      <div class="vet-foto"><img src="${esc(v.foto)}" alt="${esc(v.nombre)}" loading="lazy"></div>
+      <div class="vet-nombre">${esc(v.nombre)}</div>
+      <div class="vet-esp">${esc(v.esp)}</div>
+      <div class="vet-info">${esc(v.info)}</div>
+    </div>`).join('');
+}
+
+/* ===== URGENCIAS ===== */ /* ### CAMBIO AQUÍ ### Task 2 — modal en lugar de window.location (pantalla blanca) */
+function llamarUrgencias(){
+  const cfg=c();
+  const modal=document.getElementById('modal-urgencias');
+  if(!modal)return;
+  document.getElementById('urg-tel-txt').textContent=cfg.telefono;
+  document.getElementById('urg-horario-modal').textContent=cfg.horario_urg||'24 horas';
+  document.getElementById('urg-tel-link').href='tel:'+cfg.telefono;
+  const msgWa=encodeURIComponent('Hola! Tengo una urgencia veterinaria. Necesito atención ahora.');
+  document.getElementById('urg-wa-link').href='https://wa.me/'+(cfg.whatsapp_urg||cfg.whatsapp)+'?text='+msgWa;
+  modal.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function cerrarUrgencias(){
+  const modal=document.getElementById('modal-urgencias');
+  if(modal)modal.style.display='none';
+  document.body.style.overflow='';
+}
+
+/* ===== TURNO PUBLICO ===== */
+let _ultimoTurnoVet = null;
+
+function enviarTurno(){ /* ### CAMBIO AQUÍ ### Fix 3 — validación completa de todos los campos */
+  if(!ZynnosSecurity.checkRateLimit('turno',3)){alert('Demasiadas solicitudes. Intenta en unos minutos.');return;}
+  if(!ZynnosSecurity.checkHoneypot())return;
+  const nombre=document.getElementById('f-nombre').value.trim();
+  const tel=document.getElementById('f-tel').value.trim();
+  const mascota=ZynnosSecurity.sanitize(document.getElementById('f-mascota').value);
+  const especie=document.getElementById('f-especie').value;
+  const servicio=document.getElementById('f-servicio').value;
+  const fecha=document.getElementById('f-fecha').value;
+  const hora=document.getElementById('f-hora').value;
+  const urgente=document.getElementById('f-urgente').checked;
+  const notas=ZynnosSecurity.sanitize(document.getElementById('f-notas').value);
+  /* ### CAMBIO AQUÍ ### Fix 3 — validar TODOS los campos con mensajes específicos */
+  if(!ZynnosSecurity.validators.nombre(nombre)){alert('Por favor ingresá tu nombre completo (mínimo 2 caracteres).');return;}
+  if(!ZynnosSecurity.validators.telefono(tel)){alert('Por favor ingresá un teléfono o WhatsApp válido.');return;}
+  if(!mascota){alert('Por favor ingresá el nombre de tu mascota.');return;}
+  if(!especie){alert('Por favor seleccioná la especie de tu mascota (Perro, Gato, Ave u Otro).');return;}
+  if(!servicio){alert('Por favor seleccioná el servicio para el turno.');return;}
+  if(!fecha){alert('Por favor elegí una fecha para el turno.');return;}
+  if(!hora){alert('Por favor seleccioná el horario preferido.');return;}
+  if(!notas.trim()){alert('Por favor describí brevemente el motivo de la consulta (síntomas, medicamentos, etc.).');return;}
+  /* ### CAMBIO AQUÍ ### Fix 3 — fin validaciones */
+  const turno={
+    id:Date.now(),mascota,especie,dueno:nombre,tel,fecha,hora,servicio,
+    estado:'pendiente',urgente,ts:new Date().toISOString()
+  };
+  turnos.push(turno);
+  localStorage.setItem('vet_turnos',JSON.stringify(turnos));
+  _ultimoTurnoVet = turno;
+
+  // Guardar recordatorio
+  let recs=[];
+  try{recs=JSON.parse(localStorage.getItem('vet_recordatorios')||'[]');}catch(e){}
+  recs.push({id:turno.id,nombre,mascota,especie,servicio,fecha,hora,ts:turno.ts});
+  localStorage.setItem('vet_recordatorios',JSON.stringify(recs));
+
+  // Confirmación inline
+  const [y,m,d]=fecha.split('-');
+  document.getElementById('vet-detalle').innerHTML=
+    `<strong>Tutor:</strong> ${esc(nombre)}<br>` +
+    `<strong>Mascota:</strong> ${esc(mascota)} (${esc(especie)})<br>` +
+    `<strong>Servicio:</strong> ${esc(servicio)}<br>` +
+    `<strong>Fecha:</strong> ${d}/${m}/${y} a las ${esc(hora)}<br>` +
+    (urgente?`<strong style="color:var(--urgencia)">URGENTE</strong><br>`:'') +
+    (notas?`<strong>Observaciones:</strong> ${esc(notas)}<br>`:'') +
+    `<strong>Lugar:</strong> ${esc(c().direccion)}`;
+  const box=document.getElementById('vet-confirmacion');
+  box.style.display='block';
+  // Reset form
+  ['f-nombre','f-tel','f-mascota','f-notas'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('f-especie').selectedIndex=0;
+  document.getElementById('f-servicio').selectedIndex=0;
+  document.getElementById('f-fecha').value='';
+  document.getElementById('f-urgente').checked=false;
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function vetTurnoWhatsApp(){ /* ### CAMBIO AQUÍ ### Task 1 — mensaje en formato requerido */
+  if(!_ultimoTurnoVet)return;
+  const t=_ultimoTurnoVet;
+  const [y,m,d]=t.fecha.split('-');
+  const fechaFmt=`${d}/${m}/${y}`;
+  const msg=`Hola! Confirmo mi turno para ${t.mascota} el ${fechaFmt} a las ${t.hora} - ${t.servicio}`;
+  window.open(`https://wa.me/${c().whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+function vetTurnoCalendario(){
+  if(!_ultimoTurnoVet)return;
+  const t=_ultimoTurnoVet;
+  const [y,m,d]=t.fecha.split('-');
+  const [hh,mm]=(t.hora||'10:00').split(':');
+  const dtStart=`${y}${m}${d}T${hh}${mm||'00'}00`;
+  const hEnd=String(parseInt(hh,10)+1).padStart(2,'0');
+  const dtEnd=`${y}${m}${d}T${hEnd}${mm||'00'}00`;
+  const ics=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Zynnos//Veterinaria//ES\r\nBEGIN:VEVENT\r\nDTSTART:${dtStart}\r\nDTEND:${dtEnd}\r\nSUMMARY:Turno vet. de ${t.mascota} en ${c().nombre}\r\nDESCRIPTION:Tutor: ${t.dueno}\\nMascota: ${t.mascota} (${t.especie})\\nServicio: ${t.servicio}\r\nLOCATION:${c().direccion}\r\nEND:VEVENT\r\nEND:VCALENDAR`;
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`turno-vet-${t.mascota}-${t.fecha}.ics`;a.click();URL.revokeObjectURL(url);
+}
+
+function verificarRecordatoriosVet(){
+  let recs=[];
+  try{recs=JSON.parse(localStorage.getItem('vet_recordatorios')||'[]');}catch(e){}
+  if(!recs.length)return;
+  const ahora=Date.now();
+  for(const r of recs){
+    try{
+      const tsReserva=new Date(r.ts).getTime();
+      const [yr,mo,da]=r.fecha.split('-');
+      const [hh,mm]=(r.hora||'10:00').split(':');
+      const tsEvento=new Date(yr,mo-1,da,parseInt(hh),parseInt(mm||'0')).getTime();
+      if(tsEvento<ahora)continue;
+      const total=tsEvento-tsReserva;
+      const rest=tsEvento-ahora;
+      if(rest<total*0.55&&rest>0){
+        const [dd,mm2,yy]=[da,mo,yr];
+        document.getElementById('vet-recordatorio-texto').textContent=
+          `Recordatorio: ${r.nombre}, el turno de ${r.mascota} (${r.servicio}) está programado para el ${dd}/${mm2}/${yy} a las ${r.hora}. ¿Lo confirmamos?`;
+        document.getElementById('vet-recordatorio-banner').style.display='flex';
+        window._vetRecordatorioActual=r;
+        break;
+      }
+    }catch(e){}
+  }
+}
+
+function confirmarVetRecordatorio(){
+  const r=window._vetRecordatorioActual;
+  if(!r)return;
+  const [y,m,d]=r.fecha.split('-');
+  const msg=`Hola! Quiero confirmar el turno de ${r.mascota} (${r.especie}) para ${r.servicio} el ${d}/${m}/${y} a las ${r.hora}. Nombre del tutor: ${r.nombre}`;
+  window.open(`https://wa.me/${c().whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
+  document.getElementById('vet-recordatorio-banner').style.display='none';
+}
+
+/* ===== IA CHAT ===== */
+let chatHistory=[];
+async function enviarMensaje(){
+  if(!ZynnosSecurity.checkRateLimit('chat',8)){alert('Demasiados mensajes. Espera un momento.');return;}
+  const inp=document.getElementById('chat-input');
+  const texto=ZynnosSecurity.sanitize(inp.value.trim());
+  if(!texto)return;
+  inp.value='';
+  agregarMsg('user',texto);
+  chatHistory.push({role:'user',content:texto});
+  const lid='load_'+Date.now();
+  agregarMsg('bot','...',lid);
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':'TU_API_KEY_AQUI','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,system:c().prompt_ia,messages:chatHistory.slice(-6)})});
+    const d=await r.json();
+    const resp=d.content?.[0]?.text||'No pude procesar tu consulta.';
+    document.getElementById(lid)?.remove();
+    agregarMsg('bot',resp);
+    chatHistory.push({role:'assistant',content:resp});
+  }catch(e){document.getElementById(lid)?.remove();agregarMsg('bot','Error de conexion.');}
+}
+function agregarMsg(rol,txt,id=''){const box=document.getElementById('chat-box');const d=document.createElement('div');d.className=`msg ${rol}`;if(id)d.id=id;d.textContent=txt;box.appendChild(d);box.scrollTop=box.scrollHeight;}
+document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')enviarMensaje();});
+
+/* ===== NAV MOBILE ===== */
+function toggleMenu(){document.getElementById('nav-links').classList.toggle('open');}
+
+/* ===== LOGIN ===== */
+function abrirLogin(){
+  if(sessionStorage.getItem('vet_admin_auth')==='ok'){abrirAdmin();return;}
+  document.getElementById('login-pwd').value='';
+  document.getElementById('login-error').textContent='';
+  document.getElementById('loginOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('login-pwd').focus(),80);
+}
+function cerrarLogin(){document.getElementById('loginOverlay').classList.remove('open');}
+function intentarLogin(){
+  const pwd=document.getElementById('login-pwd').value;
+  const pass=cfgDynamic.admin_pass||CONFIG.admin_pass;
+  if(pwd===pass){
+    sessionStorage.setItem('vet_admin_auth','ok');
+    cerrarLogin();
+    abrirAdmin();
+  }else{
+    document.getElementById('login-error').textContent='Contrasena incorrecta.';
+    document.getElementById('login-pwd').select();
+  }
+}
+document.getElementById('login-pwd').addEventListener('keydown',e=>{if(e.key==='Enter')intentarLogin();});
+
+/* ===== ADMIN ===== */
+function abrirAdmin(){
+  document.getElementById('adminOverlay').classList.add('open');
+  document.body.classList.add('admin-open');
+  renderAdminTurnos();
+  renderAdminServicios();
+  renderAdminInsumos();
+  cargarAdminConfig();
+  cargarEditorConfig(); // ### CAMBIO AQUÍ ### Task 5 — carga editor al abrir admin
+  setTimeout(()=>actualizarIndicadorTab(),50);
+}
+function cerrarAdmin(){
+  document.getElementById('adminOverlay').classList.remove('open');
+  document.body.classList.remove('admin-open');
+}
+function actualizarIndicadorTab(){
+  const activeTab=document.querySelector('.admin-tab.active');
+  const indicator=document.getElementById('tab-indicator');
+  if(!activeTab||!indicator)return;
+  indicator.style.left=activeTab.offsetLeft+'px';
+  indicator.style.width=activeTab.offsetWidth+'px';
+}
+function showAdminTab(tab,btn){
+  document.querySelectorAll('.admin-tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+  actualizarIndicadorTab();
+  if(tab==='insumos')renderAdminInsumos();
+  if(tab==='stats')renderVetStats(); // ### CAMBIO AQUÍ ###
+  if(tab==='editor')cargarEditorConfig(); // ### CAMBIO AQUÍ ### Task 5
+}
+
+/* ===== FILTRO TURNOS ===== */
+function setFiltroTurnos(estado,btn){
+  filtroTurnos=estado;
+  document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('activo'));
+  btn.classList.add('activo');
+  renderAdminTurnos();
+}
+
+/* ===== TURNOS ADMIN ===== */
+function turnosFiltrados(){
+  if(filtroTurnos==='todos')return turnos;
+  return turnos.filter(t=>t.estado===filtroTurnos);
+}
+
+function renderAdminTurnos(){
+  const tbody=document.getElementById('turnos-tbody');
+  const lista=turnosFiltrados();
+  if(!lista.length){
+    tbody.innerHTML=`<tr><td colspan="7" style="color:var(--tinta2);padding:2rem 0;font-size:.82rem">No hay turnos${filtroTurnos!=='todos'?' con estado "'+filtroTurnos+'"':''}.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=lista.map(t=>{
+    const idx=turnos.indexOf(t);
+    return`<tr class="turno-pop" id="trow-${idx}">
+      <td>${esc(t.dueno)}<br><small style="color:var(--tinta2)">${esc(t.tel)}</small></td>
+      <td>${esc(t.mascota)}<br><small style="color:var(--tinta2)">${esc(t.especie)}</small></td>
+      <td>${esc(t.servicio)}</td>
+      <td>${esc(t.fecha)}<br><small>${esc(t.hora)}</small></td>
+      <td><span class="estado-badge ${esc(t.estado)}">${esc(t.estado)}</span></td>
+      <td>
+        <label class="check-row check-urgente">
+          <input type="checkbox" ${t.urgente?'checked':''} onchange="toggleUrgenteTurno(${idx},this.checked)" style="accent-color:var(--urgencia)">
+          <span style="font-size:.7rem;color:${t.urgente?'var(--urgencia)':'var(--tinta2)'}">${t.urgente?'Urgente':'Normal'}</span>
+        </label>
+      </td>
+      <td>
+        <button class="accion-btn primary" onclick="cambiarEstado(${idx},'confirmado')">Confirmar</button>
+        <button class="accion-btn" onclick="cambiarEstado(${idx},'atendido')">Atendido</button>
+        <button class="accion-btn warning" onclick="cambiarEstado(${idx},'cancelado')">Cancelar</button>
+        <button class="accion-btn danger" onclick="eliminarTurno(${idx})">Eliminar</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function cambiarEstado(i,e){turnos[i].estado=e;localStorage.setItem('vet_turnos',JSON.stringify(turnos));renderAdminTurnos();}
+function eliminarTurno(i){
+  const t=turnos[i];
+  if(!t)return;
+  if(!confirm(`Eliminar el turno de ${t.dueno} (${t.mascota})?`))return;
+  turnos.splice(i,1);
+  localStorage.setItem('vet_turnos',JSON.stringify(turnos));
+  renderAdminTurnos();
+}
+function toggleUrgenteTurno(i,v){turnos[i].urgente=v;localStorage.setItem('vet_turnos',JSON.stringify(turnos));renderAdminTurnos();}
+
+/* ===== IMPRESION ===== */
+function imprimirTurnosDia(){
+  const hoy=new Date().toISOString().split('T')[0];
+  const lista=turnos.filter(t=>t.fecha===hoy).sort((a,b)=>a.hora.localeCompare(b.hora));
+  const cfg=c();
+  const fecha=new Date().toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const ts=new Date().toLocaleString('es-AR');
+  const filas=lista.length?lista.map(t=>`
+    <tr>
+      <td style="font-weight:700">${esc(t.hora)}</td>
+      <td>${esc(t.dueno)}<br><span style="font-size:.75rem;color:#666">${esc(t.mascota)} — ${esc(t.especie)}</span></td>
+      <td>${esc(t.servicio)}</td>
+      <td><span style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:${t.estado==='pendiente'?'#c0963b':t.estado==='confirmado'?'#2d7a52':t.estado==='cancelado'?'#c05050':'#5a8a7a'}">${esc(t.estado)}</span>${t.urgente?'<br><span style="font-size:.68rem;background:#c0392b;color:#fff;padding:.1rem .4rem">URGENTE</span>':''}</td>
+    </tr>`).join(''):
+    '<tr><td colspan="4" style="color:#888;padding:1rem 0">Sin turnos programados para hoy.</td></tr>';
+
+  const html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Turnos del dia — ${esc(cfg.nombre)}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>body{font-family:'Nunito Sans',sans-serif;color:#111;padding:2rem;font-size:13px}
+  h1{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;color:#1a2b1a}
+  p.sub{font-size:.82rem;color:#555;margin:.25rem 0 1.5rem}
+  table{width:100%;border-collapse:collapse}th{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;text-align:left;padding:.5rem .5rem;border-bottom:2px solid #2d7a52;color:#2d7a52}td{padding:.6rem .5rem;border-bottom:1px solid #eee;vertical-align:top}
+  .foot{margin-top:2rem;font-size:.7rem;color:#888;border-top:1px solid #ddd;padding-top:.75rem}</style></head>
+  <body><h1>${esc(cfg.nombre)}</h1><p class="sub">Agenda del dia: ${fecha}</p>
+  <table><thead><tr><th>Hora</th><th>Tutor / Mascota</th><th>Servicio</th><th>Estado</th></tr></thead>
+  <tbody>${filas}</tbody></table>
+  <p class="foot">Impreso desde el sistema Zynnos &middot; ${ts}</p>
+  <script>window.print();setTimeout(()=>window.close(),1000);<\/script></body></html>`;
+  const w=window.open('','_blank','width=760,height=600');
+  if(w){w.document.write(html);w.document.close();}
+}
+
+function printAdminSeccion(panelId,titulo){
+  const cfg=c();
+  const ts=new Date().toLocaleString('es-AR');
+  const panel=document.getElementById(panelId);
+  if(!panel)return;
+  const contenido=panel.cloneNode(true);
+  // Quitar botones de impresion del clon
+  contenido.querySelectorAll('.btn-imprimir-publico').forEach(b=>b.remove());
+  const html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${esc(titulo)} — ${esc(cfg.nombre)}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+  :root{--acento:#2d7a52;--tinta:#1a2b1a;--tinta2:#6a7a6a;--linea:rgba(26,43,26,.12);--urgencia:#c0392b}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Nunito Sans',sans-serif;color:var(--tinta);background:#fff;padding:2rem;font-size:13px}
+  h1{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.25rem;color:var(--tinta)}
+  p.sub{font-size:.78rem;color:var(--tinta2);margin-bottom:1.5rem}
+  .servicios-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}
+  .srv-item{border:1px solid var(--linea);padding:1rem;break-inside:avoid}
+  .srv-item.urgente{border-left:3px solid var(--urgencia)}
+  .srv-nombre{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.2rem}
+  .srv-desc{font-size:.78rem;color:var(--tinta2)}
+  .srv-precio{margin-top:.5rem;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:500;color:var(--acento)}
+  .srv-icono{display:none}
+  nav,footer,.fab-group,.btn-imprimir-publico{display:none!important}
+  .hero,.equipo,.ia-section,.turnos{padding:0!important;margin:0!important;display:block!important;min-height:auto!important;grid-template-columns:1fr!important}
+  .hero-foto,.ia-info{display:none!important}
+  .foot{margin-top:2rem;font-size:.7rem;color:#888;border-top:1px solid #ddd;padding-top:.75rem;font-family:'Nunito Sans',sans-serif}
+  </style></head>
+  <body><h1>${esc(titulo)} — ${esc(cfg.nombre)}</h1><p class="sub">Impreso el ${ts}</p>
+  ${contenido.innerHTML}
+  <p class="foot">Powered by Zynnos</p>
+  <script>window.print();setTimeout(()=>window.close(),1200);<\/script></body></html>`;
+  const w=window.open('','_blank','width=800,height=650');
+  if(w){w.document.write(html);w.document.close();}
+}
+
+/* ===== ADMIN SERVICIOS ===== */
+function getServiciosMutables(){return JSON.parse(JSON.stringify(cfgDynamic.servicios||CONFIG.servicios));}
+
+function renderAdminServicios(){
+  const lista=getServiciosMutables();
+  document.getElementById('admin-servicios-list').innerHTML=lista.map((s,i)=>`
+    <div class="admin-srv-row" id="asrv-${i}">
+      <div>
+        <div class="admin-srv-nombre">${esc(s.nombre)}</div>
+        <div class="admin-srv-desc">${esc(s.desc)}</div>
+        <div class="admin-srv-fields">
+          <div class="admin-srv-precio-wrap">
+            <span class="admin-srv-precio-prefix">$</span>
+            <input class="admin-srv-precio-input" type="number" id="srv-precio-${i}" value="${esc(String(s.precio||''))}" placeholder="0" min="0">
+          </div>
+          <label class="toggle-row">
+            <input type="checkbox" class="toggle-check" id="srv-activo-${i}" ${s.activo!==false?'checked':''} onchange="toggleServActivo(${i},this.checked)">
+            Activo
+          </label>
+          <label class="toggle-row" style="color:var(--naranja)">
+            <input type="checkbox" class="toggle-check" id="srv-insumos-${i}" style="accent-color:var(--naranja)" ${s.insumos?'checked':''} onchange="toggleInsumos(${i},this.checked)">
+            Necesita insumos
+          </label>
+        </div>
+        <div class="reposicion-row${s.insumos?' visible':''}" id="repos-row-${i}">
+          <label class="reposicion-label">Que falta:</label>
+          <input class="reposicion-nota" type="text" id="repos-nota-${i}" value="${esc(s.notaInsumos||'')}" placeholder="Ej: Reponer vacuna antirrabica, faltan jeringas...">
+        </div>
+      </div>
+      <div class="admin-srv-controls">
+        <button class="accion-btn" onclick="desactivarServicio(${i})">${s.activo!==false?'Desactivar':'Activar'}</button>
+        <button class="accion-btn danger" onclick="eliminarServicio(${i})">Eliminar</button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleServActivo(i,v){
+  const row=document.getElementById('asrv-'+i);
+  if(row)row.style.opacity=v?'1':'0.5';
+  const btn=row?row.querySelector('.admin-srv-controls .accion-btn:first-child'):null;
+  if(btn)btn.textContent=v?'Desactivar':'Activar';
+}
+function toggleInsumos(i,v){
+  const row=document.getElementById('repos-row-'+i);
+  if(row)row.classList.toggle('visible',v);
+}
+function desactivarServicio(i){
+  const lista=getServiciosMutables();
+  lista[i].activo=!lista[i].activo;
+  cfgDynamic={...cfgDynamic,servicios:lista};
+  localStorage.setItem('vet_config',JSON.stringify(cfgDynamic));
+  renderAdminServicios();
+  renderServicios();
+  renderServicioSelect();
+}
+function eliminarServicio(i){
+  const lista=getServiciosMutables();
+  if(!lista[i])return;
+  if(!confirm(`Eliminar el servicio "${lista[i].nombre}"? Esta accion no se puede deshacer.`))return;
+  lista.splice(i,1);
+  cfgDynamic={...cfgDynamic,servicios:lista};
+  localStorage.setItem('vet_config',JSON.stringify(cfgDynamic));
+  renderAdminServicios();
+  renderServicios();
+  renderServicioSelect();
+}
+function guardarServicios(){
+  const lista=getServiciosMutables();
+  lista.forEach((s,i)=>{
+    const precioEl=document.getElementById('srv-precio-'+i);
+    const activoEl=document.getElementById('srv-activo-'+i);
+    const insumosEl=document.getElementById('srv-insumos-'+i);
+    const reposNotaEl=document.getElementById('repos-nota-'+i);
+    if(precioEl)s.precio=precioEl.value;
+    if(activoEl)s.activo=activoEl.checked;
+    if(insumosEl)s.insumos=insumosEl.checked;
+    if(reposNotaEl)s.notaInsumos=ZynnosSecurity.sanitize(reposNotaEl.value);
+    if(!s.insumosFecha&&s.insumos)s.insumosFecha=new Date().toLocaleDateString('es-AR');
+  });
+  cfgDynamic={...cfgDynamic,servicios:lista};
+  localStorage.setItem('vet_config',JSON.stringify(cfgDynamic));
+  renderServicios();
+  renderServicioSelect();
+  renderAdminInsumos();
+  alert('Servicios actualizados.');
+}
+
+/* ===== INSUMOS ADMIN ===== */
+function renderAdminInsumos(){
+  const lista=(cfgDynamic.servicios||CONFIG.servicios).filter(s=>s.insumos);
+  const container=document.getElementById('insumos-list');
+  if(!lista.length){
+    container.innerHTML='<p class="insumos-empty">No hay insumos pendientes. Bien abastecidos.</p>';
+    return;
+  }
+  container.innerHTML=`<div style="display:grid;gap:1px;background:var(--linea)">
+    ${lista.map((s,_)=>{
+      const idx=(cfgDynamic.servicios||CONFIG.servicios).indexOf(s);
+      return`<div class="insumo-row">
+        <div>
+          <div class="insumo-nombre">${esc(s.nombre)}</div>
+          ${s.notaInsumos?`<div class="insumo-nota">Que falta: ${esc(s.notaInsumos)}</div>`:''}
+          <div class="insumo-fecha">${s.insumosFecha?'Registrado: '+esc(s.insumosFecha):''}</div>
+        </div>
+        <button class="accion-btn primary" onclick="marcarAbastecido(${idx})">Abastecido</button>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function marcarAbastecido(i){
+  const lista=getServiciosMutables();
+  if(!lista[i])return;
+  lista[i].insumos=false;
+  lista[i].notaInsumos='';
+  lista[i].insumosFecha='';
+  cfgDynamic={...cfgDynamic,servicios:lista};
+  localStorage.setItem('vet_config',JSON.stringify(cfgDynamic));
+  renderAdminInsumos();
+  renderAdminServicios();
+}
+
+/* ===== CONFIG ADMIN ===== */
+function cargarAdminConfig(){
+  const cfg=c();
+  const map={nombre:'nombre',slogan:'slogan',whatsapp:'whatsapp','whatsapp-urg':'whatsapp_urg',telefono:'telefono',direccion:'direccion',horario:'horario','horario-urg':'horario_urg',instagram:'instagram'};
+  Object.entries(map).forEach(([id,key])=>{
+    const el=document.getElementById('cfg-'+id);
+    if(el)el.value=cfg[key]||'';
+  });
+  document.getElementById('cfg-prompt-ia').value=cfg.prompt_ia||'';
+  document.getElementById('cfg-admin-pass').value='';
+  document.getElementById('cfg-admin-pass2').value='';
+}
+function guardarConfig(){
+  const g=id=>ZynnosSecurity.sanitize(document.getElementById(id)?.value||'');
+  const pass1=document.getElementById('cfg-admin-pass').value;
+  const pass2=document.getElementById('cfg-admin-pass2').value;
+  if(pass1&&pass1!==pass2){alert('Las contrasenas no coinciden.');return;}
+  const nuevo={
+    ...cfgDynamic,
+    nombre:g('cfg-nombre'),slogan:g('cfg-slogan'),
+    whatsapp:g('cfg-whatsapp'),whatsapp_urg:g('cfg-whatsapp-urg'),
+    telefono:g('cfg-telefono'),direccion:g('cfg-direccion'),
+    horario:g('cfg-horario'),horario_urg:g('cfg-horario-urg'),
+    instagram:g('cfg-instagram'),
+    prompt_ia:document.getElementById('cfg-prompt-ia')?.value||CONFIG.prompt_ia
+  };
+  if(pass1)nuevo.admin_pass=pass1;
+  cfgDynamic=nuevo;
+  localStorage.setItem('vet_config',JSON.stringify(cfgDynamic));
+  renderPagina();
+  alert('Configuracion guardada.');
+}
+
+/* ===== EDITOR DE PÁGINA ===== */ /* ### CAMBIO AQUÍ ### Fix 2 — pageContent con defaults para todos los campos */
+const PAGE_CONTENT_DEFAULTS = { /* ### CAMBIO AQUÍ ### valores reales en lugar de cadenas vacías */
+  heroTitulo: 'Cuidado integral para tu mascota',
+  heroSubtitulo: '',
+  heroDesc: 'Atención veterinaria con experiencia, tecnología y mucho amor por los animales.',
+  heroImg: '',
+  srvTitulo: 'Servicios',
+  srvSub: 'Clinica completa',
+  equipoTitulo: 'Nuestro equipo',
+  equipoSub: 'Veterinarios especializados',
+  footerExtra: ''
+};
+let pageContent = { ...PAGE_CONTENT_DEFAULTS };
+try {
+  const saved = JSON.parse(localStorage.getItem('vet_page_content') || '{}');
+  pageContent = { ...PAGE_CONTENT_DEFAULTS, ...saved }; /* ### CAMBIO AQUÍ ### Fix 2 — merge con defaults para que siempre existan todas las claves */
+} catch(e) {}
+
+function applyPageContent(){ /* ### CAMBIO AQUÍ ### aplica pageContent al DOM */
+  const pc = pageContent;
+  if(pc.heroTitulo){
+    const el=document.getElementById('hero-titulo');
+    if(el)el.innerHTML=esc(pc.heroTitulo).replace(/\*([^*]+)\*/g,'<em>$1</em>');
+  }
+  if(pc.heroSubtitulo){
+    const el=document.getElementById('hero-desc');
+    if(el)el.textContent=pc.heroSubtitulo;
+  } else if(pc.heroDesc){
+    const el=document.getElementById('hero-desc');
+    if(el)el.textContent=pc.heroDesc;
+  }
+  if(pc.heroImg){
+    const el=document.getElementById('hero-img');
+    if(el)el.src=pc.heroImg;
+  }
+  if(pc.srvTitulo){
+    const el=document.querySelector('#panel-servicios .sec-titulo');
+    if(el)el.textContent=pc.srvTitulo;
+  }
+  if(pc.srvSub){
+    const el=document.querySelector('#panel-servicios .sec-sub');
+    if(el)el.textContent=pc.srvSub;
+  }
+  if(pc.equipoTitulo){
+    const el=document.querySelector('#panel-equipo .sec-titulo');
+    if(el)el.textContent=pc.equipoTitulo;
+  }
+  if(pc.equipoSub){
+    const el=document.querySelector('#panel-equipo .sec-sub');
+    if(el)el.textContent=pc.equipoSub;
+  }
+}
+
+function guardarEditorCampo(key, inputId){ /* ### CAMBIO AQUÍ ### guarda campo individual */
+  const el = document.getElementById(inputId);
+  if(!el)return;
+  const val = ZynnosSecurity.sanitize(el.value);
+  pageContent[key] = val;
+  localStorage.setItem('vet_page_content', JSON.stringify(pageContent));
+  applyPageContent();
+  // Preview image if applicable
+  if(key==='heroImg'){
+    const prev=document.getElementById('pe-hero-img-preview');
+    if(prev){prev.src=val;prev.style.display=val?'block':'none';}
+  }
+  // Visual feedback
+  const orig=el.style.borderColor;
+  el.style.borderColor='var(--acento)';
+  setTimeout(()=>{el.style.borderColor=orig;},900);
+}
+
+function cargarEditorConfig(){ /* ### CAMBIO AQUÍ ### rellena inputs: valor guardado → default → texto del DOM */
+  const pc = pageContent;
+  const domText = id => { const e=document.getElementById(id); return e?e.textContent.trim():''; };
+  const domQText = sel => { const e=document.querySelector(sel); return e?e.textContent.trim():''; };
+  const setV = (id, val, domFallback)=>{ const e=document.getElementById(id); if(e) e.value=val||(domFallback?domFallback():'')||''; };
+  setV('pe-hero-titulo', pc.heroTitulo, ()=>domText('hero-titulo'));
+  setV('pe-hero-subtitulo', pc.heroSubtitulo);
+  setV('pe-hero-desc', pc.heroDesc, ()=>domText('hero-desc'));
+  setV('pe-hero-img', pc.heroImg);
+  if(pc.heroImg){
+    const prev=document.getElementById('pe-hero-img-preview');
+    if(prev){prev.src=pc.heroImg;prev.style.display='block';}
+  }
+  setV('pe-srv-titulo', pc.srvTitulo, ()=>domQText('#panel-servicios .sec-titulo'));
+  setV('pe-srv-sub', pc.srvSub, ()=>domQText('#panel-servicios .sec-sub'));
+  setV('pe-equipo-titulo', pc.equipoTitulo, ()=>domQText('#panel-equipo .sec-titulo'));
+  setV('pe-equipo-sub', pc.equipoSub, ()=>domQText('#panel-equipo .sec-sub'));
+  setV('pe-footer-extra', pc.footerExtra);
+  // image preview live update
+  const imgInput=document.getElementById('pe-hero-img');
+  if(imgInput)imgInput.addEventListener('input',()=>{
+    const prev=document.getElementById('pe-hero-img-preview');
+    if(prev){prev.src=imgInput.value;prev.style.display=imgInput.value?'block':'none';}
+  });
+}
+
+/* ===== INIT ===== */
+// ### CAMBIO AQUÍ ### — Estadísticas veterinaria
+function renderVetStats(){
+  const hoyStr = new Date().toISOString().split('T')[0];
+  const mesStr = hoyStr.slice(0,7);
+  const hoy = turnos.filter(t=>t.fecha===hoyStr);
+  const mes = turnos.filter(t=>t.fecha.startsWith(mesStr));
+  const urgentes = turnos.filter(t=>t.urgente);
+  const pendientes = turnos.filter(t=>t.estado==='pendiente');
+  const atendidos = turnos.filter(t=>t.estado==='atendido');
+  function si(val,label){
+    return `<div style="background:var(--fondo3);padding:1.2rem;border-top:3px solid var(--acento)"> <!-- ### CAMBIO AQUÍ ### Fix 1 — stat tiles usan --fondo3 en lugar de blanco fijo -->
+      <div style="font-family:'Syne',sans-serif;font-size:2rem;color:var(--acento);font-weight:700;line-height:1">${val}</div>
+      <div style="font-size:.72rem;letter-spacing:.05em;color:#6b8f7e;margin-top:.4rem">${label}</div>
+    </div>`;
+  }
+  document.getElementById('vet-stats-grid').innerHTML =
+    si(hoy.length,'Turnos hoy') +
+    si(hoy.filter(t=>t.estado==='atendido').length,'Atendidos hoy') +
+    si(mes.length,'Turnos este mes') +
+    si(pendientes.length,'Pendientes') +
+    si(atendidos.length,'Atendidos total') +
+    si(urgentes.length,'Urgencias históricas') +
+    si(turnos.length,'Total histórico');
+  // top servicio
+  const svcs={};
+  turnos.forEach(t=>{const s=t.servicio||'otro';svcs[s]=(svcs[s]||0)+1;});
+  const topSvc = Object.entries(svcs).sort((a,b)=>b[1]-a[1])[0];
+  // top especie
+  const esps={};
+  turnos.forEach(t=>{const e=t.especie||'otro';esps[e]=(esps[e]||0)+1;});
+  const topEsp = Object.entries(esps).sort((a,b)=>b[1]-a[1])[0];
+  // bar chart 15 días
+  const dias15=[];
+  for(let i=14;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    dias15.push({ds,label:d.getDate()+'/'+(d.getMonth()+1),cnt:turnos.filter(t=>t.fecha===ds).length});
+  }
+  const maxC=Math.max(1,...dias15.map(d=>d.cnt));
+  const bars=dias15.map(d=>`
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.35rem;flex:1">
+      <div style="font-size:.65rem;color:#6b8f7e">${d.cnt||''}</div>
+      <div style="width:100%;height:${Math.max(4,Math.round((d.cnt/maxC)*80))}px;background:${d.ds===hoyStr?'var(--acento)':'#c3ddd1'};min-height:4px"></div>
+      <div style="font-size:.6rem;color:#6b8f7e">${d.label}</div>
+    </div>
+  `).join('');
+  document.getElementById('vet-stats-extra').innerHTML=`
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:.72rem;letter-spacing:.05em;color:#6b8f7e;margin-bottom:.75rem">Turnos últimos 15 días</div>
+      <div style="display:flex;gap:.3rem;align-items:flex-end;height:100px;padding:0 .25rem">${bars}</div>
+    </div>
+    <div style="display:flex;gap:2rem;flex-wrap:wrap;font-size:.82rem;color:var(--tinta2)">
+      ${topSvc?`<span>Servicio más frecuente: <strong>${esc(topSvc[0])}</strong> (${topSvc[1]})</span>`:''}
+      ${topEsp?`<span>Especie más frecuente: <strong>${esc(topEsp[0])}</strong> (${topEsp[1]})</span>`:''}
+    </div>
+  `;
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderPagina();
+  applyPageContent(); // ### CAMBIO AQUÍ ### Task 5 — aplica contenido guardado al iniciar
+  document.getElementById('f-fecha').min=new Date().toISOString().split('T')[0];
+  setTimeout(verificarRecordatoriosVet, 2000); // ### CAMBIO AQUÍ ### — recordatorio al cargar
+});
+
+/* ===== HERO CANVAS — Paw prints + Hearts (veterinary theme) ===== */ /* ### CAMBIO AQUÍ ### Task 4 */
+(function(){
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.getElementById('hero-canvas-VET');
+  if(!canvas || prefersReduced){if(canvas)canvas.style.opacity='0';return;}
+  const ctx = canvas.getContext('2d');
+  let W, H, items=[];
+
+  const PAW_COL = 'rgba(45,122,82,0.08)';
+  const HEART_COL = 'rgba(45,122,82,0.06)';
+
+  function resize(){
+    const hero = canvas.parentElement;
+    W = canvas.width = hero.offsetWidth;
+    H = canvas.height = hero.offsetHeight;
+  }
+
+  function drawPaw(ctx, cx, cy, size, rot){
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(rot);
+    ctx.fillStyle = PAW_COL;
+    // Main pad (large oval)
+    ctx.beginPath();
+    ctx.ellipse(0, size*0.1, size*0.55, size*0.45, 0, 0, Math.PI*2);
+    ctx.fill();
+    // 4 toe pads above
+    const toeOffsets = [[-size*0.52, -size*0.42], [-size*0.22, -size*0.58], [size*0.15, -size*0.58], [size*0.45, -size*0.42]];
+    for(const [tx, ty] of toeOffsets){
+      ctx.beginPath();
+      ctx.ellipse(tx, ty, size*0.2, size*0.18, tx*0.1, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawHeart(ctx, cx, cy, size){
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.fillStyle = HEART_COL;
+    ctx.beginPath();
+    ctx.moveTo(0, size*0.35);
+    ctx.bezierCurveTo(-size*0.05, size*0.15, -size*0.6, -size*0.1, -size*0.6, -size*0.35);
+    ctx.bezierCurveTo(-size*0.6, -size*0.7, size*0.6, -size*0.7, size*0.6, -size*0.35);
+    ctx.bezierCurveTo(size*0.6, -size*0.1, size*0.05, size*0.15, 0, size*0.35);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function mkPaw(){
+    const size = 22 + Math.random()*30;
+    return {
+      type: 'paw',
+      x: Math.random()*W,
+      y: H + size + Math.random()*H*0.4,
+      size,
+      vx: (Math.random()-0.5)*0.18,
+      vy: -(0.12 + Math.random()*0.22),
+      rot: Math.random()*Math.PI*2,
+      rotSpeed: (Math.random()-0.5)*0.004
+    };
+  }
+
+  function mkHeart(){
+    const size = 14 + Math.random()*18;
+    return {
+      type: 'heart',
+      x: Math.random()*W,
+      y: H + size + Math.random()*H*0.4,
+      size,
+      vx: (Math.random()-0.5)*0.15,
+      vy: -(0.1 + Math.random()*0.18)
+    };
+  }
+
+  function init(){
+    resize();
+    // 7 paws scattered initially
+    for(let i=0;i<7;i++){
+      const p=mkPaw(); p.y=Math.random()*H; items.push(p);
+    }
+    // 5 hearts scattered initially
+    for(let i=0;i<5;i++){
+      const h=mkHeart(); h.y=Math.random()*H; items.push(h);
+    }
+  }
+
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<items.length;i++){
+      const it=items[i];
+      it.x += it.vx;
+      it.y += it.vy;
+      if(it.type==='paw'){
+        it.rot += it.rotSpeed;
+        if(it.y < -(it.size*2)){items[i]=mkPaw();continue;}
+        drawPaw(ctx, it.x, it.y, it.size, it.rot);
+      } else {
+        if(it.y < -(it.size*2)){items[i]=mkHeart();continue;}
+        drawHeart(ctx, it.x, it.y, it.size);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  init();
+  frame();
+  const ro = new ResizeObserver(resize);
+  ro.observe(canvas.parentElement);
+})();
+</script>
+</body>
+</html>
