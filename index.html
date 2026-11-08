@@ -310,6 +310,21 @@ nav.on{background:rgba(14,26,19,.95);backdrop-filter:blur(20px);border-color:var
 .res-biz{font-size:.68rem;color:var(--fg3)}
 .res-biz::before{content:'·';margin-right:.5rem}
 
+/* RUBROS */
+.rub-grid{grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){.rub-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:540px){.rub-grid{grid-template-columns:1fr}}
+.rub-card{gap:.9rem}
+.rub-emoji{font-size:1.6rem;line-height:1;display:block;margin-bottom:.2rem}
+.rub-name{font-size:.83rem;color:var(--fg2);line-height:1.6;font-weight:500;margin:0}
+.rub-sub{font-size:.76rem;color:var(--fg3);line-height:1.6;margin:0}
+.rub-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.35rem}
+.rub-list li{font-size:.76rem;color:var(--fg3);display:flex;align-items:center;gap:.5rem}
+.rub-list li::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.rub-cta{justify-content:center;align-items:flex-start;border-style:dashed;border-color:var(--border)}
+.rub-cta:hover{border-color:rgba(52,201,148,.3)}
+.rub-link{font-size:.8rem;color:var(--teal);font-weight:600;margin-top:auto}
+
 /* SELLO DE CONFIANZA (con isotipo) */
 .trust-strip{
   display:flex;align-items:center;justify-content:center;gap:3rem;
@@ -637,43 +652,83 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
 </div>
 </div>
 
-<!-- RESULTADOS REALES — PRUEBA SOCIAL -->
+<!-- RUBROS — PARA QUIÉN TRABAJAMOS -->
 <div class="sec-shell alt">
-<div class="sec" id="resultados" aria-label="Resultados de clientes">
-  <p class="eyebrow rl">Lo que lograron</p>
-  <h2 class="sec-h r">Resultados reales,<br>no promesas.</h2>
-  <div class="res-grid" role="list">
+<div class="sec" id="rubros" aria-label="Rubros que atendemos">
+  <p class="eyebrow rl">Para quién trabajamos</p>
+  <h2 class="sec-h r">Sistemas a medida<br>para tu rubro.</h2>
+  <div class="res-grid rub-grid" role="list">
 
-    <div class="res-card r" role="listitem">
+    <div class="res-card rub-card r" role="listitem">
       <div class="res-top">
-        <span class="res-rubro">🏺 Antigüedades · CABA</span>
-        <span class="res-badge teal">Automatización</span>
+        <span class="rub-emoji" aria-hidden="true">🍽️</span>
+        <span class="res-badge teal">Restaurantes</span>
       </div>
-      <p class="res-quote">"Antes respondía consultas manualmente todo el día. Ahora el sistema filtra, responde y registra solo. Yo solo reviso lo importante."</p>
-      <div class="res-results">
-        <div class="res-stat"><span class="res-num teal">−4h</span><span class="res-label">diarias en atención</span></div>
-        <div class="res-stat"><span class="res-num lime">×3</span><span class="res-label">consultas respondidas</span></div>
-      </div>
-      <div class="res-client">
-        <span class="res-name">Juan Carlos B.</span>
-        <span class="res-biz">Polo Antiguo</span>
-      </div>
+      <p class="rub-name">Carta digital, reservas y atención por WhatsApp — sin llamadas.</p>
+      <ul class="rub-list">
+        <li>Carta con QR actualizable</li>
+        <li>Reservas automáticas 24/7</li>
+        <li>Respuestas por WhatsApp con IA</li>
+      </ul>
     </div>
 
-    <div class="res-card r" role="listitem">
+    <div class="res-card rub-card r" role="listitem">
       <div class="res-top">
-        <span class="res-rubro">🏠 Airbnb · Palermo</span>
-        <span class="res-badge lime">Gestión</span>
+        <span class="rub-emoji" aria-hidden="true">✂️</span>
+        <span class="res-badge lime">Barberías</span>
       </div>
-      <p class="res-quote">"Los reportes de ingresos y la gestión de precios se hacen solos. Pasé de pasar horas en planillas a ver todo en un dashboard."</p>
-      <div class="res-results">
-        <div class="res-stat"><span class="res-num teal">−6h</span><span class="res-label">semanales en admin</span></div>
-        <div class="res-stat"><span class="res-num lime">+18%</span><span class="res-label">ingresos por precios dinámicos</span></div>
+      <p class="rub-name">Turnos online, recordatorios y catálogo de servicios sin pelear con el teléfono.</p>
+      <ul class="rub-list">
+        <li>Sistema de turnos online</li>
+        <li>Recordatorios automáticos</li>
+        <li>Panel de agenda para el barbero</li>
+      </ul>
+    </div>
+
+    <div class="res-card rub-card r" role="listitem">
+      <div class="res-top">
+        <span class="rub-emoji" aria-hidden="true">🏢</span>
+        <span class="res-badge teal">Inmobiliarias</span>
       </div>
-      <div class="res-client">
-        <span class="res-name">Adriano M.</span>
-        <span class="res-biz">PalermitanHost</span>
+      <p class="rub-name">Fichas de propiedades con IA, consultas filtradas y seguimiento automático de leads.</p>
+      <ul class="rub-list">
+        <li>Publicación de propiedades con fotos</li>
+        <li>Asesora IA que califica leads</li>
+        <li>Alertas de nuevas consultas</li>
+      </ul>
+    </div>
+
+    <div class="res-card rub-card r" role="listitem">
+      <div class="res-top">
+        <span class="rub-emoji" aria-hidden="true">🐾</span>
+        <span class="res-badge lime">Veterinarias</span>
       </div>
+      <p class="rub-name">Turnos, historial de pacientes y recordatorios de vacunas — todo centralizado.</p>
+      <ul class="rub-list">
+        <li>Agenda de turnos por mascota</li>
+        <li>Historial médico digital</li>
+        <li>Recordatorios de vacunas y controles</li>
+      </ul>
+    </div>
+
+    <div class="res-card rub-card r" role="listitem">
+      <div class="res-top">
+        <span class="rub-emoji" aria-hidden="true">👗</span>
+        <span class="res-badge teal">Tiendas</span>
+      </div>
+      <p class="rub-name">Catálogo con stock en tiempo real, pedidos por WhatsApp y panel de ventas.</p>
+      <ul class="rub-list">
+        <li>Catálogo con fotos y precios</li>
+        <li>Stock actualizado automáticamente</li>
+        <li>Pedidos directo por WhatsApp</li>
+      </ul>
+    </div>
+
+    <div class="res-card rub-card rub-cta r" role="listitem">
+      <span class="rub-emoji" aria-hidden="true">💬</span>
+      <p class="rub-name">¿Tu rubro no está en la lista?</p>
+      <p class="rub-sub">Trabajamos con cualquier negocio local que quiera operar más inteligente.</p>
+      <span class="rub-link">Hablemos →</span>
     </div>
 
   </div>
