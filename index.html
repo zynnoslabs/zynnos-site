@@ -340,9 +340,10 @@ nav.on{background:rgba(14,26,19,.95);backdrop-filter:blur(20px);border-color:var
   transform:scale(0.46);
   transform-origin:top left;
   border:none;pointer-events:none;
-  opacity:0;transition:opacity .35s;
+  visibility:hidden;transition:opacity .35s;
+  opacity:0;
 }
-.rub-iframe-box iframe.active{opacity:1}
+.rub-iframe-box iframe.active{visibility:visible;opacity:1}
 /* panel de features debajo */
 .rub-feat-strip{display:flex;gap:.5rem;padding:.8rem 1rem;border-top:1px solid var(--border);flex-wrap:wrap;background:var(--surface)}
 .rub-feat{font-size:.65rem;color:var(--fg3);display:flex;align-items:center;gap:.35rem}
@@ -741,11 +742,11 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
           <span class="rub-mock-ttl" id="mock-title">Casa Palermo</span>
         </div>
         <div class="rub-iframe-box">
-          <iframe id="ifr-rest"  class="active" src="/templates/01-restaurante.html" title="Demo restaurante" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
-          <iframe id="ifr-barb"           src="/templates/02-barberia.html"  title="Demo barbería"   loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
-          <iframe id="ifr-inmo"           src="/templates/03-inmobiliaria.html" title="Demo inmobiliaria" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
-          <iframe id="ifr-vet"            src="/templates/04-veterinaria.html" title="Demo veterinaria"  loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
-          <iframe id="ifr-tienda"         src="/templates/05-tienda-ropa.html" title="Demo tienda"      loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+          <iframe id="ifr-rest"  class="active" src="/templates/01-restaurante.html" title="Demo restaurante"></iframe>
+          <iframe id="ifr-barb"           src="/templates/02-barberia.html"  title="Demo barbería"></iframe>
+          <iframe id="ifr-inmo"           src="/templates/03-inmobiliaria.html" title="Demo inmobiliaria"></iframe>
+          <iframe id="ifr-vet"            src="/templates/04-veterinaria.html" title="Demo veterinaria"></iframe>
+          <iframe id="ifr-tienda"         src="/templates/05-tienda-ropa.html" title="Demo tienda"></iframe>
         </div>
         <div class="rub-feat-strip" id="mock-feats">
           <span class="rub-feat">Carta QR actualizable</span>
