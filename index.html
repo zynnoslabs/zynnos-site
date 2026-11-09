@@ -59,7 +59,18 @@ nav.on{background:rgba(14,26,19,.95);backdrop-filter:blur(20px);border-color:var
 .nav-talk:hover{color:var(--fg);border-color:var(--fg2)}
 .nav-cta{font-size:.72rem;font-weight:600;color:#0a1409;background:var(--lime);padding:.42rem 1.1rem;border-radius:100px;transition:background .2s,transform .15s}
 .nav-cta:hover{background:var(--lime-d);transform:translateY(-1px)}
-@media(max-width:720px){.nav-ul{display:none}}
+.ham-btn{display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:none;cursor:pointer;padding:.35rem;z-index:201}
+.ham-btn span{display:block;width:22px;height:1.5px;background:var(--fg);border-radius:2px;transition:transform .3s,opacity .3s,width .3s}
+.ham-btn.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.ham-btn.open span:nth-child(2){opacity:0;width:0}
+.ham-btn.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.mob-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(14,26,19,.98);backdrop-filter:blur(24px);z-index:200;flex-direction:column;justify-content:center;align-items:center;gap:2.5rem;padding:4rem 2rem}
+.mob-menu.open{display:flex}
+.mob-menu a{font-family:var(--ff-d);font-size:clamp(1.5rem,6vw,2.2rem);font-weight:700;letter-spacing:-.02em;color:var(--fg);transition:color .2s}
+.mob-menu a:hover{color:var(--lime)}
+.mob-menu .mob-cta{margin-top:1rem;padding:.85rem 2rem;border-radius:100px;background:var(--lime);color:#0a1409;font-size:1rem;font-weight:700}
+.mob-menu .mob-cta:hover{background:var(--lime-d);color:#0a1409}
+@media(max-width:720px){.nav-ul{display:none}.nav-talk{display:none}.ham-btn{display:flex}}
 
 /* ── HERO ── */
 #hero-shell{min-height:100svh;position:relative;display:flex;flex-direction:column;justify-content:center;overflow:hidden}#silk-canvas{display:block}
@@ -223,7 +234,7 @@ nav.on{background:rgba(14,26,19,.95);backdrop-filter:blur(20px);border-color:var
 .stat-n{font-family:var(--ff-d);font-weight:700;font-size:clamp(1.8rem,3vw,2.8rem);letter-spacing:-.04em;line-height:1}
 .stat-n sup{color:var(--teal);font-size:.55em;vertical-align:.3em}
 .stat-l{font-size:.68rem;color:var(--fg3);margin-top:.35rem;letter-spacing:.04em}
-@media(max-width:580px){#stats{grid-template-columns:1fr 1fr}}
+@media(max-width:580px){#stats{grid-template-columns:1fr 1fr}}@media(max-width:360px){#stats{grid-template-columns:1fr}}
 
 /* SECCIONES */
 .sec-shell{overflow:hidden}
@@ -508,8 +519,20 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
   <div class="nav-btns">
     <a href="mailto:zynnos.labs@gmail.com" class="nav-talk">Hablar con el equipo →</a>
     <a href="#cta" class="nav-cta">Empezar proyecto →</a>
+    <button class="ham-btn" id="ham-btn" aria-label="Abrir menú" onclick="toggleMobMenu()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- MENU MOBILE -->
+<div class="mob-menu" id="mob-menu">
+  <a href="#problema" onclick="closeMobMenu()">Por qué</a>
+  <a href="#servicios" onclick="closeMobMenu()">Servicios</a>
+  <a href="#proceso" onclick="closeMobMenu()">Proceso</a>
+  <a href="#trabajos" onclick="closeMobMenu()">Proyectos</a>
+  <a href="#cta" class="mob-cta" onclick="closeMobMenu()">Empezar proyecto →</a>
+</div>
 </header>
 
 <!-- HERO -->
@@ -1112,7 +1135,7 @@ function submitAudit(e){
   // Construir link WhatsApp — el usuario hace click directo (evita bloqueo popup)
   const msg = encodeURIComponent(`Hola Zynnos! Me interesa la auditoría gratuita.\nNombre: ${nombre}\nRubro: ${rubro}\nWhatsApp: ${wp}`);
   const btn = document.getElementById('af-submit');
-  btn.href = `https://wa.me/5491100000000?text=${msg}`;
+  btn.href = `https://wa.me/5492392536325?text=${msg}`;
   btn.target = '_blank';
   btn.rel = 'noopener';
 
@@ -1371,6 +1394,21 @@ document.getElementById('ub-close').addEventListener('click',()=>{
   }
   frame();
 })();
+
+function toggleMobMenu(){
+  var btn=document.getElementById('ham-btn');
+  var menu=document.getElementById('mob-menu');
+  btn.classList.toggle('open');
+  menu.classList.toggle('open');
+  document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+}
+function closeMobMenu(){
+  document.getElementById('ham-btn').classList.remove('open');
+  document.getElementById('mob-menu').classList.remove('open');
+  document.body.style.overflow='';
+}
+// Cerrar menu mobile al redimensionar a desktop
+window.addEventListener('resize',function(){if(window.innerWidth>720)closeMobMenu()});
 </script>
 </body>
 </html>
