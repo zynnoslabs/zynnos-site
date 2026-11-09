@@ -566,6 +566,195 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
   <div class="stat r" role="listitem"><div class="stat-n">24<sup>h</sup></div><div class="stat-l">Soporte de respuesta</div></div>
 </div>
 
+<!-- RUBROS — TABS + MOCKUP ANIMADO -->
+<div class="sec-shell alt">
+<div class="sec" id="rubros" aria-label="Rubros que atendemos">
+  <p class="eyebrow rl">Para quién trabajamos</p>
+  <h2 class="sec-h r">Mirá cómo funciona<br>para tu negocio.</h2>
+
+  <div class="rub-tabs-wrap">
+
+    <!-- TABS DE SELECCIÓN -->
+    <div class="rub-tab-list" role="tablist" aria-label="Rubros">
+
+      <button class="rub-tab active r" role="tab" aria-selected="true" aria-controls="panel-rest" data-panel="panel-rest">
+        <span class="rub-ti" aria-hidden="true">🍽️</span>
+        <span class="rub-tinfo">
+          <span class="rub-tname">Restaurantes</span>
+          <span class="rub-tdesc">Carta QR, reservas y WhatsApp sin llamadas</span>
+        </span>
+        <span class="rub-tarrow" aria-hidden="true">→</span>
+      </button>
+
+      <button class="rub-tab r" role="tab" aria-selected="false" aria-controls="panel-barb" data-panel="panel-barb">
+        <span class="rub-ti" aria-hidden="true">✂️</span>
+        <span class="rub-tinfo">
+          <span class="rub-tname">Barberías</span>
+          <span class="rub-tdesc">Turnos online y recordatorios automáticos</span>
+        </span>
+        <span class="rub-tarrow" aria-hidden="true">→</span>
+      </button>
+
+      <button class="rub-tab r" role="tab" aria-selected="false" aria-controls="panel-inmo" data-panel="panel-inmo">
+        <span class="rub-ti" aria-hidden="true">🏢</span>
+        <span class="rub-tinfo">
+          <span class="rub-tname">Inmobiliarias</span>
+          <span class="rub-tdesc">Propiedades con IA y seguimiento de leads</span>
+        </span>
+        <span class="rub-tarrow" aria-hidden="true">→</span>
+      </button>
+
+      <button class="rub-tab r" role="tab" aria-selected="false" aria-controls="panel-vet" data-panel="panel-vet">
+        <span class="rub-ti" aria-hidden="true">🐾</span>
+        <span class="rub-tinfo">
+          <span class="rub-tname">Veterinarias</span>
+          <span class="rub-tdesc">Agenda, historial médico y vacunas</span>
+        </span>
+        <span class="rub-tarrow" aria-hidden="true">→</span>
+      </button>
+
+      <button class="rub-tab r" role="tab" aria-selected="false" aria-controls="panel-tienda" data-panel="panel-tienda">
+        <span class="rub-ti" aria-hidden="true">👗</span>
+        <span class="rub-tinfo">
+          <span class="rub-tname">Tiendas</span>
+          <span class="rub-tdesc">Catálogo, stock en tiempo real y pedidos WA</span>
+        </span>
+        <span class="rub-tarrow" aria-hidden="true">→</span>
+      </button>
+
+    </div>
+
+    <!-- MOCKUP: iframe del template real escalado -->
+    <div class="rub-mock-wrap">
+      <div class="rub-mock" role="region" aria-live="polite">
+        <div class="rub-mock-bar">
+          <span class="rmd"></span><span class="rmd"></span><span class="rmd"></span>
+          <span class="rub-mock-ttl" id="mock-title">Casa Palermo</span>
+        </div>
+        <div class="rub-iframe-box">
+          <iframe id="ifr-rest"  class="active" src="/templates/01-restaurante.html" title="Demo restaurante"></iframe>
+          <iframe id="ifr-barb"           src="/templates/02-barberia.html"  title="Demo barbería"></iframe>
+          <iframe id="ifr-inmo"           src="/templates/03-inmobiliaria.html" title="Demo inmobiliaria"></iframe>
+          <iframe id="ifr-vet"            src="/templates/04-veterinaria.html" title="Demo veterinaria"></iframe>
+          <iframe id="ifr-tienda"         src="/templates/05-tienda-ropa.html" title="Demo tienda"></iframe>
+          <!-- ### CAMBIO AQUÍ ### botón expandir demo -->
+          <button class="rub-expand-btn" id="rub-expand-btn" aria-label="Ver demo completo">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1h4M1 1v4M11 1H7M11 1v4M1 11h4M1 11V7M11 11H7M11 11V7"/></svg>
+            Ver demo
+          </button>
+        </div>
+        <div class="rub-feat-strip" id="mock-feats">
+          <span class="rub-feat">Carta QR actualizable</span>
+          <span class="rub-feat">Reservas 24/7</span>
+          <span class="rub-feat">Bot WhatsApp con IA</span>
+          <span class="rub-feat">Panel admin</span>
+        </div>
+      </div>
+    </div><!-- /rub-mock-wrap -->
+
+  </div><!-- /rub-tabs-wrap -->
+</div>
+</div>
+
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.rub-tab');
+  var mockTitle = document.getElementById('mock-title');
+  var mockFeats = document.getElementById('mock-feats');
+
+  var data = {
+    'panel-rest': {
+      ifr: 'ifr-rest',
+      title: 'Casa Palermo',
+      feats: ['Carta QR actualizable','Reservas 24/7','Bot WhatsApp con IA','Panel admin']
+    },
+    'panel-barb': {
+      ifr: 'ifr-barb',
+      title: 'Barber Shop BA',
+      feats: ['Turnos online','Recordatorios automáticos','Calendario semanal','Panel de barberos']
+    },
+    'panel-inmo': {
+      ifr: 'ifr-inmo',
+      title: 'Inmobiliaria Sur',
+      feats: ['Fichas de propiedades','IA asesora de ventas','Seguimiento de leads','Panel de consultas']
+    },
+    'panel-vet': {
+      ifr: 'ifr-vet',
+      title: 'Clínica Pampas',
+      feats: ['Agenda de turnos','Historial médico','Alertas de vacunas','Panel veterinario']
+    },
+    'panel-tienda': {
+      ifr: 'ifr-tienda',
+      title: 'Boutique BA',
+      feats: ['Catálogo de productos','Stock en tiempo real','Pedidos por WhatsApp','Panel de ventas']
+    }
+  };
+
+  // ### CAMBIO AQUÍ ### modal demo — lazy init en DOMContentLoaded
+  var currentSrc = '/templates/01-restaurante.html';
+  var currentTtl = 'Casa Palermo';
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var overlay    = document.getElementById('demo-overlay');
+    var demoIframe = document.getElementById('demo-iframe');
+    var demoBarTtl = document.getElementById('demo-bar-ttl');
+    var expandBtn  = document.getElementById('rub-expand-btn');
+    var backdrop   = document.getElementById('demo-backdrop');
+    var closeBtn   = document.getElementById('demo-close');
+    if(!overlay) return;
+
+    function openDemo(){
+      demoIframe.src = currentSrc;
+      demoBarTtl.textContent = currentTtl;
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeDemo(){
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+      setTimeout(function(){ demoIframe.src = ''; }, 400);
+    }
+
+    expandBtn.addEventListener('click', openDemo);
+    closeBtn.addEventListener('click', closeDemo);
+    backdrop.addEventListener('click', closeDemo);
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDemo(); });
+  });
+
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected','true');
+
+      var panelId = tab.getAttribute('data-panel');
+      var d = data[panelId];
+      if(!d) return;
+
+      // switch iframe
+      document.querySelectorAll('.rub-iframe-box iframe').forEach(function(f){ f.classList.remove('active'); });
+      var ifr = document.getElementById(d.ifr);
+      if(ifr) ifr.classList.add('active');
+
+      // actualizar src/title para el modal
+      if(ifr) currentSrc = ifr.src;
+      currentTtl = d.title;
+
+      // title
+      if(mockTitle) mockTitle.textContent = d.title;
+
+      // features
+      if(mockFeats){
+        mockFeats.innerHTML = d.feats.map(function(f){
+          return '<span class="rub-feat">'+f+'</span>';
+        }).join('');
+      }
+    });
+  });
+})();
+</script>
+
+
 <!-- AUDITORÍA GRATUITA — RECIPROCIDAD -->
 <div class="sec-shell audit-shell" id="auditoria">
 <div class="sec audit">
@@ -742,190 +931,6 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
   </div>
 </div>
 </div>
-
-<!-- RUBROS — TABS + MOCKUP ANIMADO -->
-<div class="sec-shell alt">
-<div class="sec" id="rubros" aria-label="Rubros que atendemos">
-  <p class="eyebrow rl">Para quién trabajamos</p>
-  <h2 class="sec-h r">Mirá cómo funciona<br>para tu negocio.</h2>
-
-  <div class="rub-tabs-wrap">
-
-    <!-- TABS DE SELECCIÓN -->
-    <div class="rub-tab-list" role="tablist" aria-label="Rubros">
-
-      <button class="rub-tab active r" role="tab" aria-selected="true" aria-controls="panel-rest" data-panel="panel-rest">
-        <span class="rub-ti" aria-hidden="true">🍽️</span>
-        <span class="rub-tinfo">
-          <span class="rub-tname">Restaurantes</span>
-          <span class="rub-tdesc">Carta QR, reservas y WhatsApp sin llamadas</span>
-        </span>
-        <span class="rub-tarrow" aria-hidden="true">→</span>
-      </button>
-
-      <button class="rub-tab r" role="tab" aria-selected="false" aria-controls="panel-barb" data-panel="panel-barb">
-        <span class="rub-ti" aria-hidden="true">✂️</span>
-        <span class="rub-tinfo">
-          <span class="rub-tname">Barberías</span>
-          <span class="rub-tdesc">Turnos online y recordatorios automáticos</span>
-        </span>
-        <span class="rub-tarrow" aria-hidden="true">→</span>
-      </button>
-
-      <button class="rub-tab r" role="tab" aria-selected="false" aria-controls="panel-inmo" data-panel="panel-inmo">
-        <span class="rub-ti" aria-hidden="true">🏢</span>
-        <span class="rub-tinfo">
-          <span class="rub-tname">Inmobiliarias</span>
-          <span class="rub-tdesc">Propiedades con IA y seguimiento de leads</span>
-        </span>
-        <span class="rub-tarrow" aria-hidden="true">→</span>
-      </button>
-
-      <button class="rub-tab r" role="tab" aria-selected="false" aria-controls="panel-vet" data-panel="panel-vet">
-        <span class="rub-ti" aria-hidden="true">🐾</span>
-        <span class="rub-tinfo">
-          <span class="rub-tname">Veterinarias</span>
-          <span class="rub-tdesc">Agenda, historial médico y vacunas</span>
-        </span>
-        <span class="rub-tarrow" aria-hidden="true">→</span>
-      </button>
-
-      <button class="rub-tab r" role="tab" aria-selected="false" aria-controls="panel-tienda" data-panel="panel-tienda">
-        <span class="rub-ti" aria-hidden="true">👗</span>
-        <span class="rub-tinfo">
-          <span class="rub-tname">Tiendas</span>
-          <span class="rub-tdesc">Catálogo, stock en tiempo real y pedidos WA</span>
-        </span>
-        <span class="rub-tarrow" aria-hidden="true">→</span>
-      </button>
-
-    </div>
-
-    <!-- MOCKUP: iframe del template real escalado -->
-    <div class="rub-mock-wrap">
-      <div class="rub-mock" role="region" aria-live="polite">
-        <div class="rub-mock-bar">
-          <span class="rmd"></span><span class="rmd"></span><span class="rmd"></span>
-          <span class="rub-mock-ttl" id="mock-title">Casa Palermo</span>
-        </div>
-        <div class="rub-iframe-box">
-          <iframe id="ifr-rest"  class="active" src="/templates/01-restaurante.html" title="Demo restaurante"></iframe>
-          <iframe id="ifr-barb"           src="/templates/02-barberia.html"  title="Demo barbería"></iframe>
-          <iframe id="ifr-inmo"           src="/templates/03-inmobiliaria.html" title="Demo inmobiliaria"></iframe>
-          <iframe id="ifr-vet"            src="/templates/04-veterinaria.html" title="Demo veterinaria"></iframe>
-          <iframe id="ifr-tienda"         src="/templates/05-tienda-ropa.html" title="Demo tienda"></iframe>
-          <!-- ### CAMBIO AQUÍ ### botón expandir demo -->
-          <button class="rub-expand-btn" id="rub-expand-btn" aria-label="Ver demo completo">
-            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1h4M1 1v4M11 1H7M11 1v4M1 11h4M1 11V7M11 11H7M11 11V7"/></svg>
-            Ver demo
-          </button>
-        </div>
-        <div class="rub-feat-strip" id="mock-feats">
-          <span class="rub-feat">Carta QR actualizable</span>
-          <span class="rub-feat">Reservas 24/7</span>
-          <span class="rub-feat">Bot WhatsApp con IA</span>
-          <span class="rub-feat">Panel admin</span>
-        </div>
-      </div>
-    </div><!-- /rub-mock-wrap -->
-
-  </div><!-- /rub-tabs-wrap -->
-</div>
-</div>
-
-<script>
-(function(){
-  var tabs = document.querySelectorAll('.rub-tab');
-  var mockTitle = document.getElementById('mock-title');
-  var mockFeats = document.getElementById('mock-feats');
-
-  var data = {
-    'panel-rest': {
-      ifr: 'ifr-rest',
-      title: 'Casa Palermo',
-      feats: ['Carta QR actualizable','Reservas 24/7','Bot WhatsApp con IA','Panel admin']
-    },
-    'panel-barb': {
-      ifr: 'ifr-barb',
-      title: 'Barber Shop BA',
-      feats: ['Turnos online','Recordatorios automáticos','Calendario semanal','Panel de barberos']
-    },
-    'panel-inmo': {
-      ifr: 'ifr-inmo',
-      title: 'Inmobiliaria Sur',
-      feats: ['Fichas de propiedades','IA asesora de ventas','Seguimiento de leads','Panel de consultas']
-    },
-    'panel-vet': {
-      ifr: 'ifr-vet',
-      title: 'Clínica Pampas',
-      feats: ['Agenda de turnos','Historial médico','Alertas de vacunas','Panel veterinario']
-    },
-    'panel-tienda': {
-      ifr: 'ifr-tienda',
-      title: 'Boutique BA',
-      feats: ['Catálogo de productos','Stock en tiempo real','Pedidos por WhatsApp','Panel de ventas']
-    }
-  };
-
-  // ### CAMBIO AQUÍ ### modal demo
-  var overlay    = document.getElementById('demo-overlay');
-  var demoIframe = document.getElementById('demo-iframe');
-  var demoBarTtl = document.getElementById('demo-bar-ttl');
-  var expandBtn  = document.getElementById('rub-expand-btn');
-  var backdrop   = document.getElementById('demo-backdrop');
-  var closeBtn   = document.getElementById('demo-close');
-  var currentSrc = '/templates/01-restaurante.html';
-  var currentTtl = 'Casa Palermo';
-
-  function openDemo(){
-    demoIframe.src = currentSrc;
-    demoBarTtl.textContent = currentTtl;
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeDemo(){
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
-    setTimeout(function(){ demoIframe.src = ''; }, 400);
-  }
-
-  if(expandBtn) expandBtn.addEventListener('click', openDemo);
-  if(closeBtn)  closeBtn.addEventListener('click', closeDemo);
-  if(backdrop)  backdrop.addEventListener('click', closeDemo);
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDemo(); });
-
-  tabs.forEach(function(tab){
-    tab.addEventListener('click', function(){
-      tabs.forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected','true');
-
-      var panelId = tab.getAttribute('data-panel');
-      var d = data[panelId];
-      if(!d) return;
-
-      // switch iframe
-      document.querySelectorAll('.rub-iframe-box iframe').forEach(function(f){ f.classList.remove('active'); });
-      var ifr = document.getElementById(d.ifr);
-      if(ifr) ifr.classList.add('active');
-
-      // actualizar src/title para el modal
-      if(ifr) currentSrc = ifr.src;
-      currentTtl = d.title;
-
-      // title
-      if(mockTitle) mockTitle.textContent = d.title;
-
-      // features
-      if(mockFeats){
-        mockFeats.innerHTML = d.feats.map(function(f){
-          return '<span class="rub-feat">'+f+'</span>';
-        }).join('');
-      }
-    });
-  });
-})();
-</script>
 
 <!-- ### CAMBIO AQUÍ ### MODAL DEMO EXPANDIDO -->
 <div class="demo-overlay" id="demo-overlay" role="dialog" aria-modal="true" aria-label="Demo interactiva">
