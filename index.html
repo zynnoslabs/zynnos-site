@@ -344,10 +344,77 @@ nav.on{background:rgba(14,26,19,.95);backdrop-filter:blur(20px);border-color:var
   opacity:0;
 }
 .rub-iframe-box iframe.active{visibility:visible;opacity:1}
+/* botón expandir demo */
+.rub-expand-btn{
+  position:absolute;bottom:1rem;right:1rem;z-index:10;
+  display:flex;align-items:center;gap:.45rem;
+  padding:.5rem 1rem;border-radius:100px;
+  background:rgba(14,26,19,.85);backdrop-filter:blur(12px);
+  border:1px solid var(--border2);color:var(--fg);font-size:.72rem;
+  font-family:var(--ff-d);font-weight:600;cursor:pointer;
+  transition:background .18s,border-color .18s,transform .18s;
+  letter-spacing:.02em;
+}
+.rub-expand-btn:hover{background:var(--teal);border-color:var(--teal);color:#0e1a13;transform:scale(1.04)}
+.rub-expand-btn svg{width:12px;height:12px;flex-shrink:0}
+
 /* panel de features debajo */
 .rub-feat-strip{display:flex;gap:.5rem;padding:.8rem 1rem;border-top:1px solid var(--border);flex-wrap:wrap;background:var(--surface)}
 .rub-feat{font-size:.65rem;color:var(--fg3);display:flex;align-items:center;gap:.35rem}
 .rub-feat::before{content:'✓';color:var(--teal);font-weight:700}
+
+/* MODAL DEMO */
+.demo-overlay{
+  position:fixed;inset:0;z-index:9000;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .4s ease;
+}
+.demo-overlay.open{opacity:1;pointer-events:all}
+/* fondo blur que deja ver el sitio */
+.demo-backdrop{
+  position:absolute;inset:0;
+  background:rgba(10,18,13,.55);
+  backdrop-filter:blur(16px) saturate(.7);
+  -webkit-backdrop-filter:blur(16px) saturate(.7);
+}
+/* vignette en los bordes */
+.demo-backdrop::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 85% 85% at 50% 50%, transparent 55%, rgba(5,10,7,.85) 100%);
+  pointer-events:none;
+}
+.demo-frame-wrap{
+  position:relative;z-index:1;
+  width:min(960px, 94vw);height:min(620px, 86vh);
+  border-radius:16px;overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.08);
+  transform:scale(.88) translateY(24px);
+  transition:transform .45s cubic-bezier(.22,1,.36,1),opacity .4s ease;
+  opacity:0;
+}
+.demo-overlay.open .demo-frame-wrap{transform:scale(1) translateY(0);opacity:1}
+.demo-frame-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.6rem 1rem;background:var(--bg2);border-bottom:1px solid var(--border);
+}
+.demo-bar-dots{display:flex;gap:.35rem}
+.demo-bar-dot{width:7px;height:7px;border-radius:50%}
+.demo-bar-dot:nth-child(1){background:#ff5f57}
+.demo-bar-dot:nth-child(2){background:#febc2e}
+.demo-bar-dot:nth-child(3){background:#28c840}
+.demo-bar-ttl{font-size:.68rem;color:var(--fg3);font-family:var(--ff-d);letter-spacing:.03em}
+.demo-close{
+  display:flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.07);
+  border:1px solid var(--border2);cursor:pointer;color:var(--fg2);
+  transition:background .15s,color .15s;font-size:.75rem;
+}
+.demo-close:hover{background:rgba(255,255,255,.15);color:var(--fg)}
+.demo-iframe-wrap{position:relative;height:calc(100% - 42px);background:#000}
+.demo-iframe-wrap iframe{
+  position:absolute;inset:0;width:100%;height:100%;
+  border:none;
+}
 
 /* SELLO DE CONFIANZA (con isotipo) */
 .trust-strip{
@@ -747,6 +814,11 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
           <iframe id="ifr-inmo"           src="/templates/03-inmobiliaria.html" title="Demo inmobiliaria"></iframe>
           <iframe id="ifr-vet"            src="/templates/04-veterinaria.html" title="Demo veterinaria"></iframe>
           <iframe id="ifr-tienda"         src="/templates/05-tienda-ropa.html" title="Demo tienda"></iframe>
+          <!-- ### CAMBIO AQUÍ ### botón expandir demo -->
+          <button class="rub-expand-btn" id="rub-expand-btn" aria-label="Ver demo completo">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1h4M1 1v4M11 1H7M11 1v4M1 11h4M1 11V7M11 11H7M11 11V7"/></svg>
+            Ver demo
+          </button>
         </div>
         <div class="rub-feat-strip" id="mock-feats">
           <span class="rub-feat">Carta QR actualizable</span>
@@ -795,6 +867,33 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
     }
   };
 
+  // ### CAMBIO AQUÍ ### modal demo
+  var overlay    = document.getElementById('demo-overlay');
+  var demoIframe = document.getElementById('demo-iframe');
+  var demoBarTtl = document.getElementById('demo-bar-ttl');
+  var expandBtn  = document.getElementById('rub-expand-btn');
+  var backdrop   = document.getElementById('demo-backdrop');
+  var closeBtn   = document.getElementById('demo-close');
+  var currentSrc = '/templates/01-restaurante.html';
+  var currentTtl = 'Casa Palermo';
+
+  function openDemo(){
+    demoIframe.src = currentSrc;
+    demoBarTtl.textContent = currentTtl;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDemo(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(function(){ demoIframe.src = ''; }, 400);
+  }
+
+  if(expandBtn) expandBtn.addEventListener('click', openDemo);
+  if(closeBtn)  closeBtn.addEventListener('click', closeDemo);
+  if(backdrop)  backdrop.addEventListener('click', closeDemo);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDemo(); });
+
   tabs.forEach(function(tab){
     tab.addEventListener('click', function(){
       tabs.forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
@@ -810,6 +909,10 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
       var ifr = document.getElementById(d.ifr);
       if(ifr) ifr.classList.add('active');
 
+      // actualizar src/title para el modal
+      if(ifr) currentSrc = ifr.src;
+      currentTtl = d.title;
+
       // title
       if(mockTitle) mockTitle.textContent = d.title;
 
@@ -823,6 +926,25 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
   });
 })();
 </script>
+
+<!-- ### CAMBIO AQUÍ ### MODAL DEMO EXPANDIDO -->
+<div class="demo-overlay" id="demo-overlay" role="dialog" aria-modal="true" aria-label="Demo interactiva">
+  <div class="demo-backdrop" id="demo-backdrop"></div>
+  <div class="demo-frame-wrap">
+    <div class="demo-frame-bar">
+      <div class="demo-bar-dots">
+        <span class="demo-bar-dot"></span>
+        <span class="demo-bar-dot"></span>
+        <span class="demo-bar-dot"></span>
+      </div>
+      <span class="demo-bar-ttl" id="demo-bar-ttl">Casa Palermo</span>
+      <button class="demo-close" id="demo-close" aria-label="Cerrar demo">✕</button>
+    </div>
+    <div class="demo-iframe-wrap">
+      <iframe id="demo-iframe" src="" title="Demo interactiva" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
 
 <!-- SELLO DE CONFIANZA -->
 <div class="trust-strip" aria-label="Garantías">
