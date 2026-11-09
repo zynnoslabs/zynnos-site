@@ -2,15 +2,78 @@
 // Recibe datos del formulario, llama a Groq, envía lead a La Central.
 // GROQ_API_KEY, CENTRAL_URL y LEADS_API_TOKEN vienen de Vercel env vars.
 
+// ── Allowed origins ────────────────────────────────────────────────────────
+const ALLOWED_ORIGINS = [
+  'https://zynnos-site.vercel.app',
+  'https://www.zynnos.com',
+  'https://zynnos.com',
+];
+
+// ── Simple in-memory rate limit (resets on cold start, ~1 req/10s per IP) ──
+const rateLimitMap = new Map();
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip) || { count: 0, firstSeen: now };
+  if (now - entry.firstSeen > 60_000) {
+    rateLimitMap.set(ip, { count: 1, firstSeen: now });
+    return true;
+  }
+  if (entry.count >= 5) return false; // max 5 per minute per IP
+  entry.count++;
+  rateLimitMap.set(ip, entry);
+  return true;
+}
+
+// ── Sanitize string inputs ─────────────────────────────────────────────────
+function sanitize(val, maxLen = 300) {
+  if (typeof val !== 'string') return '';
+  // Strip control chars except newlines, truncate
+  return val.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').trim().slice(0, maxLen);
+}
+
+// ── Validate email ─────────────────────────────────────────────────────────
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) && email.length <= 254;
+}
+
 export default async function handler(req, res) {
+  // CORS preflight
+  const origin = req.headers['origin'] || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Vary', 'Origin');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const { rubro, consultas, problema, nombre, email, tel } = req.body || {};
+  // Rate limiting
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+  if (!checkRateLimit(ip)) {
+    return res.status(429).json({ ok: false, error: 'Demasiadas solicitudes. Intentá en un minuto.' });
+  }
 
+  // Parse and sanitize inputs
+  const body = req.body || {};
+  const rubro    = sanitize(body.rubro,    80);
+  const consultas = sanitize(body.consultas, 20);
+  const problema = sanitize(body.problema, 500);  // hard cap for prompt injection
+  const nombre   = sanitize(body.nombre,   100);
+  const email    = sanitize(body.email,    254);
+  const tel      = sanitize(body.tel,      30);
+
+  // Validate required fields
   if (!rubro || !problema || !nombre || !email) {
     return res.status(400).json({ ok: false, error: 'Faltan campos requeridos' });
+  }
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ ok: false, error: 'Email inválido' });
   }
 
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
@@ -23,7 +86,7 @@ Catálogo de soluciones Zynnos (seleccioná UNA sola que mejor aplique):
 5. Gestión de agenda IA — turnos, reservas y cancelaciones automáticas
 6. Reportes automáticos — dashboards y métricas sin trabajo manual
 
-Proyectos de referencia: Polo Antiguo (chatbot WhatsApp para restaurante), 
+Proyectos de referencia: Polo Antiguo (chatbot WhatsApp para restaurante),
 PalermitanHost (gestión de Airbnb con IA), Orvion Finanzas (dashboard automático).
 
 Generá un diagnóstico en dos partes:
@@ -58,12 +121,12 @@ Respondé SOLO en JSON con este formato exacto:
       const groqData = await groqRes.json();
       const content = groqData.choices?.[0]?.message?.content || '{}';
       const parsed = JSON.parse(content);
-      groqResult.solucion = parsed.solucion || groqResult.solucion;
-      groqResult.diagnostico = parsed.diagnostico || '';
+      groqResult.solucion = sanitize(parsed.solucion || groqResult.solucion, 100);
+      groqResult.diagnostico = sanitize(parsed.diagnostico || '', 1000);
     }
   } catch (err) {
     console.error('Groq error:', err.message);
-    groqResult.diagnostico = `Tu negocio en ${rubro} puede beneficiarse enormemente de la automatización. Con ${consultas} consultas diarias y el problema de "${problema}", la solución ideal es implementar un sistema que trabaje solo.\n\nEs como contratar un empleado que nunca duerme, nunca se olvida de responder y trabaja los 7 días de la semana.`;
+    groqResult.diagnostico = `Tu negocio en ${rubro} puede beneficiarse enormemente de la automatización. Con el problema de "${problema.slice(0, 100)}", la solución ideal es implementar un sistema que trabaje solo.\n\nEs como contratar un empleado que nunca duerme, nunca se olvida de responder y trabaja los 7 días de la semana.`;
   }
 
   const CENTRAL_URL = process.env.CENTRAL_URL;
