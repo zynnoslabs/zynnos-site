@@ -2281,12 +2281,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }).observe(_adminEl, { attributes: true, attributeFilter: ['class'] });
   }
 
-  // === DEMO: open admin 2s after page load ===
-  setTimeout(function() {
-    try { sessionStorage.setItem('barb_admin_auth', '1'); } catch(e) {}
-    try { _mostrarAdmin(); } catch(e) { console.warn('admin open:', e); }
-    _disableDemoImageInputs();
-  }, 2000);
+  // === DEMO: pre-authorize admin so the button works without password ===
+  try { sessionStorage.setItem('barb_admin_auth', '1'); } catch(e) {}
 })();
 </script>
 <!-- ### /AUTO-ADMIN DEMO ### -->

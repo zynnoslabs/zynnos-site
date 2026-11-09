@@ -2152,12 +2152,8 @@ function esc(s){if(s===null||s===undefined)return'';return String(s).replace(/&/
     }).observe(_adminEl, { attributes: true, attributeFilter: ['class'] });
   }
 
-  // === DEMO: open admin 2s after page load ===
-  setTimeout(function() {
-    try { sessionStorage.setItem('admin_auth', '1'); } catch(e) {}
-    try { openAdminPanel(); } catch(e) { console.warn('admin open:', e); }
-    _disableDemoImageInputs();
-  }, 2000);
+  // === DEMO: pre-authorize admin so the button works without password ===
+  try { sessionStorage.setItem('admin_auth', '1'); } catch(e) {}
 })();
 </script>
 <!-- ### /AUTO-ADMIN DEMO ### -->

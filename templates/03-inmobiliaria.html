@@ -1787,12 +1787,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     }).observe(_adminEl, { attributes: true, attributeFilter: ['class'] });
   }
 
-  // === DEMO: open admin 2s after page load ===
-  setTimeout(function() {
-    try { sessionStorage.setItem('inmo_admin_auth', 'ok'); } catch(e) {}
-    try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
-    _disableDemoImageInputs();
-  }, 2000);
+  // === DEMO: pre-authorize admin so the button works without password ===
+  try { sessionStorage.setItem('inmo_admin_auth', 'ok'); } catch(e) {}
 })();
 </script>
 <!-- ### /AUTO-ADMIN DEMO ### -->
