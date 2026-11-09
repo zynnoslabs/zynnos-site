@@ -1764,62 +1764,34 @@ document.addEventListener('DOMContentLoaded',()=>{
 <!-- ### AUTO-ADMIN DEMO ### -->
 <script>
 (function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
+  // === DEMO: set auth flag ===
   try { sessionStorage.setItem('inmo_admin_auth', 'ok'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function(){
-      try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
-    }, 1800);
 
-  // === DEMO PROTECTION ===
-  // Disable image inputs to prevent cross-user contamination
+  // === DEMO PROTECTION: disable image inputs whenever admin opens ===
   function _disableDemoImageInputs() {
-    // Disable all file inputs
     document.querySelectorAll('input[type="file"]').forEach(function(el) {
-      el.disabled = true;
-      el.title = 'No disponible en demo';
-      el.style.opacity = '0.4';
-      el.style.cursor = 'not-allowed';
-      el.style.pointerEvents = 'none';
+      el.disabled = true; el.title = 'No disponible en demo';
+      el.style.opacity = '0.4'; el.style.cursor = 'not-allowed';
     });
-    // Disable URL inputs used for images (placeholder contains https or imagen/foto/url)
     document.querySelectorAll('input[type="url"], input[placeholder*="https://"], input[placeholder*="imagen"], input[placeholder*="foto"], input[placeholder*="URL"]').forEach(function(el) {
-      // Only in admin context
-      var inAdmin = el.closest('#adminOverlay, .admin-overlay, .admin-panel, [id*="admin"], [class*="admin"], [class*="editor"], [id*="editor"]');
-      if (inAdmin) {
-        el.disabled = true;
-        el.title = 'No disponible en demo';
-        el.style.opacity = '0.4';
-        el.style.cursor = 'not-allowed';
-        el.style.pointerEvents = 'none';
-      }
-    });
-    // Also hide image upload buttons
-    document.querySelectorAll('button[onclick*="upload"], button[onclick*="Upload"], button[onclick*="subir"], button[onclick*="Subir"], button[onclick*="foto"], button[onclick*="imagen"]').forEach(function(el) {
-      var inAdmin = el.closest('#adminOverlay, .admin-overlay, .admin-panel, [id*="admin"], [class*="admin"]');
-      if (inAdmin) {
-        el.disabled = true;
-        el.style.opacity = '0.4';
-        el.style.cursor = 'not-allowed';
-      }
+      var inAdmin = el.closest('#adminOverlay,.admin-overlay,.admin-panel,[id*="admin"],[class*="admin"],[class*="editor"],[id*="editor"]');
+      if (inAdmin) { el.disabled = true; el.title = 'No disponible en demo'; el.style.opacity = '0.4'; el.style.cursor = 'not-allowed'; }
     });
   }
-  // Run after admin opens (observe DOM changes)
-  var _demoObserver = new MutationObserver(function(mutations) {
-    mutations.forEach(function(m) {
-      if (m.target && (m.target.classList && (m.target.classList.contains('open') || m.target.classList.contains('active')))) {
-        _disableDemoImageInputs();
-      }
-    });
-  });
-  var _adminEl = document.querySelector('#adminOverlay, .admin-overlay, [id*="admin-overlay"], [id*="adminOverlay"]');
+  var _adminEl = document.querySelector('#adminOverlay,.admin-overlay,[id*="adminOverlay"]');
   if (_adminEl) {
-    _demoObserver.observe(_adminEl, { attributes: true, attributeFilter: ['class'] });
+    new MutationObserver(function(mutations) {
+      mutations.forEach(function(m) {
+        if (m.target.classList && m.target.classList.contains('open')) _disableDemoImageInputs();
+      });
+    }).observe(_adminEl, { attributes: true, attributeFilter: ['class'] });
   }
-  // Also run on initial open
-  _disableDemoImageInputs();
 
-  });
+  // === DEMO: open admin after 2s so the page is visible first ===
+  setTimeout(function() {
+    try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
+    _disableDemoImageInputs();
+  }, 2000);
 })();
 </script>
 <!-- ### /AUTO-ADMIN DEMO ### -->
