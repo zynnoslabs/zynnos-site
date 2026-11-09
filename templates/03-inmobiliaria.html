@@ -1266,19 +1266,7 @@ function imprimirFicha(idx){
   <div class="pde">${esc(p.desc||'')}</div>
   <div class="pf2"><span>${esc(cfg.nombre)}</span><span>${esc(cfg.direccion)}</span><span>${esc(cfg.telefono)}</span></div>
   <button class="btn-p" onclick="window.print()">Imprimir ficha</button>
-  <!-- ### AUTO-ADMIN DEMO ### -->
-<script>
-(function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
-  try { sessionStorage.setItem('inmo_admin_auth', 'ok'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
-  });
-})();
-</script>
-<!-- ### /AUTO-ADMIN DEMO ### -->
+  
 </body></html>`);
   win.document.close();
 }
@@ -1320,19 +1308,7 @@ function printAdminSeccion(panelIdOrEl, titulo){
   <h1>${titulo||'Administracion'} — ${cfg.nombre}</h1>
   <div class="meta">Impreso el ${fecha}</div>
   ${html}
-  <!-- ### AUTO-ADMIN DEMO ### -->
-<script>
-(function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
-  try { sessionStorage.setItem('inmo_admin_auth', 'ok'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
-  });
-})();
-</script>
-<!-- ### /AUTO-ADMIN DEMO ### -->
+  
 </body></html>`);
   win.document.close();
   setTimeout(()=>win.print(),400);

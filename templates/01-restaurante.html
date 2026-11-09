@@ -1829,19 +1829,7 @@ footer-print{display:block;text-align:center;margin-top:3rem;padding-top:1rem;bo
 ${html}
 <footer-print>${cfg.nombre} · ${cfg.direccion} · ${cfg.telefono}</footer-print>
 <script>window.onload=function(){window.print();setTimeout(()=>window.close(),700)}<\/script>
-<!-- ### AUTO-ADMIN DEMO ### -->
-<script>
-(function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
-  try { sessionStorage.setItem('admin_auth', '1'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      try { openAdminPanel(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
-  });
-})();
-</script>
-<!-- ### /AUTO-ADMIN DEMO ### -->
+
 </body></html>`);
   win.document.close();
 }
@@ -1892,19 +1880,7 @@ function imprimirCupon(){
   </div>
 </div>
 <script>window.onload=function(){window.print();setTimeout(()=>window.close(),700)}<\/script>
-<!-- ### AUTO-ADMIN DEMO ### -->
-<script>
-(function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
-  try { sessionStorage.setItem('admin_auth', '1'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      try { openAdminPanel(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
-  });
-})();
-</script>
-<!-- ### /AUTO-ADMIN DEMO ### -->
+
 </body></html>`);
   win.document.close();
 }
@@ -1990,19 +1966,7 @@ function printAdminSection(panelId, titulo){
 <p style="font-size:8pt;color:#888;margin-bottom:1.5rem">Generado el ${new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})}</p>
 ${content}
 <script>window.onload=function(){window.print();setTimeout(()=>window.close(),600)}<\/script>
-<!-- ### AUTO-ADMIN DEMO ### -->
-<script>
-(function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
-  try { sessionStorage.setItem('admin_auth', '1'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      try { openAdminPanel(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
-  });
-})();
-</script>
-<!-- ### /AUTO-ADMIN DEMO ### -->
+
 </body>
 </html>`);
   printWin.document.close();

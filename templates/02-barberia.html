@@ -1756,19 +1756,7 @@ ${prods.filter(p=>p.activo!==false).map(p=>`<div class="prod-row">
   <div><div class="prod-nombre">${esc(p.nombre)}</div><div class="prod-desc">${esc(p.desc)}</div></div>
   <div class="prod-precio">${esc(precioDisplay(p.precio))}</div>
 </div>`).join('')}
-<!-- ### AUTO-ADMIN DEMO ### -->
-<script>
-(function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
-  try { sessionStorage.setItem('barb_admin_auth', '1'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      try { _mostrarAdmin(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
-  });
-})();
-</script>
-<!-- ### /AUTO-ADMIN DEMO ### -->
+
 </body></html>`);
   popup.document.close(); popup.focus(); setTimeout(()=>popup.print(),700);
 }
@@ -1896,19 +1884,7 @@ img{max-width:100%;height:auto}
 <h1>${cfg.nombre}</h1>
 <div class="meta">${titulo} · Impreso el ${new Date().toLocaleDateString('es-AR')}</div>
 ${el.innerHTML}
-<!-- ### AUTO-ADMIN DEMO ### -->
-<script>
-(function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
-  try { sessionStorage.setItem('barb_admin_auth', '1'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      try { _mostrarAdmin(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
-  });
-})();
-</script>
-<!-- ### /AUTO-ADMIN DEMO ### -->
+
 </body></html>`);
   popup.document.close();
   popup.focus();
@@ -1955,19 +1931,7 @@ td{font-size:.82rem;padding:.75rem 0;border-bottom:1px solid #eee;vertical-align
 <h1>${cfg.nombre} — ${titulo}</h1>
 <div class="meta">Impreso el ${new Date().toLocaleDateString('es-AR')}</div>
 ${panel.innerHTML}
-<!-- ### AUTO-ADMIN DEMO ### -->
-<script>
-(function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
-  try { sessionStorage.setItem('barb_admin_auth', '1'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      try { _mostrarAdmin(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
-  });
-})();
-</script>
-<!-- ### /AUTO-ADMIN DEMO ### -->
+
 </body></html>`);
   popup.document.close();
   popup.focus();

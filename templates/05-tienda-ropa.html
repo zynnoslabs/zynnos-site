@@ -1785,19 +1785,7 @@ function abrirPrint(html){
       .card-sub{font-size:9pt;color:#666;margin-top:.1cm}
       @media print{body{padding:1.5cm}}
     </style>
-  </head><body>${html}<script>setTimeout(()=>{window.print();window.close();},400);<\/script><!-- ### AUTO-ADMIN DEMO ### -->
-<script>
-(function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
-  try { sessionStorage.setItem('admin_auth', 'ok'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
-  });
-})();
-</script>
-<!-- ### /AUTO-ADMIN DEMO ### -->
+  </head><body>${html}<script>setTimeout(()=>{window.print();window.close();},400);<\/script>
 </body></html>`);
   w.document.close();
 }

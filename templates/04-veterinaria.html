@@ -1097,19 +1097,7 @@ function imprimirTurnosDia(){
   <table><thead><tr><th>Hora</th><th>Tutor / Mascota</th><th>Servicio</th><th>Estado</th></tr></thead>
   <tbody>${filas}</tbody></table>
   <p class="foot">Impreso desde el sistema Zynnos &middot; ${ts}</p>
-  <script>window.print();setTimeout(()=>window.close(),1000);<\/script><!-- ### AUTO-ADMIN DEMO ### -->
-<script>
-(function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
-  try { sessionStorage.setItem('vet_admin_auth', 'ok'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
-  });
-})();
-</script>
-<!-- ### /AUTO-ADMIN DEMO ### -->
+  <script>window.print();setTimeout(()=>window.close(),1000);<\/script>
 </body></html>`;
   const w=window.open('','_blank','width=760,height=600');
   if(w){w.document.write(html);w.document.close();}
@@ -1146,19 +1134,7 @@ function printAdminSeccion(panelId,titulo){
   <body><h1>${esc(titulo)} — ${esc(cfg.nombre)}</h1><p class="sub">Impreso el ${ts}</p>
   ${contenido.innerHTML}
   <p class="foot">Powered by Zynnos</p>
-  <script>window.print();setTimeout(()=>window.close(),1200);<\/script><!-- ### AUTO-ADMIN DEMO ### -->
-<script>
-(function(){
-  // Auto-abre el panel admin para la demo — no requiere contraseña
-  try { sessionStorage.setItem('vet_admin_auth', 'ok'); } catch(e) {}
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
-  });
-})();
-</script>
-<!-- ### /AUTO-ADMIN DEMO ### -->
+  <script>window.print();setTimeout(()=>window.close(),1200);<\/script>
 </body></html>`;
   const w=window.open('','_blank','width=800,height=650');
   if(w){w.document.write(html);w.document.close();}
