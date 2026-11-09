@@ -455,6 +455,7 @@ ul{list-style:none}
   .hero{grid-template-columns:1fr;min-height:auto}
   .hero-foto{height:60vw}
   .hero-editorial{padding:3rem 1.5rem}
+  .hero-titular{font-size:clamp(2.5rem,9vw,4rem)}
   .ia-moda{grid-template-columns:1fr;gap:2rem}
   .modal-box{grid-template-columns:1fr;max-width:480px}
   .modal-foto{min-height:320px}
@@ -466,6 +467,13 @@ ul{list-style:none}
   .nav-links{display:none}
   .catalogo,.footer,.contacto-sec{padding:3rem 1.25rem}
   .footer-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .hero-editorial{padding:2.5rem 1.25rem}
+  .hero-titular{font-size:clamp(2rem,10vw,3rem)}
+  .hero-desc{font-size:.88rem;max-width:100%}
+  .hero-foto{height:55vw}
+  .productos-grid{grid-template-columns:repeat(2,1fr)}
 }
 </style>
 </head>
