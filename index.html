@@ -712,6 +712,8 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
     function closeDemo(){
       overlay.classList.remove('open');
       document.body.style.overflow = '';
+      // Clear sessionStorage in the iframe so next open starts fresh (no auto-auth)
+      try { demoIframe.contentWindow.sessionStorage.clear(); } catch(e) {}
       setTimeout(function(){ demoIframe.src = ''; }, 400);
     }
 
