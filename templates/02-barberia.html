@@ -355,6 +355,9 @@ footer{border-top:1px solid var(--linea);padding:3rem;display:grid;grid-template
 
 <!-- ADMIN OVERLAY — PANTALLA COMPLETA -->
 <div class="admin-overlay" id="adminOverlay" role="dialog" aria-modal="true" aria-label="Panel de administracion">
+<div style="background:linear-gradient(90deg,#e6a817,#f5c842);color:#1a1200;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-align:center;padding:.35rem 1rem;text-transform:uppercase;flex-shrink:0">
+  ⚡ Modo Demo — Los cambios son temporales y solo visibles para vos en esta sesión
+</div>
   <div class="admin-header">
     <h2 id="admin-nombre-display">Barber Shop <em>Admin</em></h2>
     <div class="admin-header-btns">
@@ -793,20 +796,20 @@ CONFIG.pageContent = {
 
 /* dinámica: el admin puede pisar CONFIG via localStorage */
 let cfgDynamic = {};
-try { cfgDynamic = JSON.parse(localStorage.getItem('barb_config') || '{}'); } catch(e){}
+try { cfgDynamic = JSON.parse(sessionStorage.getItem('barb_config') || '{}'); } catch(e){}
 const c = () => ({ ...CONFIG, ...cfgDynamic });
 
 /* ### CAMBIO AQUÍ ### — pageContent dinámico desde localStorage */
 let _pageContent = {};
-try { _pageContent = JSON.parse(localStorage.getItem('barb_page_content') || '{}'); } catch(e){}
+try { _pageContent = JSON.parse(sessionStorage.getItem('barb_page_content') || '{}'); } catch(e){}
 function getPageContent(key){ return _pageContent[key] !== undefined ? _pageContent[key] : CONFIG.pageContent[key]; }
 function setPageContent(key, val){
   _pageContent[key] = val;
-  localStorage.setItem('barb_page_content', JSON.stringify(_pageContent));
+  sessionStorage.setItem('barb_page_content', JSON.stringify(_pageContent));
 }
 
 let turnos = [];
-try { turnos = JSON.parse(localStorage.getItem('barb_turnos') || '[]'); } catch(e){}
+try { turnos = JSON.parse(sessionStorage.getItem('barb_turnos') || '[]'); } catch(e){}
 
 /* ### CAMBIO AQUÍ ### — colores por barbero para el calendario */
 const BARBERO_COLORS = [
@@ -1029,7 +1032,7 @@ function calcularSlots(barberoId, fecha){
 
   // ### CAMBIO AQUÍ ### — releer turnos frescos para no usar caché desactualizada
   let turnosFrescos = [];
-  try { turnosFrescos = JSON.parse(localStorage.getItem('barb_turnos') || '[]'); } catch(e){}
+  try { turnosFrescos = JSON.parse(sessionStorage.getItem('barb_turnos') || '[]'); } catch(e){}
 
   // Turnos del barbero en esa fecha
   const turnosDia = turnosFrescos.filter(t => {
@@ -1127,14 +1130,14 @@ function enviarReserva(){
   const duracionTurno = _getServicioDuracion();
   const turno = {id:Date.now(),nombre,tel,barbero:barbero||'Sin preferencia',servicio,fecha,hora,duracion:duracionTurno,notas,estado:'pendiente',completado:false,ts:new Date().toISOString()};
   turnos.push(turno);
-  localStorage.setItem('barb_turnos', JSON.stringify(turnos));
+  sessionStorage.setItem('barb_turnos', JSON.stringify(turnos));
   _ultimoTurno = turno;
 
   // Guardar recordatorio
   let recs = [];
-  try { recs = JSON.parse(localStorage.getItem('barb_recordatorios')||'[]'); } catch(e){}
+  try { recs = JSON.parse(sessionStorage.getItem('barb_recordatorios')||'[]'); } catch(e){}
   recs.push({ id:turno.id, nombre, servicio, barbero:turno.barbero, fecha, hora, ts:turno.ts });
-  localStorage.setItem('barb_recordatorios', JSON.stringify(recs));
+  sessionStorage.setItem('barb_recordatorios', JSON.stringify(recs));
 
   // Mostrar confirmacion inline
   const cfg = c();
@@ -1189,7 +1192,7 @@ function turnoCalendario(){
 
 function verificarRecordatoriosTurnos(){
   let recs = [];
-  try { recs = JSON.parse(localStorage.getItem('barb_recordatorios')||'[]'); } catch(e){}
+  try { recs = JSON.parse(sessionStorage.getItem('barb_recordatorios')||'[]'); } catch(e){}
   if(!recs.length) return;
   const ahora = Date.now();
   for(const r of recs){
@@ -1317,13 +1320,13 @@ function renderAdminTurnos(){
 
 function cambiarEstado(i, e){
   turnos[i].estado = e;
-  localStorage.setItem('barb_turnos', JSON.stringify(turnos));
+  sessionStorage.setItem('barb_turnos', JSON.stringify(turnos));
   renderAdminTurnos();
 }
 
 function toggleTurnoCheck(i, campo, val){
   turnos[i][campo] = val;
-  localStorage.setItem('barb_turnos', JSON.stringify(turnos));
+  sessionStorage.setItem('barb_turnos', JSON.stringify(turnos));
   renderAdminTurnos();
 }
 
@@ -1459,7 +1462,7 @@ function guardarServicios(){
     lista.push({ id:idx++, nombre:n, desc:d||'', precio:p||'0', duracion:dur, activo, reposicion, repoFecha });
   });
   cfgDynamic = { ...cfgDynamic, servicios:lista };
-  localStorage.setItem('barb_config', JSON.stringify(cfgDynamic));
+  sessionStorage.setItem('barb_config', JSON.stringify(cfgDynamic));
   renderServicios();
   renderReposicion();
   alert('Servicios guardados.');
@@ -1476,7 +1479,7 @@ function renderReposicion(){
   }
   // Estado de "repuesto" se guarda en localStorage separado
   let repoState = {};
-  try { repoState = JSON.parse(localStorage.getItem('barb_repo_state')||'{}'); } catch(e){}
+  try { repoState = JSON.parse(sessionStorage.getItem('barb_repo_state')||'{}'); } catch(e){}
 
   cont.innerHTML = items.map(s => {
     const repuesto  = repoState[s.id] === true;
@@ -1493,9 +1496,9 @@ function renderReposicion(){
 
 function marcarRepuesto(cb, id){
   let repoState = {};
-  try { repoState = JSON.parse(localStorage.getItem('barb_repo_state')||'{}'); } catch(e){}
+  try { repoState = JSON.parse(sessionStorage.getItem('barb_repo_state')||'{}'); } catch(e){}
   repoState[id] = cb.checked;
-  localStorage.setItem('barb_repo_state', JSON.stringify(repoState));
+  sessionStorage.setItem('barb_repo_state', JSON.stringify(repoState));
   const row = cb.closest('.repos-item');
   if(row) row.classList.toggle('repuesto', cb.checked);
 }
@@ -1545,7 +1548,7 @@ function guardarConfig(){
   };
   if(pass1.trim()) update.admin_pass = pass1.trim();
   cfgDynamic = { ...cfgDynamic, ...update };
-  localStorage.setItem('barb_config', JSON.stringify(cfgDynamic));
+  sessionStorage.setItem('barb_config', JSON.stringify(cfgDynamic));
   renderPagina();
   alert('Configuracion guardada.');
 }
@@ -1574,7 +1577,7 @@ function renderCalendario(){
   const lunes = _calLunes;
   // ### CAMBIO AQUÍ ### — releer turnos frescos del localStorage cada vez
   let turnosActuales = [];
-  try { turnosActuales = JSON.parse(localStorage.getItem('barb_turnos') || '[]'); } catch(e){}
+  try { turnosActuales = JSON.parse(sessionStorage.getItem('barb_turnos') || '[]'); } catch(e){}
 
   // Generar 6 días: Lun–Sáb
   const dias = [];
@@ -1731,7 +1734,7 @@ function guardarProductos(){
     lista.push({id:idx++,nombre:n,desc:d||'',precio:p||'0',activo,reposicion,repoFecha});
   });
   cfgDynamic={...cfgDynamic,productos:lista};
-  localStorage.setItem('barb_config',JSON.stringify(cfgDynamic));
+  sessionStorage.setItem('barb_config',JSON.stringify(cfgDynamic));
   alert('Productos guardados.');
 }
 
@@ -1825,7 +1828,7 @@ function renderStats(){
 /* ===== REGISTRO USUARIO ===== */
 let _regCallback = null;
 function abrirRegistro(callback){
-  const yaReg = (() => { try { return JSON.parse(localStorage.getItem('barb_usuario')||'null'); } catch(e){ return null; } })();
+  const yaReg = (() => { try { return JSON.parse(sessionStorage.getItem('barb_usuario')||'null'); } catch(e){ return null; } })();
   if(yaReg && yaReg.nombre && yaReg.email){ if(callback) callback(yaReg); return; }
   _regCallback = callback || null;
   document.getElementById('regOverlay').classList.add('open');
@@ -1847,7 +1850,7 @@ function registrarUsuario(){
   if(!cel || cel.length<6){ err.textContent='Celular inválido.'; err.style.display='block'; return; }
   err.style.display='none';
   const usuario = {nombre,email,cel,ts:new Date().toISOString()};
-  localStorage.setItem('barb_usuario', JSON.stringify(usuario));
+  sessionStorage.setItem('barb_usuario', JSON.stringify(usuario));
   document.getElementById('regOverlay').classList.remove('open');
   document.body.style.overflow='';
   if(_regCallback){ _regCallback(usuario); _regCallback=null; }
@@ -2054,7 +2057,7 @@ function guardarImgGaleria(idx){
 
 function resetEditorPagina(){
   if(!confirm('¿Restaurar todos los textos e imágenes a sus valores originales?')) return;
-  localStorage.removeItem('barb_page_content');
+  sessionStorage.removeItem('barb_page_content');
   _pageContent = {};
   applyPageContent();
   cargarEditorPagina();
@@ -2258,9 +2261,58 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auto-abre el panel admin para la demo — no requiere contraseña
   try { sessionStorage.setItem('barb_admin_auth', '1'); } catch(e) {}
   window.addEventListener('load', function() {
-    setTimeout(function() {
+    setTimeout(function(){
       try { _mostrarAdmin(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
+    }, 1800);
+
+  // === DEMO PROTECTION ===
+  // Disable image inputs to prevent cross-user contamination
+  function _disableDemoImageInputs() {
+    // Disable all file inputs
+    document.querySelectorAll('input[type="file"]').forEach(function(el) {
+      el.disabled = true;
+      el.title = 'No disponible en demo';
+      el.style.opacity = '0.4';
+      el.style.cursor = 'not-allowed';
+      el.style.pointerEvents = 'none';
+    });
+    // Disable URL inputs used for images (placeholder contains https or imagen/foto/url)
+    document.querySelectorAll('input[type="url"], input[placeholder*="https://"], input[placeholder*="imagen"], input[placeholder*="foto"], input[placeholder*="URL"]').forEach(function(el) {
+      // Only in admin context
+      var inAdmin = el.closest('#adminOverlay, .admin-overlay, .admin-panel, [id*="admin"], [class*="admin"], [class*="editor"], [id*="editor"]');
+      if (inAdmin) {
+        el.disabled = true;
+        el.title = 'No disponible en demo';
+        el.style.opacity = '0.4';
+        el.style.cursor = 'not-allowed';
+        el.style.pointerEvents = 'none';
+      }
+    });
+    // Also hide image upload buttons
+    document.querySelectorAll('button[onclick*="upload"], button[onclick*="Upload"], button[onclick*="subir"], button[onclick*="Subir"], button[onclick*="foto"], button[onclick*="imagen"]').forEach(function(el) {
+      var inAdmin = el.closest('#adminOverlay, .admin-overlay, .admin-panel, [id*="admin"], [class*="admin"]');
+      if (inAdmin) {
+        el.disabled = true;
+        el.style.opacity = '0.4';
+        el.style.cursor = 'not-allowed';
+      }
+    });
+  }
+  // Run after admin opens (observe DOM changes)
+  var _demoObserver = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      if (m.target && (m.target.classList && (m.target.classList.contains('open') || m.target.classList.contains('active')))) {
+        _disableDemoImageInputs();
+      }
+    });
+  });
+  var _adminEl = document.querySelector('#adminOverlay, .admin-overlay, [id*="admin-overlay"], [id*="adminOverlay"]');
+  if (_adminEl) {
+    _demoObserver.observe(_adminEl, { attributes: true, attributeFilter: ['class'] });
+  }
+  // Also run on initial open
+  _disableDemoImageInputs();
+
   });
 })();
 </script>

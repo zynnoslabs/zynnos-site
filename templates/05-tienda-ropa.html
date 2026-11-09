@@ -663,6 +663,9 @@ ul{list-style:none}
 
 <!-- ADMIN PANEL COMPLETO -->
 <div class="admin-overlay" id="admin-overlay">
+<div style="background:linear-gradient(90deg,#e6a817,#f5c842);color:#1a1200;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-align:center;padding:.35rem 1rem;text-transform:uppercase;flex-shrink:0">
+  ⚡ Modo Demo — Los cambios son temporales y solo visibles para vos en esta sesión
+</div>
   <div class="admin-head">
     <h2>Admin — <span id="admin-head-nombre">Boutique</span></h2>
     <div class="admin-head-acciones">
@@ -929,18 +932,18 @@ const categorias = ['Todo','Remeras','Pantalones','Vestidos','Camperas','Accesor
 
 // ===== STATE =====
 let cfgDyn = {};
-try{ cfgDyn = JSON.parse(localStorage.getItem('tienda_cfg')||'{}'); }catch(e){}
+try{ cfgDyn = JSON.parse(sessionStorage.getItem('tienda_cfg')||'{}'); }catch(e){}
 const cfg = () => ({...CONFIG_BASE, ...cfgDyn});
 
 let carrito = [];
-try{ carrito = JSON.parse(localStorage.getItem('tienda_carrito')||'[]'); }catch(e){}
+try{ carrito = JSON.parse(sessionStorage.getItem('tienda_carrito')||'[]'); }catch(e){}
 
 let pedidos = [];
-try{ pedidos = JSON.parse(localStorage.getItem('tienda_pedidos')||'[]'); }catch(e){}
+try{ pedidos = JSON.parse(sessionStorage.getItem('tienda_pedidos')||'[]'); }catch(e){}
 
 let productos = [];
 try{
-  const g = JSON.parse(localStorage.getItem('tienda_productos')||'null');
+  const g = JSON.parse(sessionStorage.getItem('tienda_productos')||'null');
   productos = g || productosBase.map(p=>({...p}));
 }catch(e){ productos = productosBase.map(p=>({...p})); }
 
@@ -1078,10 +1081,10 @@ function agregarAlCarrito(){
   if(!productoActivo) return;
   if(productoActivo.talles&&productoActivo.talles.length&&!talleSeleccionado){ alert('Selecciona un talle'); return; }
   carrito.push({ id:productoActivo.id, nombre:productoActivo.nombre, precio:productoActivo.precio, foto:productoActivo.foto, talle:talleSeleccionado });
-  localStorage.setItem('tienda_carrito',JSON.stringify(carrito));
+  sessionStorage.setItem('tienda_carrito',JSON.stringify(carrito));
   // ### CAMBIO AQUÍ ### — guardar timestamp primera vez que se agrega al carrito
-  if(!localStorage.getItem('tienda_carrito_ts')){
-    localStorage.setItem('tienda_carrito_ts', Date.now().toString());
+  if(!sessionStorage.getItem('tienda_carrito_ts')){
+    sessionStorage.setItem('tienda_carrito_ts', Date.now().toString());
   }
   actualizarCarritoUI();
   // Fly badge
@@ -1130,7 +1133,7 @@ function renderCarrito(){
 }
 function quitarItem(i){
   carrito.splice(i,1);
-  localStorage.setItem('tienda_carrito',JSON.stringify(carrito));
+  sessionStorage.setItem('tienda_carrito',JSON.stringify(carrito));
   actualizarCarritoUI();
   renderCarrito();
 }
@@ -1150,10 +1153,10 @@ function actualizarCarritoUI(){
       const pid='PED-'+Date.now();
       const pedido={id:pid,cliente:nombre||'Anonimo',items:carrito.map(x=>x.nombre+(x.talle?' ('+x.talle+')':'')).join(', '),total,fecha:new Date().toISOString(),estado:'nuevo',nota:''};
       pedidos.push(pedido);
-      localStorage.setItem('tienda_pedidos',JSON.stringify(pedidos));
+      sessionStorage.setItem('tienda_pedidos',JSON.stringify(pedidos));
       carrito=[];
-      localStorage.setItem('tienda_carrito','[]');
-      localStorage.removeItem('tienda_carrito_ts'); // ### CAMBIO AQUÍ ### — limpiar timestamp al comprar
+      sessionStorage.setItem('tienda_carrito','[]');
+      sessionStorage.removeItem('tienda_carrito_ts'); // ### CAMBIO AQUÍ ### — limpiar timestamp al comprar
       actualizarCarritoUI();
       renderCarrito();
       window.open('https://wa.me/'+c.wp+'?text='+encodeURIComponent(txt),'_blank');
@@ -1164,8 +1167,8 @@ function actualizarCarritoUI(){
 
 // ### CAMBIO AQUÍ ### Task 2 — Colecciones
 let colecciones = [];
-try{ colecciones = JSON.parse(localStorage.getItem('tienda_colecciones')||'[]'); }catch(e){}
-function guardarColecciones(){ localStorage.setItem('tienda_colecciones',JSON.stringify(colecciones)); }
+try{ colecciones = JSON.parse(sessionStorage.getItem('tienda_colecciones')||'[]'); }catch(e){}
+function guardarColecciones(){ sessionStorage.setItem('tienda_colecciones',JSON.stringify(colecciones)); }
 
 function renderAdminColecciones(){
   // Rellenar checkboxes de productos
@@ -1303,11 +1306,11 @@ function filtrarAdminProductos(q){
 
 // ### CAMBIO AQUÍ ### Task 5 — Cuentas cliente
 let cuentas = [];
-try{ cuentas = JSON.parse(localStorage.getItem('tienda_cuentas')||'[]'); }catch(e){}
+try{ cuentas = JSON.parse(sessionStorage.getItem('tienda_cuentas')||'[]'); }catch(e){}
 let cuentaActiva = null;
 try{ const ca=sessionStorage.getItem('cuenta_activa'); if(ca) cuentaActiva=JSON.parse(ca); }catch(e){}
 
-function guardarCuentas(){ localStorage.setItem('tienda_cuentas',JSON.stringify(cuentas)); }
+function guardarCuentas(){ sessionStorage.setItem('tienda_cuentas',JSON.stringify(cuentas)); }
 
 function abrirCuentaPanel(){
   document.getElementById('cuenta-overlay').classList.add('open');
@@ -1431,7 +1434,7 @@ function guardarCarritoEnCuenta(){
 function cargarCarritoCuenta(){
   if(!cuentaActiva||!cuentaActiva.carrito) return;
   carrito = [...cuentaActiva.carrito];
-  localStorage.setItem('tienda_carrito',JSON.stringify(carrito));
+  sessionStorage.setItem('tienda_carrito',JSON.stringify(carrito));
   actualizarCarritoUI();
   cerrarCuentaPanel();
   setTimeout(abrirCarrito,150);
@@ -1439,14 +1442,14 @@ function cargarCarritoCuenta(){
 
 function carritoAbandonadoCuenta(){
   if(!carrito.length) return false;
-  const ts = parseInt(localStorage.getItem('tienda_carrito_ts')||'0');
+  const ts = parseInt(sessionStorage.getItem('tienda_carrito_ts')||'0');
   if(!ts) return false;
   return Date.now()-ts >= 2*60*60*1000;
 }
 
 // ### CAMBIO AQUÍ ### Task 7 — Editor de pagina
 let pageContent = {};
-try{ pageContent = JSON.parse(localStorage.getItem('tienda_page_content')||'{}'); }catch(e){}
+try{ pageContent = JSON.parse(sessionStorage.getItem('tienda_page_content')||'{}'); }catch(e){}
 
 function applyPageContent(){
   if(pageContent['hero-titulo']){
@@ -1474,7 +1477,7 @@ function guardarPE(key, inputId){
   const el = document.getElementById(inputId);
   if(!el) return;
   pageContent[key] = el.tagName==='TEXTAREA'?el.value:el.value;
-  localStorage.setItem('tienda_page_content',JSON.stringify(pageContent));
+  sessionStorage.setItem('tienda_page_content',JSON.stringify(pageContent));
   applyPageContent();
   const btn = el.parentElement ? el.parentElement.querySelector('.page-editor-save-btn') : null;
   if(btn){ const orig=btn.textContent; btn.textContent='✓ Guardado'; setTimeout(()=>btn.textContent=orig,1500); }
@@ -1616,7 +1619,7 @@ function guardarConfig(){
     claude_key:document.getElementById('cfg-api').value,
   };
   if(nuevaPass) cfgDyn.admin_pass=nuevaPass;
-  localStorage.setItem('tienda_cfg',JSON.stringify(cfgDyn));
+  sessionStorage.setItem('tienda_cfg',JSON.stringify(cfgDyn));
   aplicarConfig();
   alert('Configuracion guardada.');
 }
@@ -1655,11 +1658,11 @@ function renderAdminPedidos(){
 }
 function cambiarEstado(i,estado){
   pedidos[i].estado=estado;
-  localStorage.setItem('tienda_pedidos',JSON.stringify(pedidos));
+  sessionStorage.setItem('tienda_pedidos',JSON.stringify(pedidos));
 }
 function guardarNotaPedido(i,nota){
   pedidos[i].nota=nota;
-  localStorage.setItem('tienda_pedidos',JSON.stringify(pedidos));
+  sessionStorage.setItem('tienda_pedidos',JSON.stringify(pedidos));
 }
 
 // ===== PRODUCTOS ADMIN =====
@@ -1736,7 +1739,7 @@ function editarProducto(id){
   guardarProductos(); renderAdminProductos(); renderProductos();
 }
 function guardarProductos(){
-  localStorage.setItem('tienda_productos',JSON.stringify(productos));
+  sessionStorage.setItem('tienda_productos',JSON.stringify(productos));
 }
 
 // ===== STOCK =====
@@ -1865,7 +1868,7 @@ function imprimirContacto(){
 // ### CAMBIO AQUÍ ### — carrito abandonado: verificar al cargar si pasaron 2hs sin compra
 function verificarCarritoAbandonado(){
   if(!carrito.length) return;
-  const ts = parseInt(localStorage.getItem('tienda_carrito_ts')||'0');
+  const ts = parseInt(sessionStorage.getItem('tienda_carrito_ts')||'0');
   if(!ts) return;
   const dosHoras = 2 * 60 * 60 * 1000;
   if(Date.now() - ts < dosHoras) return;
@@ -2251,9 +2254,58 @@ setTimeout(()=>{
   // Auto-abre el panel admin para la demo — no requiere contraseña
   try { sessionStorage.setItem('admin_auth', 'ok'); } catch(e) {}
   window.addEventListener('load', function() {
-    setTimeout(function() {
+    setTimeout(function(){
       try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
-    }, 800);
+    }, 1800);
+
+  // === DEMO PROTECTION ===
+  // Disable image inputs to prevent cross-user contamination
+  function _disableDemoImageInputs() {
+    // Disable all file inputs
+    document.querySelectorAll('input[type="file"]').forEach(function(el) {
+      el.disabled = true;
+      el.title = 'No disponible en demo';
+      el.style.opacity = '0.4';
+      el.style.cursor = 'not-allowed';
+      el.style.pointerEvents = 'none';
+    });
+    // Disable URL inputs used for images (placeholder contains https or imagen/foto/url)
+    document.querySelectorAll('input[type="url"], input[placeholder*="https://"], input[placeholder*="imagen"], input[placeholder*="foto"], input[placeholder*="URL"]').forEach(function(el) {
+      // Only in admin context
+      var inAdmin = el.closest('#adminOverlay, .admin-overlay, .admin-panel, [id*="admin"], [class*="admin"], [class*="editor"], [id*="editor"]');
+      if (inAdmin) {
+        el.disabled = true;
+        el.title = 'No disponible en demo';
+        el.style.opacity = '0.4';
+        el.style.cursor = 'not-allowed';
+        el.style.pointerEvents = 'none';
+      }
+    });
+    // Also hide image upload buttons
+    document.querySelectorAll('button[onclick*="upload"], button[onclick*="Upload"], button[onclick*="subir"], button[onclick*="Subir"], button[onclick*="foto"], button[onclick*="imagen"]').forEach(function(el) {
+      var inAdmin = el.closest('#adminOverlay, .admin-overlay, .admin-panel, [id*="admin"], [class*="admin"]');
+      if (inAdmin) {
+        el.disabled = true;
+        el.style.opacity = '0.4';
+        el.style.cursor = 'not-allowed';
+      }
+    });
+  }
+  // Run after admin opens (observe DOM changes)
+  var _demoObserver = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      if (m.target && (m.target.classList && (m.target.classList.contains('open') || m.target.classList.contains('active')))) {
+        _disableDemoImageInputs();
+      }
+    });
+  });
+  var _adminEl = document.querySelector('#adminOverlay, .admin-overlay, [id*="admin-overlay"], [id*="adminOverlay"]');
+  if (_adminEl) {
+    _demoObserver.observe(_adminEl, { attributes: true, attributeFilter: ['class'] });
+  }
+  // Also run on initial open
+  _disableDemoImageInputs();
+
   });
 })();
 </script>
