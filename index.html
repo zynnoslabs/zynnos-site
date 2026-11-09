@@ -65,6 +65,31 @@
 @keyframes blink-cursor{0%,100%{opacity:1}50%{opacity:0}}
 .hero-cursor{display:inline-block;width:3px;height:.85em;background:var(--lime);margin-left:2px;vertical-align:middle;animation:blink-cursor .9s ease-in-out infinite}
 
+
+/* ═══ COOKIE BANNER ═══ */
+#cookie-banner{position:fixed;bottom:0;left:0;right:0;background:#0e1a13;border-top:1px solid rgba(255,255,255,.1);padding:1rem 1.5rem;z-index:1000;display:flex;flex-wrap:wrap;align-items:center;gap:1rem;justify-content:space-between;font-size:.82rem;color:var(--fg2);transform:translateY(100%);transition:transform .4s cubic-bezier(.22,1,.36,1)}
+#cookie-banner.show{transform:translateY(0)}
+#cookie-banner a{color:var(--teal);text-decoration:underline}
+.cookie-btns{display:flex;gap:.6rem;flex-shrink:0}
+.cookie-btn{padding:.45rem 1rem;border-radius:100px;border:none;cursor:pointer;font-size:.82rem;font-weight:600;transition:background .2s}
+.cookie-btn-accept{background:var(--lime);color:#0a1409}
+.cookie-btn-accept:hover{background:var(--lime-d,#b8d914)}
+.cookie-btn-reject{background:rgba(255,255,255,.08);color:var(--fg)}
+.cookie-btn-reject:hover{background:rgba(255,255,255,.14)}
+
+/* ═══ LEGAL MODAL ═══ */
+.legal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:2000;display:none;align-items:center;justify-content:center;padding:1.5rem}
+.legal-overlay.open{display:flex}
+.legal-modal{background:#0e1a13;border:1px solid rgba(255,255,255,.1);border-radius:12px;max-width:640px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column}
+.legal-modal-header{padding:1.2rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.legal-modal-header h2{font-size:1rem;font-weight:700;margin:0}
+.legal-modal-close{background:none;border:none;color:var(--fg2);cursor:pointer;font-size:1.3rem;line-height:1;padding:.2rem}
+.legal-modal-close:hover{color:var(--fg)}
+.legal-modal-body{padding:1.5rem;overflow-y:auto;font-size:.85rem;line-height:1.65;color:var(--fg2)}
+.legal-modal-body h3{color:var(--fg);font-size:.9rem;margin:1.2rem 0 .4rem}
+.legal-modal-body p,.legal-modal-body ul{margin:.4rem 0}
+.legal-modal-body ul{padding-left:1.2rem}
+
 </style></head><body>
 <!DOCTYPE html>
 <html lang="es">
@@ -1099,8 +1124,78 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
     <a href="#servicios">Servicios</a>
     <a href="#trabajos">Proyectos</a>
     <a href="mailto:zynnos.labs@gmail.com">Contacto</a>
+    <a href="#" onclick="openLegal('privacidad');return false;">Privacidad</a>
+    <a href="#" onclick="openLegal('terminos');return false;">Términos</a>
   </nav>
 </footer>
+
+<!-- COOKIE BANNER -->
+<div id="cookie-banner" role="dialog" aria-label="Aviso de cookies" aria-live="polite">
+  <p>Usamos cookies esenciales para el funcionamiento del sitio. No usamos cookies de rastreo ni publicidad. Podés <a href="#" onclick="openLegal('privacidad');return false;">ver nuestra política de privacidad</a>.</p>
+  <div class="cookie-btns">
+    <button class="cookie-btn cookie-btn-reject" onclick="rejectCookies()">Solo esenciales</button>
+    <button class="cookie-btn cookie-btn-accept" onclick="acceptCookies()">Entendido</button>
+  </div>
+</div>
+
+<!-- LEGAL MODALS -->
+<div class="legal-overlay" id="legal-privacidad" role="dialog" aria-modal="true" aria-label="Política de Privacidad" onclick="if(event.target===this)closeLegal()">
+  <div class="legal-modal">
+    <div class="legal-modal-header">
+      <h2>Política de Privacidad</h2>
+      <button class="legal-modal-close" onclick="closeLegal()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="legal-modal-body">
+      <p><strong>Última actualización:</strong> Noviembre 2026</p>
+      <h3>1. Responsable del tratamiento</h3>
+      <p>Zynnos Labs (en adelante "Zynnos"), con domicilio en Palermo, Buenos Aires, Argentina. Contacto: <a href="mailto:zynnos.labs@gmail.com">zynnos.labs@gmail.com</a></p>
+      <h3>2. Datos que recopilamos</h3>
+      <ul>
+        <li><strong>Formulario de diagnóstico:</strong> nombre, email, teléfono (opcional), rubro y descripción del problema. Usados exclusivamente para contactarte con una propuesta.</li>
+        <li><strong>Cookies técnicas:</strong> solo se usan cookies estrictamente necesarias para el funcionamiento del sitio (preferencia de cookies). No usamos cookies de seguimiento ni publicidad.</li>
+        <li><strong>Logs del servidor:</strong> Vercel puede registrar IP, navegador y timestamp de cada visita, según sus propios términos.</li>
+      </ul>
+      <h3>3. Base legal y finalidad</h3>
+      <p>El tratamiento de tus datos se basa en tu consentimiento al completar el formulario (Art. 5, Ley 25.326). Los datos se usan para: (a) enviarte el diagnóstico gratuito solicitado; (b) contactarte comercialmente en relación a tus necesidades expresadas.</p>
+      <h3>4. Almacenamiento y seguridad</h3>
+      <p>Los datos del formulario se procesan mediante la API de Groq (EE.UU.) con las garantías del Art. 12 LPDP y se almacenan en Zynnos Central (servidor propio). No vendemos ni cedemos tus datos a terceros con fines comerciales.</p>
+      <h3>5. Derechos (Ley 25.326 Argentina)</h3>
+      <p>Tenés derecho a acceder, rectificar, suprimir y oponerte al tratamiento de tus datos. Enviá tu solicitud a <a href="mailto:zynnos.labs@gmail.com">zynnos.labs@gmail.com</a>. También podés reclamar ante la Agencia de Acceso a la Información Pública (AAIP): <a href="https://www.argentina.gob.ar/aaip" target="_blank" rel="noopener">www.argentina.gob.ar/aaip</a>.</p>
+      <h3>6. Cookies</h3>
+      <p>Solo usamos una cookie técnica para recordar tu preferencia sobre este aviso. No instalamos cookies de terceros, Analytics ni publicidad. Podés rechazarlas sin perder funcionalidad del sitio.</p>
+    </div>
+  </div>
+</div>
+
+<div class="legal-overlay" id="legal-terminos" role="dialog" aria-modal="true" aria-label="Términos de Servicio" onclick="if(event.target===this)closeLegal()">
+  <div class="legal-modal">
+    <div class="legal-modal-header">
+      <h2>Términos de Servicio</h2>
+      <button class="legal-modal-close" onclick="closeLegal()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="legal-modal-body">
+      <p><strong>Última actualización:</strong> Noviembre 2026</p>
+      <h3>1. Aceptación</h3>
+      <p>Al acceder y usar este sitio web aceptás estos Términos. Si no los aceptás, no uses el sitio.</p>
+      <h3>2. Servicios</h3>
+      <p>Zynnos Labs ofrece desarrollo de sistemas a medida, automatización con IA y consultoría tecnológica para negocios en Argentina. Los presupuestos son gratuitos y sin compromiso. Los contratos de desarrollo se rigen por propuestas individuales firmadas.</p>
+      <h3>3. Uso del sitio</h3>
+      <ul>
+        <li>El contenido es informativo. No constituye oferta vinculante.</li>
+        <li>Las demos de las plantillas son solo ilustrativas; los datos ingresados se guardan localmente en tu navegador y no se transmiten.</li>
+        <li>Está prohibido el uso automatizado (scraping, bots) sin autorización escrita.</li>
+      </ul>
+      <h3>4. Propiedad intelectual</h3>
+      <p>Todo el contenido (textos, diseños, código, logo) es propiedad de Zynnos Labs © 2026. Queda prohibida su reproducción total o parcial sin autorización.</p>
+      <h3>5. Limitación de responsabilidad</h3>
+      <p>Zynnos Labs no garantiza la disponibilidad continua del sitio ni la exactitud de la información. No somos responsables por daños indirectos derivados del uso del sitio.</p>
+      <h3>6. Ley aplicable</h3>
+      <p>Estos términos se rigen por la ley argentina. Cualquier disputa se somete a los tribunales ordinarios de la Ciudad Autónoma de Buenos Aires.</p>
+      <h3>7. Contacto</h3>
+      <p><a href="mailto:zynnos.labs@gmail.com">zynnos.labs@gmail.com</a> · Palermo, Buenos Aires, Argentina.</p>
+    </div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -1558,6 +1653,34 @@ document.querySelectorAll('.btn-lime,.nav-cta').forEach(function(btn){
     btn.style.transform='';
   });
 });
+
+// ═══ COOKIE BANNER ═══
+(function(){
+  try{
+    if(!localStorage.getItem('cookie-consent')){
+      setTimeout(function(){ document.getElementById('cookie-banner').classList.add('show'); }, 1500);
+    }
+  }catch(e){}
+})();
+function acceptCookies(){
+  try{ localStorage.setItem('cookie-consent','accepted'); }catch(e){}
+  document.getElementById('cookie-banner').classList.remove('show');
+}
+function rejectCookies(){
+  try{ localStorage.setItem('cookie-consent','essential'); }catch(e){}
+  document.getElementById('cookie-banner').classList.remove('show');
+}
+
+// ═══ LEGAL MODAL ═══
+function openLegal(which){
+  document.getElementById('legal-'+which).classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeLegal(){
+  document.querySelectorAll('.legal-overlay.open').forEach(function(el){ el.classList.remove('open'); });
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal(); });
 </script>
 </body>
 </html>
