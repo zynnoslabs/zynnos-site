@@ -2258,6 +2258,9 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- ### AUTO-ADMIN DEMO ### -->
 <script>
 (function(){
+  // === DEMO: only activate when opened from the modal (?demo=1) ===
+  if (location.search.indexOf('demo=1') === -1) return;
+
   // === DEMO PROTECTION: disable image inputs whenever admin opens ===
   function _disableDemoImageInputs() {
     document.querySelectorAll('input[type="file"]').forEach(function(el) {
@@ -2278,8 +2281,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }).observe(_adminEl, { attributes: true, attributeFilter: ['class'] });
   }
 
-  // === DEMO: open admin after 2s — set auth flag only here, not on page load ===
-  // (setting it synchronously would cause the admin to open instantly on every reload)
+  // === DEMO: open admin 2s after page load ===
   setTimeout(function() {
     try { sessionStorage.setItem('barb_admin_auth', '1'); } catch(e) {}
     try { _mostrarAdmin(); } catch(e) { console.warn('admin open:', e); }

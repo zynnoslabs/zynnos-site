@@ -691,7 +691,7 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
   };
 
   // ### CAMBIO AQUÍ ### modal demo — lazy init en DOMContentLoaded
-  var currentSrc = '/templates/01-restaurante.html';
+  var currentSrc = '/templates/01-restaurante.html?demo=1';
   var currentTtl = 'Casa Palermo';
 
   document.addEventListener('DOMContentLoaded', function(){
@@ -737,7 +737,7 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
       if(ifr) ifr.classList.add('active');
 
       // actualizar src/title para el modal
-      if(ifr) currentSrc = ifr.src;
+      if(ifr) currentSrc = ifr.src.split('?')[0] + '?demo=1';
       currentTtl = d.title;
 
       // title
