@@ -1,4 +1,71 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+/* ═══ ANIMACIONES SCROLL REVEAL ═══ */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal.r-left{transform:translateX(-32px)}
+.reveal.r-right{transform:translateX(32px)}
+.reveal.r-scale{transform:scale(.92)}
+.reveal.visible{opacity:1;transform:none}
+.reveal-d1{transition-delay:.08s}
+.reveal-d2{transition-delay:.16s}
+.reveal-d3{transition-delay:.24s}
+.reveal-d4{transition-delay:.32s}
+.reveal-d5{transition-delay:.4s}
+
+/* ═══ HOVER CARDS MAGNETICOS ═══ */
+.serv-item,.proj-item,.rub-tab,.step-item,.proceso-paso{transform:translateZ(0)}
+.serv-item:hover,.proj-item:hover{transform:translateY(-3px);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.serv-item,.proj-item{transition:transform .2s ease,background .2s}
+
+/* ═══ COUNTER ANIMADO ═══ */
+.stat-num[data-count]{transition:color .3s}
+
+/* ═══ CURSOR TRAIL (desktop only) ═══ */
+@media(hover:hover){
+  .cursor-dot{position:fixed;width:6px;height:6px;border-radius:50%;background:var(--lime);pointer-events:none;z-index:9999;opacity:0;transform:translate(-50%,-50%);transition:opacity .3s;mix-blend-mode:screen}
+}
+
+/* ═══ HERO GLITCH EN 24/7 ═══ */
+.hero-accent-glitch{position:relative;display:inline-block}
+@keyframes glitch-1{
+  0%,96%,100%{clip-path:inset(0 0 100% 0);transform:translate(0)}
+  97%{clip-path:inset(10% 0 50% 0);transform:translate(-2px,1px);color:var(--teal)}
+  98%{clip-path:inset(50% 0 10% 0);transform:translate(2px,-1px);color:var(--lime)}
+  99%{clip-path:inset(0);transform:translate(0);color:inherit}
+}
+.hero-accent-glitch::after{
+  content:attr(data-text);
+  position:absolute;inset:0;
+  animation:glitch-1 7s steps(1) infinite;
+  color:inherit;pointer-events:none
+}
+
+/* ═══ PROGRESO PROCESO ═══ */
+.proceso-paso{position:relative}
+.proceso-paso::before{
+  content:'';position:absolute;left:0;top:0;width:3px;height:0;background:var(--lime);
+  transition:height .8s cubic-bezier(.22,1,.36,1);border-radius:2px
+}
+.proceso-paso.visible::before{height:100%}
+
+/* ═══ STAT CARDS SHINE ═══ */
+@keyframes card-shine{
+  0%{background-position:-200% center}
+  100%{background-position:200% center}
+}
+.stat-wrap:hover{
+  background:linear-gradient(90deg,var(--surface) 25%,rgba(200,241,53,.06) 50%,var(--surface) 75%);
+  background-size:200%;
+  animation:card-shine .6s ease-out forwards
+}
+
+/* ═══ MAGNETIC BUTTONS ═══ */
+.btn-lime,.nav-cta,.mob-cta{will-change:transform}
+
+/* ═══ TYPING INDICATOR EN HERO ═══ */
+@keyframes blink-cursor{0%,100%{opacity:1}50%{opacity:0}}
+.hero-cursor{display:inline-block;width:3px;height:.85em;background:var(--lime);margin-left:2px;vertical-align:middle;animation:blink-cursor .9s ease-in-out infinite}
+
+</style></head><body>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -859,7 +926,7 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
 
 <!-- SERVICIOS -->
 <div class="sec-shell">
-<div class="sec" id="servicios">
+<div class="sec reveal" id="servicios">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:end;margin-bottom:0">
     <div>
       <p class="eyebrow r">Qué hacemos</p>
@@ -904,7 +971,7 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
 
 <!-- PROCESO -->
 <div class="sec-shell alt">
-<div class="sec" id="proceso">
+<div class="sec reveal" id="proceso">
   <p class="eyebrow rl">Cómo trabajamos</p>
   <h2 class="sec-h r">Del brief al deploy<br>en semanas, no meses.</h2>
   <div class="ps-list" role="list">
@@ -929,7 +996,7 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
 
 <!-- PROYECTOS -->
 <div class="sec-shell alt">
-<div class="sec" id="trabajos">
+<div class="sec reveal" id="trabajos">
   <p class="eyebrow rl">Proyectos</p>
   <h2 class="sec-h r">Trabajo reciente.</h2>
   <div class="wk-list" role="list">
@@ -1409,6 +1476,88 @@ function closeMobMenu(){
 }
 // Cerrar menu mobile al redimensionar a desktop
 window.addEventListener('resize',function(){if(window.innerWidth>720)closeMobMenu()});
+
+// ═══ SCROLL REVEAL ═══
+(function(){
+  var els = document.querySelectorAll('.reveal,.proceso-paso');
+  if(!els.length) return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+  els.forEach(function(el){ io.observe(el); });
+})();
+
+// ═══ COUNTER ANIMADO ═══
+(function(){
+  function animCount(el){
+    var target = parseInt(el.getAttribute('data-count'),10);
+    var dur = 1600;
+    var start = performance.now();
+    function step(now){
+      var t = Math.min((now-start)/dur,1);
+      var ease = 1-Math.pow(1-t,3);
+      el.textContent = Math.round(ease*target);
+      if(t<1) requestAnimationFrame(step);
+      else el.textContent = target;
+    }
+    requestAnimationFrame(step);
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ animCount(e.target); io.unobserve(e.target); }
+    });
+  },{threshold:.5});
+  document.querySelectorAll('[data-count]').forEach(function(el){ io.observe(el); });
+})();
+
+// ═══ CURSOR TRAIL ═══
+(function(){
+  if(!window.matchMedia('(hover:hover)').matches) return;
+  var dots = [];
+  var N = 8;
+  for(var i=0;i<N;i++){
+    var d = document.createElement('div');
+    d.className = 'cursor-dot';
+    d.style.transitionDelay = (i*25)+'ms';
+    d.style.width = d.style.height = (6-i*.4)+'px';
+    d.style.opacity = (1-i/N)*.5+'';
+    document.body.appendChild(d);
+    dots.push(d);
+  }
+  var trail = Array(N).fill({x:0,y:0});
+  var mx=0,my=0;
+  document.addEventListener('mousemove',function(e){
+    mx=e.clientX; my=e.clientY;
+    dots.forEach(function(d){ d.style.opacity=d._base||'.25'; });
+  });
+  document.addEventListener('mouseleave',function(){
+    dots.forEach(function(d){ d.style.opacity='0'; });
+  });
+  function tickTrail(){
+    trail = [{x:mx,y:my}].concat(trail.slice(0,N-1));
+    dots.forEach(function(d,i){
+      d.style.left = trail[i].x+'px';
+      d.style.top = trail[i].y+'px';
+    });
+    requestAnimationFrame(tickTrail);
+  }
+  tickTrail();
+})();
+
+// ═══ MAGNETIC BUTTONS ═══
+document.querySelectorAll('.btn-lime,.nav-cta').forEach(function(btn){
+  btn.addEventListener('mousemove',function(e){
+    var r=btn.getBoundingClientRect();
+    var dx=(e.clientX-r.left-r.width/2)*.25;
+    var dy=(e.clientY-r.top-r.height/2)*.25;
+    btn.style.transform='translate('+dx+'px,'+dy+'px)';
+  });
+  btn.addEventListener('mouseleave',function(){
+    btn.style.transform='';
+  });
+});
 </script>
 </body>
 </html>
