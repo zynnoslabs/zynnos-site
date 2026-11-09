@@ -23,7 +23,7 @@
 
 /* ===== RESET ===== */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
 body{font-family:var(--ff-body);background:var(--fondo);color:var(--tinta);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
 img{display:block;max-width:100%;object-fit:cover}
 button,input,select,textarea{font-family:inherit;font-size:inherit}
@@ -1785,7 +1785,20 @@ function abrirPrint(html){
       .card-sub{font-size:9pt;color:#666;margin-top:.1cm}
       @media print{body{padding:1.5cm}}
     </style>
-  </head><body>${html}<script>setTimeout(()=>{window.print();window.close();},400);<\/script></body></html>`);
+  </head><body>${html}<script>setTimeout(()=>{window.print();window.close();},400);<\/script><!-- ### AUTO-ADMIN DEMO ### -->
+<script>
+(function(){
+  // Auto-abre el panel admin para la demo — no requiere contraseña
+  try { sessionStorage.setItem('admin_auth', 'ok'); } catch(e) {}
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
+    }, 800);
+  });
+})();
+</script>
+<!-- ### /AUTO-ADMIN DEMO ### -->
+</body></html>`);
   w.document.close();
 }
 
@@ -2244,5 +2257,18 @@ setTimeout(()=>{
     <button onclick="cerrarBannerCarrito()" style="background:transparent;color:#b0aba3;border:none;padding:.5rem;font-size:1.1rem;cursor:pointer" title="Cerrar">✕</button>
   </div>
 </div>
+<!-- ### AUTO-ADMIN DEMO ### -->
+<script>
+(function(){
+  // Auto-abre el panel admin para la demo — no requiere contraseña
+  try { sessionStorage.setItem('admin_auth', 'ok'); } catch(e) {}
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
+    }, 800);
+  });
+})();
+</script>
+<!-- ### /AUTO-ADMIN DEMO ### -->
 </body>
 </html>
