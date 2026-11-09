@@ -1764,9 +1764,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 <!-- ### AUTO-ADMIN DEMO ### -->
 <script>
 (function(){
-  // === DEMO: set auth flag ===
-  try { sessionStorage.setItem('inmo_admin_auth', 'ok'); } catch(e) {}
-
   // === DEMO PROTECTION: disable image inputs whenever admin opens ===
   function _disableDemoImageInputs() {
     document.querySelectorAll('input[type="file"]').forEach(function(el) {
@@ -1787,8 +1784,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     }).observe(_adminEl, { attributes: true, attributeFilter: ['class'] });
   }
 
-  // === DEMO: open admin after 2s so the page is visible first ===
+  // === DEMO: open admin after 2s — set auth flag only here, not on page load ===
+  // (setting it synchronously would cause the admin to open instantly on every reload)
   setTimeout(function() {
+    try { sessionStorage.setItem('inmo_admin_auth', 'ok'); } catch(e) {}
     try { abrirAdmin(); } catch(e) { console.warn('admin open:', e); }
     _disableDemoImageInputs();
   }, 2000);
