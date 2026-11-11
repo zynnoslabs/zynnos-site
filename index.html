@@ -1760,6 +1760,9 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
 .zy-typing span:nth-child(2){animation-delay:.18s}
 .zy-typing span:nth-child(3){animation-delay:.36s}
 @keyframes zy-bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+/* ### CAMBIO AQUÍ ### Botón fallback WhatsApp */
+.zy-wa-btn{display:block;margin:.5rem 0;padding:.65rem 1rem;background:#25D366;color:#fff;font-weight:600;font-size:.85rem;border-radius:10px;text-decoration:none;text-align:center;transition:opacity .2s}
+.zy-wa-btn:hover{opacity:.88}
 
 /* Input */
 .zy-foot{padding:.75rem 1rem;border-top:1px solid #1e2e21;display:flex;gap:.5rem;background:#0a0f0d}
@@ -1808,12 +1811,73 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
 
 <script>
 (function(){
-  var API = 'https://central-gh9z.onrender.com/chat/api';
-  var convId  = null;
-  var open    = false;
-  var unread  = 0;
-  var sending = false;
-  var started = false;
+  var API      = 'https://central-gh9z.onrender.com/chat/api'; // ### CAMBIO AQUÍ ###
+  var LEAD_URL = 'https://central-gh9z.onrender.com/chat/api/lead';
+  var WA_NUM   = '5492392536325';
+  var convId   = null;
+  var open     = false;
+  var unread   = 0;
+  var sending  = false;
+  var started  = false;
+
+  /* ── Modo fallback: captura de lead cuando el backend falla ── */
+  var fallback = false;      // true = modo captura activo
+  var fbStep   = 0;          // 0=nombre 1=whatsapp 2=listo
+  var fbNombre = '';
+  var fbWA     = '';
+
+  function enterFallback(){
+    fallback = true; fbStep = 0;
+    hideTyping();
+    appendMsg('bot',
+      '⚠️ Nuestro asistente está temporalmente ocupado, pero no queremos que te vayas sin respuesta.');
+    setTimeout(function(){
+      appendMsg('bot', '¿Cuál es tu nombre?');
+      bump();
+    }, 600);
+  }
+
+  function handleFallback(text){
+    if(fbStep === 0){
+      fbNombre = text;
+      fbStep = 1;
+      appendMsg('bot', 'Perfecto, ' + fbNombre + '. ¿Y tu número de WhatsApp?');
+    } else if(fbStep === 1){
+      fbWA = text;
+      fbStep = 2;
+      setSending(true);
+      /* Guardar lead en Central */
+      fetch(LEAD_URL, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ nombre: fbNombre, whatsapp: fbWA, pagina: location.href })
+      })
+      .then(function(r){ return r.json(); })
+      .catch(function(){ return {}; })
+      .finally(function(){
+        setSending(false);
+        appendMsg('bot',
+          '✅ ¡Listo, ' + fbNombre + '! Anotamos tu número. En instantes te contactamos por WhatsApp.');
+        /* Botón de WA para que también ellos puedan escribir */
+        var msg = encodeURIComponent(
+          'Hola Zynnos! Estuve en su web y quiero saber más.\nNombre: ' + fbNombre
+        );
+        var box = document.getElementById('zy-msgs');
+        var btn = document.createElement('a');
+        btn.href = 'https://wa.me/' + WA_NUM + '?text=' + msg;
+        btn.target = '_blank';
+        btn.rel = 'noopener';
+        btn.className = 'zy-wa-btn';
+        btn.textContent = '💬 Escribinos por WhatsApp ahora';
+        box.appendChild(btn);
+        box.scrollTop = box.scrollHeight;
+        bump();
+        document.getElementById('zy-input').disabled = true;
+        document.getElementById('zy-send').disabled  = true;
+      });
+    }
+  }
+  /* ─────────────────────────────────────────────────────────── */
 
   window.zyToggle = function(){
     open = !open;
@@ -1884,20 +1948,23 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
           appendMsg('bot', '¡Hola! Contame en qué negocio trabajás y qué es lo que más te gustaría mejorar o automatizar.');
           bump();
         }, 500);
-      }
+      } else { enterFallback(); }
     })
-    .catch(function(){
-      appendMsg('bot', 'Por el momento el chat no está disponible. ¡Volvé más tarde!');
-    });
+    .catch(function(){ enterFallback(); });
   }
 
   window.zySend = function(){
-    if(sending || !convId) return;
-    var inp = document.getElementById('zy-input');
+    if(sending) return;
+    var inp  = document.getElementById('zy-input');
     var text = inp.value.trim();
     if(!text) return;
     inp.value = '';
     appendMsg('user', text);
+
+    /* Si estamos en modo fallback, manejamos localmente */
+    if(fallback){ handleFallback(text); return; }
+
+    if(!convId) return;
     setSending(true);
     showTyping();
 
@@ -1910,10 +1977,11 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
     .then(function(d){
       hideTyping();
       if(d.ok && d.response){ appendMsg('bot', d.response); bump(); }
+      else { enterFallback(); }
     })
     .catch(function(){
       hideTyping();
-      appendMsg('bot', 'Hubo un problema. Intentá de nuevo.');
+      enterFallback();
     })
     .finally(function(){
       setSending(false);
