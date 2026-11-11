@@ -1216,7 +1216,7 @@ document.querySelectorAll('a,button,.sv-row,.wk-row,.ps-row,.prob-item,.trust-it
   el.addEventListener('mouseenter',()=>{cur.style.width=cur.style.height='14px';curR.style.width=curR.style.height='44px';});
   el.addEventListener('mouseleave',()=>{cur.style.width=cur.style.height='8px';curR.style.width=curR.style.height='28px';});
 });
-gsap.registerPlugin(ScrollTrigger);
+try{ gsap.registerPlugin(ScrollTrigger);
 try{
   const lenis=new Lenis({lerp:.08,smoothWheel:true});
   (function raf(t){lenis.raf(t);requestAnimationFrame(raf);})(0);
@@ -1269,6 +1269,7 @@ document.querySelectorAll('.stat-n[data-to]').forEach(el=>{
 if(matchMedia('(prefers-reduced-motion:reduce)').matches){
   document.querySelectorAll('.r,.rl,.rs').forEach(el=>{el.style.opacity=1;el.style.transform='none';});
 }
+}catch(e){console.warn('gsap/lenis no disponible:',e.message);}
 
 // Auditoría form
 function submitAudit(e){
