@@ -1216,7 +1216,10 @@ document.querySelectorAll('a,button,.sv-row,.wk-row,.ps-row,.prob-item,.trust-it
   el.addEventListener('mouseenter',()=>{cur.style.width=cur.style.height='14px';curR.style.width=curR.style.height='44px';});
   el.addEventListener('mouseleave',()=>{cur.style.width=cur.style.height='8px';curR.style.width=curR.style.height='28px';});
 });
-try{ gsap.registerPlugin(ScrollTrigger);
+</script>
+<script>
+try{
+gsap.registerPlugin(ScrollTrigger);
 try{
   const lenis=new Lenis({lerp:.08,smoothWheel:true});
   (function raf(t){lenis.raf(t);requestAnimationFrame(raf);})(0);
@@ -1329,6 +1332,7 @@ document.getElementById('ub-close').addEventListener('click',()=>{
     el.textContent = v + ' negocios revisando esto ahora';
   }, 8000 + Math.random()*4000);
 })();
+}catch(e){ console.warn("gsap no disponible"); }
 </script>
 
 <script>
