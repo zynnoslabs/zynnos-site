@@ -1682,6 +1682,267 @@ function closeLegal(){
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal(); });
 </script>
+
+<!-- ═══ WIDGET DE CHAT IA ═══ ### CAMBIO AQUÍ ### -->
+<style>
+/* Botón flotante */
+#zy-bubble{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:9000;
+  width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#3dffd6,#00c9a3);
+  box-shadow:0 4px 20px rgba(61,255,214,.35);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s,box-shadow .2s;
+}
+#zy-bubble:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(61,255,214,.5)}
+#zy-bubble svg{width:26px;height:26px;fill:none;stroke:#0a0f0d;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#zy-bubble .zy-unread{
+  position:absolute;top:-2px;right:-2px;
+  width:18px;height:18px;border-radius:50%;
+  background:#ff6b6b;color:#fff;font-size:.65rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+#zy-bubble .zy-unread.show{opacity:1}
+
+/* Ventana del chat */
+#zy-window{
+  position:fixed;bottom:5rem;right:1.5rem;z-index:9001;
+  width:360px;max-width:calc(100vw - 2rem);
+  background:#0d1510;border:1px solid #1e2e21;border-radius:16px;
+  box-shadow:0 12px 48px rgba(0,0,0,.55);
+  display:flex;flex-direction:column;overflow:hidden;
+  transform:scale(.88) translateY(16px);
+  opacity:0;pointer-events:none;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .2s;
+  font-family:'Inter',system-ui,sans-serif;
+}
+#zy-window.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all}
+
+/* Header */
+.zy-head{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.9rem 1.1rem;background:#0a0f0d;
+  border-bottom:1px solid #1e2e21;
+}
+.zy-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,#3dffd6,#00c9a3);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-size:.85rem;font-weight:700;color:#0a0f0d;
+}
+.zy-head-text{flex:1;min-width:0}
+.zy-head-name{font-size:.88rem;font-weight:600;color:#e8f0e9}
+.zy-head-status{font-size:.72rem;color:#3dffd6;display:flex;align-items:center;gap:.3rem}
+.zy-head-status::before{content:'';width:6px;height:6px;border-radius:50%;background:#3dffd6;animation:zy-pulse 1.5s infinite}
+@keyframes zy-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.zy-close{background:none;border:none;cursor:pointer;color:#6b8c72;font-size:1.1rem;padding:.2rem;line-height:1;transition:color .15s}
+.zy-close:hover{color:#e8f0e9}
+
+/* Mensajes */
+.zy-msgs{
+  flex:1;overflow-y:auto;padding:.9rem 1rem;
+  display:flex;flex-direction:column;gap:.6rem;
+  max-height:320px;min-height:220px;
+  scrollbar-width:thin;scrollbar-color:#1e2e21 transparent;
+}
+.zy-msg{max-width:82%;padding:.55rem .85rem;border-radius:12px;font-size:.85rem;line-height:1.5;color:#e8f0e9;animation:zy-fadein .22s ease}
+@keyframes zy-fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.zy-msg.bot{background:#111a14;border-bottom-left-radius:4px;align-self:flex-start}
+.zy-msg.usr{background:#1a3020;border-bottom-right-radius:4px;align-self:flex-end}
+
+/* Typing indicator */
+.zy-typing{display:flex;gap:.35rem;padding:.55rem .85rem;background:#111a14;border-radius:12px;border-bottom-left-radius:4px;align-self:flex-start;animation:zy-fadein .22s ease}
+.zy-typing span{width:7px;height:7px;border-radius:50%;background:#3dffd6;animation:zy-bounce .9s infinite}
+.zy-typing span:nth-child(2){animation-delay:.18s}
+.zy-typing span:nth-child(3){animation-delay:.36s}
+@keyframes zy-bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* Input */
+.zy-foot{padding:.75rem 1rem;border-top:1px solid #1e2e21;display:flex;gap:.5rem;background:#0a0f0d}
+.zy-input{
+  flex:1;background:#0d1710;border:1px solid #1e2e21;
+  border-radius:8px;color:#e8f0e9;padding:.6rem .85rem;
+  font-size:.85rem;outline:none;font-family:inherit;
+  transition:border-color .2s;resize:none;
+}
+.zy-input:focus{border-color:#3dffd6}
+.zy-input::placeholder{color:#4a6b52}
+.zy-send{
+  background:#3dffd6;color:#0a0f0d;font-weight:700;
+  border:none;border-radius:8px;padding:.6rem .9rem;
+  cursor:pointer;font-size:.82rem;transition:opacity .15s;white-space:nowrap;
+}
+.zy-send:hover:not(:disabled){opacity:.85}
+.zy-send:disabled{opacity:.4;cursor:default}
+
+/* Captcha disclaimer */
+.zy-disclaimer{font-size:.67rem;color:#4a6b52;text-align:center;padding:.35rem .75rem .5rem;background:#0a0f0d}
+</style>
+
+<!-- Botón flotante -->
+<button id="zy-bubble" onclick="zyToggle()" aria-label="Abrir chat">
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span class="zy-unread" id="zy-unread">1</span>
+</button>
+
+<!-- Ventana del chat -->
+<div id="zy-window" role="dialog" aria-label="Chat con Zynnos" aria-modal="true">
+  <div class="zy-head">
+    <div class="zy-avatar">Z</div>
+    <div class="zy-head-text">
+      <div class="zy-head-name">Asistente Zynnos</div>
+      <div class="zy-head-status">En línea</div>
+    </div>
+    <button class="zy-close" onclick="zyToggle()" aria-label="Cerrar chat">✕</button>
+  </div>
+  <div class="zy-msgs" id="zy-msgs"></div>
+  <div class="zy-foot">
+    <input id="zy-input" class="zy-input" placeholder="Escribí tu mensaje…" autocomplete="off" maxlength="800"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();zySend()}">
+    <button id="zy-send" class="zy-send" onclick="zySend()">Enviar</button>
+  </div>
+  <div class="zy-disclaimer">Tus datos se tratan según nuestra política de privacidad.</div>
+</div>
+
+<script>
+(function(){
+  // ── Configuración ──────────────────────────────────────────────────────────
+  var API = 'https://central-gh9z.onrender.com/chat/api';
+  var convId   = null;
+  var open     = false;
+  var unread   = 0;
+  var sending  = false;
+  var started  = false;
+
+  // ── UI helpers ─────────────────────────────────────────────────────────────
+  window.zyToggle = function(){
+    open = !open;
+    document.getElementById('zy-window').classList.toggle('open', open);
+    if(open){
+      clearUnread();
+      document.getElementById('zy-input').focus();
+      if(!started) zyStart();
+    }
+    document.getElementById('zy-bubble').setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+
+  function clearUnread(){
+    unread = 0;
+    document.getElementById('zy-unread').classList.remove('show');
+  }
+
+  function bump(){
+    if(!open){
+      unread++;
+      var el = document.getElementById('zy-unread');
+      el.textContent = unread;
+      el.classList.add('show');
+    }
+  }
+
+  function appendMsg(role, text){
+    var el = document.createElement('div');
+    el.className = 'zy-msg ' + (role === 'user' ? 'usr' : 'bot');
+    el.textContent = text;
+    var box = document.getElementById('zy-msgs');
+    box.appendChild(el);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function showTyping(){
+    var t = document.createElement('div');
+    t.className = 'zy-typing';
+    t.id = 'zy-typing';
+    t.innerHTML = '<span></span><span></span><span></span>';
+    var box = document.getElementById('zy-msgs');
+    box.appendChild(t);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function hideTyping(){
+    var t = document.getElementById('zy-typing');
+    if(t) t.remove();
+  }
+
+  function setSending(val){
+    sending = val;
+    document.getElementById('zy-send').disabled = val;
+    document.getElementById('zy-input').disabled = val;
+  }
+
+  // ── API calls ──────────────────────────────────────────────────────────────
+  function zyStart(){
+    started = true;
+    fetch(API + '/start', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ source_url: location.href })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.ok){
+        convId = d.conv_id;
+        // Mensaje de bienvenida
+        setTimeout(function(){
+          appendMsg('bot', '¡Hola! Soy el asistente de Zynnos. ¿En qué negocio trabajás y cuál es el mayor problema que te quita tiempo hoy?');
+          bump();
+        }, 400);
+      }
+    })
+    .catch(function(){
+      appendMsg('bot', '¡Hola! Por el momento el chat no está disponible. Podés escribirnos directo a nuestro WhatsApp.');
+    });
+  }
+
+  window.zySend = function(){
+    if(sending || !convId) return;
+    var inp = document.getElementById('zy-input');
+    var text = inp.value.trim();
+    if(!text) return;
+
+    inp.value = '';
+    appendMsg('user', text);
+    setSending(true);
+    showTyping();
+
+    fetch(API + '/message', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ conv_id: convId, content: text })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      hideTyping();
+      if(d.ok && d.response){
+        appendMsg('bot', d.response);
+        bump();
+      }
+    })
+    .catch(function(){
+      hideTyping();
+      appendMsg('bot', 'Hubo un problema enviando tu mensaje. Intentá de nuevo.');
+    })
+    .finally(function(){
+      setSending(false);
+      document.getElementById('zy-input').focus();
+    });
+  };
+
+  // Mostrar burbuja con retraso para no molestar al entrar
+  setTimeout(function(){
+    document.getElementById('zy-bubble').style.display = '';
+    // hint sutil: mostrar el badge "1" para llamar la atención
+    unread = 1;
+    document.getElementById('zy-unread').textContent = '1';
+    document.getElementById('zy-unread').classList.add('show');
+  }, 8000);
+
+  // Ocultar inicialmente hasta que el JS corra
+  document.getElementById('zy-bubble').style.display = 'none';
+})();
+</script>
+<!-- ═══ FIN WIDGET ═══ -->
+
 </body>
 </html>
-</body></html>
