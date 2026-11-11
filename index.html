@@ -1274,7 +1274,6 @@ if(matchMedia('(prefers-reduced-motion:reduce)').matches){
 }
 }catch(e){console.warn('gsap/lenis no disponible:',e.message);}
 
-// Auditoría form
 function submitAudit(e){
   e.preventDefault();
   const nEl = document.getElementById('af-nombre');
@@ -1332,7 +1331,6 @@ document.getElementById('ub-close').addEventListener('click',()=>{
     el.textContent = v + ' negocios revisando esto ahora';
   }, 8000 + Math.random()*4000);
 })();
-}catch(e){ console.warn("gsap no disponible"); }
 </script>
 
 <script>
