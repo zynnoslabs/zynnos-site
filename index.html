@@ -1948,24 +1948,35 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
     document.getElementById('zy-input').disabled = val;
   }
 
+  /* ### CAMBIO AQUÍ ### fetch con timeout para cold start de Render (hasta 35s) */
+  function fetchWithTimeout(url, opts, timeoutMs){
+    var ctrl = new AbortController();
+    var timer = setTimeout(function(){ ctrl.abort(); }, timeoutMs);
+    return fetch(url, Object.assign({}, opts, { signal: ctrl.signal }))
+      .finally(function(){ clearTimeout(timer); });
+  }
+
   function zyStart(){
     started = true;
-    fetch(API + '/start', {
+    /* Mostrar typing mientras Render despierta */
+    showTyping();
+    fetchWithTimeout(API + '/start', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ source_url: location.href })
-    })
+    }, 35000)
     .then(function(r){ return r.json(); })
     .then(function(d){
+      hideTyping();
       if(d.ok){
         convId = d.conv_id;
         setTimeout(function(){
           appendMsg('bot', '¡Hola! Contame en qué negocio trabajás y qué es lo que más te gustaría mejorar o automatizar.');
           bump();
-        }, 500);
+        }, 300);
       } else { enterFallback(); }
     })
-    .catch(function(){ enterFallback(); });
+    .catch(function(){ hideTyping(); enterFallback(); });
   }
 
   window.zySend = function(){
@@ -1983,11 +1994,11 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
     setSending(true);
     showTyping();
 
-    fetch(API + '/message', {
+    fetchWithTimeout(API + '/message', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ conv_id: convId, content: text })
-    })
+    }, 35000)
     .then(function(r){ return r.json(); })
     .then(function(d){
       hideTyping();
