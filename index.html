@@ -1983,6 +1983,17 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
         convId = d.conv_id;
         /* Eliminar el mensaje de espera si apareció */
         if(warmMsg && warmMsg.parentNode) warmMsg.parentNode.removeChild(warmMsg);
+        /* ### CAMBIO AQUÍ ### — latido de presencia cada 8s mientras el chat esté abierto */
+        if(window._onlineInterval) clearInterval(window._onlineInterval);
+        window._onlineInterval = setInterval(function(){
+          if(convId && open){
+            fetch(API + '/online', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ conv_id: convId })
+            }).catch(function(){});
+          }
+        }, 8000);
         setTimeout(function(){
           appendMsg('bot', '¡Hola! Contame en qué negocio trabajás y qué es lo que más te gustaría mejorar o automatizar.');
           bump();
