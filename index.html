@@ -1965,6 +1965,11 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
     started = true;
     /* Mostrar typing mientras Render despierta */
     showTyping();
+    /* ### CAMBIO AQUÍ ### Mensaje amigable si tarda más de 8s (cold start) */
+    var warmMsg = null;
+    var warmTimer = setTimeout(function(){
+      warmMsg = appendMsg('bot', '⏳ Un momento, estamos iniciando el asistente…');
+    }, 8000);
     fetchWithTimeout(API + '/start', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -1972,16 +1977,19 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
     }, 60000)
     .then(function(r){ return r.json(); })
     .then(function(d){
+      clearTimeout(warmTimer);
       hideTyping();
       if(d.ok){
         convId = d.conv_id;
+        /* Eliminar el mensaje de espera si apareció */
+        if(warmMsg && warmMsg.parentNode) warmMsg.parentNode.removeChild(warmMsg);
         setTimeout(function(){
           appendMsg('bot', '¡Hola! Contame en qué negocio trabajás y qué es lo que más te gustaría mejorar o automatizar.');
           bump();
         }, 300);
       } else { enterFallback(); }
     })
-    .catch(function(){ hideTyping(); enterFallback(); });
+    .catch(function(){ clearTimeout(warmTimer); hideTyping(); enterFallback(); });
   }
 
   window.zySend = function(){
