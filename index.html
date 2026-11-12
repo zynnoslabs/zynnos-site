@@ -1948,13 +1948,23 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
     document.getElementById('zy-input').disabled = val;
   }
 
-  /* ### CAMBIO AQUÍ ### fetch con timeout para cold start de Render (hasta 35s) */
+  /* ### CAMBIO AQUÍ ### fetch con timeout para cold start de Render (hasta 60s) */
   function fetchWithTimeout(url, opts, timeoutMs){
     var ctrl = new AbortController();
     var timer = setTimeout(function(){ ctrl.abort(); }, timeoutMs);
     return fetch(url, Object.assign({}, opts, { signal: ctrl.signal }))
       .finally(function(){ clearTimeout(timer); });
   }
+
+  /* ### CAMBIO AQUÍ ### Pre-ping silencioso al cargar la página para despertar Render */
+  setTimeout(function(){
+    fetch(API + '/start', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ source_url: location.href, ping: true }),
+      signal: AbortSignal.timeout ? AbortSignal.timeout(60000) : new AbortController().signal
+    }).catch(function(){});
+  }, 2000);
 
   function zyStart(){
     started = true;
@@ -1964,7 +1974,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ source_url: location.href })
-    }, 35000)
+    }, 60000)
     .then(function(r){ return r.json(); })
     .then(function(d){
       hideTyping();
