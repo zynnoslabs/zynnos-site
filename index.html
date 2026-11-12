@@ -1998,7 +1998,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ conv_id: convId, content: text })
-    }, 35000)
+    }, 55000)
     .then(function(r){ return r.json(); })
     .then(function(d){
       hideTyping();
