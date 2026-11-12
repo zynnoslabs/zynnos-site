@@ -1958,13 +1958,8 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
 
   /* ### CAMBIO AQUÍ ### Pre-ping silencioso al cargar la página para despertar Render */
   setTimeout(function(){
-    fetch(API + '/start', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ source_url: location.href, ping: true }),
-      signal: AbortSignal.timeout ? AbortSignal.timeout(60000) : new AbortController().signal
-    }).catch(function(){});
-  }, 2000);
+    fetch(API + '/ping', { method:'GET' }).catch(function(){});
+  }, 1500);
 
   function zyStart(){
     started = true;
