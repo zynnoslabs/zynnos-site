@@ -1829,7 +1829,8 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
   var API      = 'https://central-gh9z.onrender.com/chat/api'; // ### CAMBIO AQUÍ ###
   var LEAD_URL = 'https://central-gh9z.onrender.com/chat/api/lead';
   var WA_NUM   = '5492392536325';
-  var convId   = null;
+  var convId      = null;
+  var pendingMsg  = null; // ### CAMBIO AQUÍ ### — mensaje en cola si /start aún no respondió
   var open     = false;
   var unread   = 0;
   var sending  = false;
@@ -1998,6 +1999,27 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
           appendMsg('bot', '¡Hola! Contame en qué negocio trabajás y qué es lo que más te gustaría mejorar o automatizar.');
           bump();
         }, 300);
+        // ### CAMBIO AQUÍ ### — enviar mensaje pendiente si el usuario escribió antes de que /start respondiera
+        if(pendingMsg){
+          var msgToSend = pendingMsg;
+          pendingMsg = null;
+          setTimeout(function(){
+            setSending(true);
+            showTyping();
+            fetchWithTimeout(API + '/message', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ conv_id: convId, content: msgToSend })
+            }, 55000)
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+              hideTyping();
+              if(d.reply) appendMsg('bot', d.reply);
+              setSending(false);
+            })
+            .catch(function(){ hideTyping(); setSending(false); });
+          }, 800);
+        }
       } else { enterFallback(); }
     })
     .catch(function(){ clearTimeout(warmTimer); hideTyping(); enterFallback(); });
@@ -2014,7 +2036,8 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
     /* Si estamos en modo fallback, manejamos localmente */
     if(fallback){ handleFallback(text); return; }
 
-    if(!convId) return;
+    // ### CAMBIO AQUÍ ### — si /start aún no terminó, guardar mensaje y enviarlo luego
+    if(!convId){ pendingMsg = text; return; }
     setSending(true);
     showTyping();
 
