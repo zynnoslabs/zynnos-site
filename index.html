@@ -1995,11 +1995,14 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
             }).catch(function(){});
           }
         }, 8000);
-        setTimeout(function(){
-          appendMsg('bot', '¡Hola! Contame en qué negocio trabajás y qué es lo que más te gustaría mejorar o automatizar.');
-          bump();
-        }, 300);
-        // ### CAMBIO AQUÍ ### — enviar mensaje pendiente si el usuario escribió antes de que /start respondiera
+        // ### CAMBIO AQUÍ ### — saludo automático solo si el usuario NO escribió nada todavía
+        if(!pendingMsg){
+          setTimeout(function(){
+            appendMsg('bot', '¡Hola! Contame en qué negocio trabajás y qué es lo que más te gustaría mejorar o automatizar.');
+            bump();
+          }, 300);
+        }
+        // enviar mensaje pendiente si el usuario escribió antes de que /start respondiera
         if(pendingMsg){
           var msgToSend = pendingMsg;
           pendingMsg = null;
