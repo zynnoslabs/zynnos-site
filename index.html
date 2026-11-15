@@ -1797,6 +1797,14 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
 .zy-send:hover:not(:disabled){opacity:.85}
 .zy-send:disabled{opacity:.4;cursor:default}
 .zy-disclaimer{font-size:.67rem;color:#4a6b52;text-align:center;padding:.35rem .75rem .5rem;background:#0a0f0d}
+/* ### CAMBIO AQUÍ ### — botón de idioma */
+.zy-lang-btn{
+  background:none;border:1px solid #1e2e21;border-radius:5px;
+  color:#6b8c72;font-size:.65rem;font-weight:600;padding:.15rem .4rem;
+  cursor:pointer;letter-spacing:.04em;transition:color .15s,border-color .15s;
+  flex-shrink:0;
+}
+.zy-lang-btn:hover{color:#3dffd6;border-color:#3dffd6}
 </style>
 
 <!-- Botón flotante -->
@@ -1811,8 +1819,9 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
     <div class="zy-avatar">Z</div>
     <div class="zy-head-text">
       <div class="zy-head-name">Zynnos Labs</div>
-      <div class="zy-head-status">En línea</div>
+      <div class="zy-head-status"><span id="zy-status-txt">En línea</span></div>  <!-- ### CAMBIO AQUÍ ### -->
     </div>
+    <button id="zy-lang" class="zy-lang-btn" onclick="zyToggleLang()" title="Switch language">EN</button>  <!-- ### CAMBIO AQUÍ ### -->
     <button class="zy-close" onclick="zyToggle()" aria-label="Cerrar chat">&times;</button>
   </div>
   <div class="zy-msgs" id="zy-msgs"></div>
@@ -1825,6 +1834,54 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
 </div>
 
 <script>
+/* ### CAMBIO AQUÍ ### — sistema de traducción del widget */
+var ZY_LANG = 'es';
+var ZY_STRINGS = {
+  es: {
+    headStatus:    'En línea',
+    placeholder:   'Escribí tu mensaje…',
+    send:          'Enviar',
+    disclaimer:    'Tus datos se tratan según nuestra política de privacidad.',
+    ariaOpen:      'Abrir chat',
+    ariaClose:     'Cerrar chat',
+    greeting:      '¡Hola! Contame en qué negocio trabajás y qué es lo que más te gustaría mejorar o automatizar.',
+    warming:       '⏳ Un momento, estamos iniciando el asistente…',
+    fbBusy:        '⚠️ Nuestro asistente está temporalmente ocupado, pero no queremos que te vayas sin respuesta.',
+    fbAskName:     '¿Cuál es tu nombre?',
+    fbAskWA:       function(n){ return 'Perfecto, ' + n + '. ¿Y tu número de WhatsApp?'; },
+    fbDone:        function(n){ return '✅ ¡Listo, ' + n + '! Anotamos tu número. En instantes te contactamos por WhatsApp.'; },
+    fbWABtn:       '💬 Escribinos por WhatsApp ahora',
+    fbWAMsg:       function(n){ return 'Hola Zynnos! Estuve en su web y quiero saber más.\nNombre: ' + n; }
+  },
+  en: {
+    headStatus:    'Online',
+    placeholder:   'Type your message…',
+    send:          'Send',
+    disclaimer:    'Your data is handled according to our privacy policy.',
+    ariaOpen:      'Open chat',
+    ariaClose:     'Close chat',
+    greeting:      'Hi! Tell me about your business and what you\'d most like to improve or automate.',
+    warming:       '⏳ Just a moment, we\'re starting the assistant…',
+    fbBusy:        '⚠️ Our assistant is temporarily busy, but we don\'t want you to leave without an answer.',
+    fbAskName:     'What\'s your name?',
+    fbAskWA:       function(n){ return 'Perfect, ' + n + '. What\'s your WhatsApp number?'; },
+    fbDone:        function(n){ return '✅ All set, ' + n + '! We noted your number. We\'ll reach out via WhatsApp shortly.'; },
+    fbWABtn:       '💬 Message us on WhatsApp now',
+    fbWAMsg:       function(n){ return 'Hi Zynnos! I visited your website and want to know more.\nName: ' + n; }
+  }
+};
+function t(key){ var s = ZY_STRINGS[ZY_LANG]; return (s && s[key]) || ZY_STRINGS.es[key] || key; }
+
+window.zyToggleLang = function(){
+  ZY_LANG = ZY_LANG === 'es' ? 'en' : 'es';
+  var btn = document.getElementById('zy-lang');
+  btn.textContent = ZY_LANG === 'es' ? 'EN' : 'ES';
+  document.getElementById('zy-input').placeholder   = t('placeholder');
+  document.getElementById('zy-send').textContent    = t('send');
+  document.querySelector('.zy-disclaimer').textContent = t('disclaimer');
+  document.getElementById('zy-status-txt').textContent = t('headStatus');  // ### CAMBIO AQUÍ ###
+};
+
 (function(){
   var API      = 'https://central-gh9z.onrender.com/chat/api'; // ### CAMBIO AQUÍ ###
   var LEAD_URL = 'https://central-gh9z.onrender.com/chat/api/lead';
@@ -1845,10 +1902,9 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
   function enterFallback(){
     fallback = true; fbStep = 0;
     hideTyping();
-    appendMsg('bot',
-      '⚠️ Nuestro asistente está temporalmente ocupado, pero no queremos que te vayas sin respuesta.');
+    appendMsg('bot', t('fbBusy'));  // ### CAMBIO AQUÍ ###
     setTimeout(function(){
-      appendMsg('bot', '¿Cuál es tu nombre?');
+      appendMsg('bot', t('fbAskName'));
       bump();
     }, 600);
   }
@@ -1857,7 +1913,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
     if(fbStep === 0){
       fbNombre = text;
       fbStep = 1;
-      appendMsg('bot', 'Perfecto, ' + fbNombre + '. ¿Y tu número de WhatsApp?');
+      appendMsg('bot', t('fbAskWA')(fbNombre));  // ### CAMBIO AQUÍ ###
     } else if(fbStep === 1){
       fbWA = text;
       fbStep = 2;
@@ -1872,19 +1928,15 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
       .catch(function(){ return {}; })
       .finally(function(){
         setSending(false);
-        appendMsg('bot',
-          '✅ ¡Listo, ' + fbNombre + '! Anotamos tu número. En instantes te contactamos por WhatsApp.');
-        /* Botón de WA para que también ellos puedan escribir */
-        var msg = encodeURIComponent(
-          'Hola Zynnos! Estuve en su web y quiero saber más.\nNombre: ' + fbNombre
-        );
+        appendMsg('bot', t('fbDone')(fbNombre));  // ### CAMBIO AQUÍ ###
+        var msg = encodeURIComponent(t('fbWAMsg')(fbNombre));  // ### CAMBIO AQUÍ ###
         var box = document.getElementById('zy-msgs');
         var btn = document.createElement('a');
         btn.href = 'https://wa.me/' + WA_NUM + '?text=' + msg;
         btn.target = '_blank';
         btn.rel = 'noopener';
         btn.className = 'zy-wa-btn';
-        btn.textContent = '💬 Escribinos por WhatsApp ahora';
+        btn.textContent = t('fbWABtn');  // ### CAMBIO AQUÍ ###
         box.appendChild(btn);
         box.scrollTop = box.scrollHeight;
         bump();
@@ -1969,7 +2021,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
     /* ### CAMBIO AQUÍ ### Mensaje amigable si tarda más de 8s (cold start) */
     var warmMsg = null;
     var warmTimer = setTimeout(function(){
-      warmMsg = appendMsg('bot', '⏳ Un momento, estamos iniciando el asistente…');
+      warmMsg = appendMsg('bot', t('warming'));  // ### CAMBIO AQUÍ ###
     }, 8000);
     fetchWithTimeout(API + '/start', {
       method:'POST',
@@ -1998,7 +2050,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
         // ### CAMBIO AQUÍ ### — saludo automático solo si el usuario NO escribió nada todavía
         if(!pendingMsg){
           setTimeout(function(){
-            appendMsg('bot', '¡Hola! Contame en qué negocio trabajás y qué es lo que más te gustaría mejorar o automatizar.');
+            appendMsg('bot', t('greeting'));  // ### CAMBIO AQUÍ ###
             bump();
           }, 300);
         }
@@ -2012,7 +2064,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
             fetchWithTimeout(API + '/message', {
               method:'POST',
               headers:{'Content-Type':'application/json'},
-              body: JSON.stringify({ conv_id: convId, content: msgToSend })
+              body: JSON.stringify({ conv_id: convId, content: msgToSend, lang: ZY_LANG })  // ### CAMBIO AQUÍ ###
             }, 55000)
             .then(function(r){ return r.json(); })
             .then(function(d){
@@ -2047,7 +2099,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLegal
     fetchWithTimeout(API + '/message', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ conv_id: convId, content: text })
+      body: JSON.stringify({ conv_id: convId, content: text, lang: ZY_LANG })  // ### CAMBIO AQUÍ ###
     }, 55000)
     .then(function(r){ return r.json(); })
     .then(function(d){
