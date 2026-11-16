@@ -149,6 +149,9 @@ nav.on{background:rgba(14,26,19,.95);backdrop-filter:blur(20px);border-color:var
 .nav-btns{display:flex;gap:.6rem;align-items:center}
 .nav-talk{font-size:.72rem;color:var(--fg2);padding:.38rem .9rem;border:1px solid var(--border2);border-radius:100px;transition:color .2s,border-color .2s}
 .nav-talk:hover{color:var(--fg);border-color:var(--fg2)}
+.nav-portal{font-size:.72rem;color:var(--teal);padding:.38rem .9rem;border:1px solid color-mix(in srgb,var(--teal) 40%,transparent);border-radius:100px;transition:color .2s,border-color .2s,background .2s;white-space:nowrap}
+.nav-portal:hover{background:color-mix(in srgb,var(--teal) 10%,transparent);border-color:var(--teal)}
+.mob-portal{font-size:1rem;color:var(--teal);letter-spacing:.04em}
 .nav-cta{font-size:.72rem;font-weight:600;color:#0a1409;background:var(--lime);padding:.42rem 1.1rem;border-radius:100px;transition:background .2s,transform .15s}
 .nav-cta:hover{background:var(--lime-d);transform:translateY(-1px)}
 .ham-btn{display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:none;cursor:pointer;padding:.35rem;z-index:201}
@@ -162,7 +165,7 @@ nav.on{background:rgba(14,26,19,.95);backdrop-filter:blur(20px);border-color:var
 .mob-menu a:hover{color:var(--lime)}
 .mob-menu .mob-cta{margin-top:1rem;padding:.85rem 2rem;border-radius:100px;background:var(--lime);color:#0a1409;font-size:1rem;font-weight:700}
 .mob-menu .mob-cta:hover{background:var(--lime-d);color:#0a1409}
-@media(max-width:720px){.nav-ul{display:none}.nav-talk{display:none}.ham-btn{display:flex}}
+@media(max-width:720px){.nav-ul{display:none}.nav-talk{display:none}.nav-portal{display:none}.ham-btn{display:flex}}
 
 /* ── HERO ── */
 #hero-shell{min-height:100svh;position:relative;display:flex;flex-direction:column;justify-content:center;overflow:hidden}#silk-canvas{display:block}
@@ -609,6 +612,7 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
     <li><a href="#trabajos">Proyectos</a></li>
   </ul>
   <div class="nav-btns">
+    <a href="https://central-gh9z.onrender.com/portal/login" class="nav-portal" target="_blank">Acceso clientes</a>
     <a href="mailto:zynnos.labs@gmail.com" class="nav-talk">Hablar con el equipo →</a>
     <a href="#cta" class="nav-cta">Empezar proyecto →</a>
     <button class="ham-btn" id="ham-btn" aria-label="Abrir menú" onclick="toggleMobMenu()">
@@ -623,6 +627,7 @@ footer{max-width:var(--max);margin:0 auto;padding:2.2rem var(--gap) 1.8rem;displ
   <a href="#servicios" onclick="closeMobMenu()">Servicios</a>
   <a href="#proceso" onclick="closeMobMenu()">Proceso</a>
   <a href="#trabajos" onclick="closeMobMenu()">Proyectos</a>
+  <a href="https://central-gh9z.onrender.com/portal/login" class="mob-portal" target="_blank" onclick="closeMobMenu()">Acceso clientes →</a>
   <a href="#cta" class="mob-cta" onclick="closeMobMenu()">Empezar proyecto →</a>
 </div>
 </header>
