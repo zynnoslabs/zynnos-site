@@ -2214,14 +2214,15 @@ window.zyToggleLang = function(){
 /* ── LOGIN WRAPPER ── */
 .sp-wrap{
   position:relative;z-index:2;
-  min-height:100vh;display:flex;flex-direction:column;
+  min-height:100%;display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  padding:2rem 1.5rem;
+  padding:1.25rem 1.5rem; /* ### CAMBIO AQUÍ ### reducido para que todo entre sin scroll */
+  box-sizing:border-box;
 }
 
 /* ── LOGO AREA ── */
 .sp-logo{
-  margin-bottom:3rem;text-align:center;
+  margin-bottom:1.5rem;text-align:center; /* ### CAMBIO AQUÍ ### era 3rem */
   opacity:0;transform:translateY(-20px);
   transition:opacity .7s ease .3s, transform .7s ease .3s;
 }
@@ -2244,7 +2245,7 @@ window.zyToggleLang = function(){
   background:rgba(255,255,255,.03);
   border:1px solid rgba(125,57,235,.35);
   border-radius:16px;
-  padding:2.5rem 2rem;
+  padding:1.75rem 1.75rem; /* ### CAMBIO AQUÍ ### era 2.5rem 2rem */
   backdrop-filter:blur(20px);
   box-shadow:0 0 60px rgba(125,57,235,.15), inset 0 1px 0 rgba(255,255,255,.06);
   opacity:0;transform:translateY(24px) scale(.97);
@@ -2252,7 +2253,7 @@ window.zyToggleLang = function(){
 }
 #sp.active .sp-box{opacity:1;transform:translateY(0) scale(1)}
 
-.sp-box-header{margin-bottom:2rem;text-align:center}
+.sp-box-header{margin-bottom:1.25rem;text-align:center} /* ### CAMBIO AQUÍ ### era 2rem */
 .sp-box-eyebrow{
   font-size:.65rem;font-weight:600;letter-spacing:.15em;
   color:#7D39EB;margin-bottom:.6rem;
@@ -2268,7 +2269,7 @@ window.zyToggleLang = function(){
 .sp-box-sub{font-size:.8rem;color:rgba(255,255,255,.4)}
 
 /* ── FORM FIELDS ── */
-.sp-field{margin-bottom:1.2rem}
+.sp-field{margin-bottom:.9rem} /* ### CAMBIO AQUÍ ### era 1.2rem */
 .sp-field label{
   display:block;font-size:.7rem;font-weight:600;
   letter-spacing:.08em;color:rgba(255,255,255,.5);margin-bottom:.5rem;
@@ -2328,7 +2329,7 @@ window.zyToggleLang = function(){
 .sp-error.show{display:block}
 
 /* ── BACK LINK ── */
-.sp-back-wrap{margin-top:1.5rem;text-align:center}
+.sp-back-wrap{margin-top:1rem;text-align:center} /* ### CAMBIO AQUÍ ### era 1.5rem */
 #portal-back-btn{
   background:none;border:none;cursor:pointer;
   font-size:.75rem;color:rgba(255,255,255,.3);font-family:inherit;
