@@ -2232,13 +2232,10 @@ window.zyToggleLang = function(){
   font-size:1.5rem;font-weight:700;letter-spacing:-.02em;
   color:#fff;
 }
-.sp-logo-ico{
-  width:40px;height:40px;
-  object-fit:contain;
-  animation:ico-spin 10s linear infinite;
-  filter:drop-shadow(0 0 8px rgba(125,57,235,.7));
+#sp-ico-canvas{
+  width:52px;height:52px;
+  filter:drop-shadow(0 0 10px rgba(125,57,235,.8)) drop-shadow(0 0 18px rgba(198,255,51,.25));
 }
-@keyframes ico-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .sp-logo-label{color:rgba(255,255,255,.45);font-size:.7rem;letter-spacing:.12em;margin-top:.3rem}
 
 /* ── LOGIN BOX ── */
@@ -2369,8 +2366,8 @@ window.zyToggleLang = function(){
   <div class="sp-wrap">
     <div class="sp-logo">
       <div class="sp-logo-mark">
-        <!-- Icosaedro real del BrandKit Zynnos -->
-        <img class="sp-logo-ico" src="ico_neon.png" alt="Zynnos icosaedro" />
+        <!-- Icosaedro WebGL — misma rotación que la web, luces lima+violeta -->
+        <canvas id="sp-ico-canvas" width="40" height="40" style="display:block"></canvas>
         <span>Zynnos</span>
       </div>
       <div class="sp-logo-label">PORTAL DE CLIENTES</div>
@@ -2586,5 +2583,213 @@ document.addEventListener('DOMContentLoaded', function(){
 
 })();
 }); // DOMContentLoaded
+</script>
+
+<script>
+/* =========================================================
+   PORTAL — ICOSAEDRO WebGL logo (misma rotación que hero)
+   Luces: lima #C6FF33 + violeta #7D39EB
+   ### CAMBIO AQUÍ ###
+   ========================================================= */
+(function(){
+  var cv = document.getElementById('sp-ico-canvas');
+  if(!cv) return;
+  var gl = cv.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:false,depth:true});
+  if(!gl){ cv.style.display='none'; return; }
+
+  function sh(type,src){
+    var s=gl.createShader(type);
+    gl.shaderSource(s,src); gl.compileShader(s);
+    if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(s));
+    return s;
+  }
+
+  var VS=`
+    attribute vec3 aPos;
+    attribute vec3 aNor;
+    uniform mat4 uMVP;
+    uniform mat4 uM;
+    uniform mat3 uNM;
+    varying vec3 vPos;
+    varying vec3 vNor;
+    void main(){
+      vec4 wp=uM*vec4(aPos,1.0);
+      vPos=wp.xyz;
+      vNor=normalize(uNM*aNor);
+      gl_Position=uMVP*vec4(aPos,1.0);
+    }
+  `;
+
+  /* Shader con luces lima + violeta */
+  var FS=`
+    precision highp float;
+    varying vec3 vPos;
+    varying vec3 vNor;
+    uniform vec3 uLight;
+    uniform vec3 uCam;
+
+    void main(){
+      vec3 N=normalize(vNor);
+      vec3 L=normalize(uLight-vPos);
+      vec3 V=normalize(uCam-vPos);
+      vec3 H=normalize(L+V);
+
+      /* base negra metálica muy oscura */
+      vec3 base=vec3(0.02,0.01,0.04);
+      vec3 amb=base*0.25;
+
+      float diff=max(dot(N,L),0.0);
+      vec3 dif=base*diff*0.15;
+
+      /* especular violeta intenso */
+      float spec=pow(max(dot(N,H),0.0),180.0);
+      vec3 spc=mix(vec3(0.49,0.22,0.92),vec3(0.85,0.70,1.0),spec)*spec*7.0;
+
+      /* aureola violeta suave */
+      float glow=pow(max(dot(N,H),0.0),10.0);
+      vec3 glw=vec3(0.49,0.22,0.92)*glow*0.60;
+
+      /* rim verde lima en los bordes */
+      float rim=pow(1.0-max(dot(N,V),0.0),2.5);
+      vec3 rimC=vec3(0.78,1.0,0.20)*rim*0.90;
+
+      /* segundo haz de luz lima desde abajo-izquierda */
+      vec3 L2=normalize(vec3(-3.0,-2.0,2.0)-vPos);
+      vec3 H2=normalize(L2+V);
+      float spec2=pow(max(dot(N,H2),0.0),80.0);
+      vec3 spc2=vec3(0.75,1.0,0.18)*spec2*2.5;
+
+      vec3 col=amb+dif+spc+glw+rimC+spc2;
+      col=col/(col+0.55);
+      col=pow(col,vec3(0.88));
+
+      gl_FragColor=vec4(col,0.95+spec*0.05);
+    }
+  `;
+
+  var prog=gl.createProgram();
+  gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));
+  gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  /* Icosaedro — 12 vértices, 20 caras triangulares */
+  var phi=(1+Math.sqrt(5))/2;
+  var rawV=[
+    [-1,phi,0],[1,phi,0],[-1,-phi,0],[1,-phi,0],
+    [0,-1,phi],[0,1,phi],[0,-1,-phi],[0,1,-phi],
+    [phi,0,-1],[phi,0,1],[-phi,0,-1],[-phi,0,1]
+  ];
+  var len=Math.sqrt(1+phi*phi);
+  rawV=rawV.map(function(v){return[v[0]/len,v[1]/len,v[2]/len];});
+  var faces=[
+    [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
+    [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
+    [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
+    [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
+  ];
+
+  var verts=[],norms=[],idxs=[];
+  faces.forEach(function(f,fi){
+    var v0=rawV[f[0]],v1=rawV[f[1]],v2=rawV[f[2]];
+    var ax=v1[0]-v0[0],ay=v1[1]-v0[1],az=v1[2]-v0[2];
+    var bx=v2[0]-v0[0],by=v2[1]-v0[1],bz=v2[2]-v0[2];
+    var nx=ay*bz-az*by,ny=az*bx-ax*bz,nz=ax*by-ay*bx;
+    var nl=Math.sqrt(nx*nx+ny*ny+nz*nz);
+    nx/=nl;ny/=nl;nz/=nl;
+    [v0,v1,v2].forEach(function(v){
+      verts.push(v[0],v[1],v[2]);
+      norms.push(nx,ny,nz);
+    });
+    idxs.push(fi*3,fi*3+1,fi*3+2);
+  });
+
+  var vBuf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,vBuf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(verts),gl.STATIC_DRAW);
+  var nBuf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,nBuf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(norms),gl.STATIC_DRAW);
+  var iBuf=gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,iBuf);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(idxs),gl.STATIC_DRAW);
+
+  var aPos=gl.getAttribLocation(prog,'aPos');
+  var aNor=gl.getAttribLocation(prog,'aNor');
+  var uMVP=gl.getUniformLocation(prog,'uMVP');
+  var uM_=gl.getUniformLocation(prog,'uM');
+  var uNM=gl.getUniformLocation(prog,'uNM');
+  var uLight=gl.getUniformLocation(prog,'uLight');
+  var uCam=gl.getUniformLocation(prog,'uCam');
+
+  function mat4(){return new Float32Array(16);}
+  function ident(m){m[0]=m[5]=m[10]=m[15]=1;m[1]=m[2]=m[3]=m[4]=m[6]=m[7]=m[8]=m[9]=m[11]=m[12]=m[13]=m[14]=0;return m;}
+  function mul(out,a,b){for(var i=0;i<4;i++)for(var j=0;j<4;j++){var s=0;for(var k=0;k<4;k++)s+=a[i+k*4]*b[k+j*4];out[i+j*4]=s;}return out;}
+  function rotY(m,a){var c=Math.cos(a),s=Math.sin(a);ident(m);m[0]=c;m[8]=s;m[2]=-s;m[10]=c;return m;}
+  function rotX(m,a){var c=Math.cos(a),s=Math.sin(a);ident(m);m[5]=c;m[9]=-s;m[6]=s;m[10]=c;return m;}
+  function persp(m,fov,asp,near,far){var f=1/Math.tan(fov/2);ident(m);m[0]=f/asp;m[5]=f;m[10]=(far+near)/(near-far);m[11]=-1;m[14]=(2*far*near)/(near-far);m[15]=0;return m;}
+  function lookAt(m,eye,center,up){
+    var fx=center[0]-eye[0],fy=center[1]-eye[1],fz=center[2]-eye[2];
+    var fl=Math.sqrt(fx*fx+fy*fy+fz*fz);fx/=fl;fy/=fl;fz/=fl;
+    var rx=fy*up[2]-fz*up[1],ry=fz*up[0]-fx*up[2],rz=fx*up[1]-fy*up[0];
+    var rl=Math.sqrt(rx*rx+ry*ry+rz*rz);rx/=rl;ry/=rl;rz/=rl;
+    var ux=ry*fz-rz*fy,uy=rz*fx-rx*fz,uz=rx*fy-ry*fx;
+    m[0]=rx;m[1]=ux;m[2]=-fx;m[3]=0;m[4]=ry;m[5]=uy;m[6]=-fy;m[7]=0;
+    m[8]=rz;m[9]=uz;m[10]=-fz;m[11]=0;
+    m[12]=-(rx*eye[0]+ry*eye[1]+rz*eye[2]);
+    m[13]=-(ux*eye[0]+uy*eye[1]+uz*eye[2]);
+    m[14]=(fx*eye[0]+fy*eye[1]+fz*eye[2]);
+    m[15]=1;return m;
+  }
+  function mat3from4(m){return new Float32Array([m[0],m[1],m[2],m[4],m[5],m[6],m[8],m[9],m[10]]);}
+
+  var S=Math.round(window.devicePixelRatio||1)*52;
+  cv.width=S; cv.height=S;
+  gl.viewport(0,0,S,S);
+
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+
+  var mRY=mat4(),mRX=mat4(),mModel=mat4();
+  var mView=mat4(),mProj=mat4(),mVP=mat4(),mMVP=mat4();
+  var eye=[-0.9,0.2,3.5];
+  var lightPos=[4.0,3.5,3.0];
+  var t0=performance.now();
+
+  function frame(){
+    requestAnimationFrame(frame);
+    var t=(performance.now()-t0)*0.001;
+    gl.clearColor(0,0,0,0);
+    gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+
+    /* misma rotación exacta que el icosaedro del hero */
+    rotX(mRX,-0.4636);
+    rotY(mRY,t*0.50);
+    mul(mModel,mRY,mRX);
+
+    lookAt(mView,eye,[0,0,0],[0,1,0]);
+    persp(mProj,0.78,1.0,0.1,50.0);
+    mul(mVP,mProj,mView);
+    mul(mMVP,mVP,mModel);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER,vBuf);
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ARRAY_BUFFER,nBuf);
+    gl.enableVertexAttribArray(aNor);
+    gl.vertexAttribPointer(aNor,3,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,iBuf);
+
+    gl.uniformMatrix4fv(uMVP,false,mMVP);
+    gl.uniformMatrix4fv(uM_,false,mModel);
+    gl.uniformMatrix3fv(uNM,false,mat3from4(mModel));
+    gl.uniform3fv(uLight,lightPos);
+    gl.uniform3fv(uCam,eye);
+
+    gl.drawElements(gl.TRIANGLES,idxs.length,gl.UNSIGNED_SHORT,0);
+  }
+  frame();
+})();
 </script>
 </body></html>
