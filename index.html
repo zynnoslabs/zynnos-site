@@ -2233,9 +2233,10 @@ window.zyToggleLang = function(){
   color:#fff;
 }
 .sp-logo-ico{
-  width:34px;height:34px;
+  width:40px;height:40px;
+  object-fit:contain;
   animation:ico-spin 10s linear infinite;
-  filter:drop-shadow(0 0 6px rgba(125,57,235,.6));
+  filter:drop-shadow(0 0 8px rgba(125,57,235,.7));
 }
 @keyframes ico-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .sp-logo-label{color:rgba(255,255,255,.45);font-size:.7rem;letter-spacing:.12em;margin-top:.3rem}
@@ -2368,29 +2369,8 @@ window.zyToggleLang = function(){
   <div class="sp-wrap">
     <div class="sp-logo">
       <div class="sp-logo-mark">
-        <!-- Icosaedro SVG (proyección 2D de las 20 caras) -->
-        <svg class="sp-logo-ico" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Caras superiores (violeta claro) -->
-          <polygon points="50,4 72,30 28,30" fill="#9B5FFF" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="50,4 72,30 90,18" fill="#7D39EB" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="50,4 28,30 10,18" fill="#9B5FFF" stroke="#C6FF33" stroke-width="1"/>
-          <!-- Franja media superior -->
-          <polygon points="10,18 28,30 14,52" fill="#6020C8" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="28,30 50,42 14,52" fill="#7D39EB" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="28,30 72,30 50,42" fill="#9B5FFF" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="72,30 86,52 50,42" fill="#7D39EB" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="72,30 90,18 86,52" fill="#6020C8" stroke="#C6FF33" stroke-width="1"/>
-          <!-- Franja media inferior -->
-          <polygon points="14,52 50,42 36,68" fill="#4A108F" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="50,42 86,52 64,68" fill="#6020C8" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="50,42 36,68 64,68" fill="#7D39EB" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="14,52 36,68 10,82" fill="#3A0870" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="86,52 90,82 64,68" fill="#4A108F" stroke="#C6FF33" stroke-width="1"/>
-          <!-- Caras inferiores -->
-          <polygon points="10,82 36,68 50,96" fill="#6020C8" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="36,68 64,68 50,96" fill="#7D39EB" stroke="#C6FF33" stroke-width="1"/>
-          <polygon points="64,68 90,82 50,96" fill="#6020C8" stroke="#C6FF33" stroke-width="1"/>
-        </svg>
+        <!-- Icosaedro real del BrandKit Zynnos -->
+        <img class="sp-logo-ico" src="ico_neon.png" alt="Zynnos icosaedro" />
         <span>Zynnos</span>
       </div>
       <div class="sp-logo-label">PORTAL DE CLIENTES</div>
