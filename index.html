@@ -2223,7 +2223,7 @@ window.zyToggleLang = function(){
 .sp-logo{
   margin-bottom:3rem;text-align:center;
   opacity:0;transform:translateY(-20px);
-  transition:opacity .5s ease, transform .5s ease;
+  transition:opacity .7s ease .3s, transform .7s ease .3s;
 }
 #sp.active .sp-logo{opacity:1;transform:translateY(0)}
 .sp-logo-mark{
@@ -2251,7 +2251,7 @@ window.zyToggleLang = function(){
   backdrop-filter:blur(20px);
   box-shadow:0 0 60px rgba(125,57,235,.15), inset 0 1px 0 rgba(255,255,255,.06);
   opacity:0;transform:translateY(24px) scale(.97);
-  transition:opacity .5s ease .15s, transform .5s ease .15s;
+  transition:opacity .75s cubic-bezier(.2,0,.1,1) .45s, transform .75s cubic-bezier(.2,0,.1,1) .45s;
 }
 #sp.active .sp-box{opacity:1;transform:translateY(0) scale(1)}
 
@@ -2442,29 +2442,29 @@ document.addEventListener('DOMContentLoaded', function(){
     if(gsapReady){
       // 1. Blur + scale sutil en el contenido web
       gsap.to('#main-site-wrap', {
-        scale: 1.03,
-        filter: 'blur(6px)',
-        duration: 0.45,
-        ease: 'power2.in'
+        scale: 1.025,
+        filter: 'blur(8px)',
+        duration: 0.7,
+        ease: 'power1.in'
       });
-      // 2. Iris abre en violeta
+      // 2. Iris abre en violeta — arranque lento, pico suave
       gsap.set(iris, {clipPath:'circle(0% at 50% 50%)', opacity:1});
       gsap.to(iris, {
         clipPath: 'circle(150% at 50% 50%)',
-        duration: 0.65,
-        ease: 'power3.inOut',
-        delay: 0.2,
+        duration: 1.0,
+        ease: 'power2.inOut',
+        delay: 0.25,
         onComplete: function(){
           sp.classList.add('active');
           document.body.style.overflow = 'hidden';
           emailEl.focus();
-          // 3. Portal aparece, iris se retira
-          gsap.to(sp, {opacity:1, duration:0.25, ease:'power2.out'});
+          // 3. Portal aparece con calma, iris se retira despacio
+          gsap.to(sp, {opacity:1, duration:0.45, ease:'power2.out'});
           gsap.to(iris, {
             clipPath: 'circle(0% at 50% 50%)',
-            duration: 0.5,
-            delay: 0.1,
-            ease: 'power3.in',
+            duration: 0.75,
+            delay: 0.15,
+            ease: 'power2.in',
             onComplete: function(){ gsap.set(iris, {opacity:0}); }
           });
         }
@@ -2480,28 +2480,28 @@ document.addEventListener('DOMContentLoaded', function(){
 
   /* ── ### CAMBIO AQUÍ ### IRIS WIPE — salida VIP ── */
   function goToWeb(){
-    if(gsapReady && sp.classList.contains('active')){
+    if(gsapReady && (sp.classList.contains('active') || sd.classList.contains('active'))){
       gsap.set(iris, {clipPath:'circle(0% at 50% 50%)', opacity:1});
       gsap.to(iris, {
         clipPath: 'circle(150% at 50% 50%)',
-        duration: 0.5,
-        ease: 'power3.inOut',
+        duration: 0.85,
+        ease: 'power2.inOut',
         onComplete: function(){
           sp.classList.remove('active');
           sd.classList.remove('active');
           gsap.set(sp, {opacity:0});
           gsap.set(sd, {opacity:0});
           document.body.style.overflow = '';
-          // Web vuelve nítido
+          // Web vuelve nítido suavemente
           gsap.to('#main-site-wrap', {
             scale: 1, filter: 'blur(0px)',
-            duration: 0.4, ease: 'power2.out'
+            duration: 0.65, ease: 'power2.out'
           });
           gsap.to(iris, {
             clipPath: 'circle(0% at 50% 50%)',
-            duration: 0.45,
-            delay: 0.05,
-            ease: 'power3.in',
+            duration: 0.65,
+            delay: 0.1,
+            ease: 'power2.in',
             onComplete: function(){ gsap.set(iris, {opacity:0}); }
           });
         }
